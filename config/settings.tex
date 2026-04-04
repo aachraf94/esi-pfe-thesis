@@ -1,0 +1,101 @@
+% ============================================================
+%  settings.tex — Fonts, spacing, colors, headers, chapter style
+%  Loaded by main.tex via \input{config/settings}
+% ============================================================
+
+% ── Language setup ───────────────────────────────────────────────────────────
+\setmainlanguage{english}
+\setotherlanguage[calendar=gregorian]{arabic}
+\setotherlanguage{french}
+
+% ── Fonts ────────────────────────────────────────────────────────────────────
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Courier New}
+\newfontfamily\arabicfont[Script=Arabic, Scale=1.1]{Arial}
+
+% ── Graphics paths ───────────────────────────────────────────────────────────
+\graphicspath{
+    {assets/logos/}
+    {assets/global-figures/}
+    {mainmatter/part1/chapter1/figures/}
+    {mainmatter/part1/chapter2/figures/}
+    {mainmatter/part2/chapter3/figures/}
+    {mainmatter/part2/chapter4/figures/}
+    {mainmatter/part2/chapter5/figures/}
+}
+
+% ── Colors ───────────────────────────────────────────────────────────────────
+\definecolor{esiblue}{RGB}{0, 84, 166}
+\definecolor{codegray}{RGB}{128, 128, 128}
+\definecolor{codegreen}{RGB}{0, 128, 0}
+\definecolor{codepurple}{RGB}{128, 0, 128}
+\definecolor{backcolour}{RGB}{245, 245, 245}
+
+% ── Line spacing ─────────────────────────────────────────────────────────────
+\onehalfspacing
+
+% ── Code listing style ───────────────────────────────────────────────────────
+\lstdefinestyle{thesis}{
+    backgroundcolor  = \color{backcolour},
+    basicstyle       = \ttfamily\small,
+    keywordstyle     = \color{esiblue}\bfseries,
+    commentstyle     = \color{codegreen}\itshape,
+    stringstyle      = \color{codepurple},
+    numberstyle      = \tiny\color{codegray},
+    breaklines       = true,
+    frame            = single,
+    numbers          = left,
+    numbersep        = 8pt,
+    showstringspaces = false,
+    tabsize          = 2,
+    captionpos       = b,
+}
+\lstset{style=thesis}
+
+% ── Caption style ────────────────────────────────────────────────────────────
+\captionsetup{
+    font       = small,
+    labelfont  = bf,
+    labelsep   = period,
+    justification = centering,
+}
+
+% ── Theorem environments ─────────────────────────────────────────────────────
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{example}{Example}[chapter]
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+
+% ── Chapter title style ──────────────────────────────────────────────────────
+\titleformat{\chapter}[display]
+    {\normalfont\huge\bfseries\color{esiblue}}
+    {\chaptertitlename~\thechapter}
+    {16pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{40pt}
+
+% ── TOC dots for chapters ────────────────────────────────────────────────────
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+
+% ── Headers & footers ────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Plain style (chapter-opening pages)
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[C]{\small\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+}
+
+% ── PDF metadata ─────────────────────────────────────────────────────────────
+\hypersetup{
+    pdftitle    = {Decision Support Information System for Logistics Operations and Cost Analysis},
+    pdfauthor   = {ABDELKEBIR Achraf},
+    pdfsubject  = {Final Year Thesis — ESI 2025/2026},
+    pdfkeywords = {Business Intelligence, Logistics, Data Warehouse, ETL, ESI},
+}

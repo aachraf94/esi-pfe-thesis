@@ -1,0 +1,40 @@
+% ============================================================
+%  commands.tex — Custom commands & shortcuts
+%  Loaded by main.tex via \input{config/commands}
+% ============================================================
+
+% ── Thesis metadata (change once, used everywhere) ───────────────────────────
+\newcommand{\thesisTitle}{Decision Support Information System for Logistics Operations and Cost Analysis}
+\newcommand{\thesisAuthor}{ABDELKEBIR Achraf}
+\newcommand{\thesisSupervisorA}{Mr.\ ABBAS Mohamed Amir}
+\newcommand{\thesisSupervisorB}{Mrs.\ RIHANE Yasmine}
+\newcommand{\thesisYear}{2025/2026}
+\newcommand{\thesisOption}{Information Systems and Technologies (SIT)}
+
+% ── Shorthand for common terms ───────────────────────────────────────────────
+\newcommand{\esi}{ESI}
+\newcommand{\ie}{\textit{i.e.},\ }
+\newcommand{\eg}{\textit{e.g.},\ }
+\newcommand{\etc}{\textit{etc.}}
+
+% ── Figure helper ─────────────────────────────────────────────────────────────
+% Usage: \fig[width]{filename}{caption}{label}
+\newcommand{\fig}[4][0.8\textwidth]{%
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=#1]{#2}
+        \caption{#3}
+        \label{fig:#4}
+    \end{figure}
+}
+
+% ── Unnumbered chapter added to TOC ──────────────────────────────────────────
+% Usage: \uchapter{Title}
+\newcommand{\uchapter}[1]{%
+    \chapter*{#1}
+    \addcontentsline{toc}{chapter}{#1}
+    \markboth{#1}{#1}
+}
+
+% ── TODO marker (visible in draft, invisible in final) ────────────────────────
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}

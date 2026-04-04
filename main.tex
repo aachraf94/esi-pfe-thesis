@@ -1,0 +1,56 @@
+% ============================================================
+%  ESI Final Year Thesis — Master File
+%  Engine : XeLaTeX  (required for Arabic & font support)
+%  Build  : latexmk  (reads .latexmkrc automatically)
+%  Manual : xelatex main && biber build/main && xelatex main && xelatex main
+% ============================================================
+\documentclass[12pt, a4paper, oneside]{report}
+
+% ── Configuration (packages → settings → commands) ───────────────────────────
+\input{config/packages}
+\input{config/settings}
+\input{config/commands}
+
+% ============================================================
+\begin{document}
+
+% ── Front matter (roman page numbers) ────────────────────────────────────────
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\include{frontmatter/cover}
+\include{frontmatter/dedication}
+\include{frontmatter/acknowledgements}
+\include{frontmatter/abstract_en}
+\include{frontmatter/abstract_fr}
+\include{frontmatter/abstract_ar}
+
+\tableofcontents
+\listoffigures
+\listoftables
+\include{frontmatter/abbreviations}
+
+% ── Main matter (arabic page numbers) ────────────────────────────────────────
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\include{mainmatter/introduction}
+
+% ─── Part I — State of the Art ───────────────────────────────────────────────
+\part{State of the Art}
+\input{mainmatter/part1/part1}
+
+% ─── Part II — Contribution ──────────────────────────────────────────────────
+\part{Contribution}
+\input{mainmatter/part2/part2}
+
+\include{mainmatter/conclusion}
+
+% ── Back matter ──────────────────────────────────────────────────────────────
+\printbibliography[heading=bibintoc, title={Bibliography}]
+
+\appendix
+\include{backmatter/annexes/annexe_a}
+\include{backmatter/annexes/annexe_b}
+
+\end{document}

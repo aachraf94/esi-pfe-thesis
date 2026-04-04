@@ -1,0 +1,71 @@
+% ============================================================
+%  packages.tex — All \usepackage{} declarations
+%  Loaded by main.tex via \input{config/packages}
+% ============================================================
+
+% ── Engine guard ─────────────────────────────────────────────────────────────
+\usepackage{iftex}
+\RequireXeTeX
+
+% ── Language & fonts (XeLaTeX required) ──────────────────────────────────────
+\usepackage{fontspec}
+\usepackage{polyglossia}
+
+% ── Page layout ──────────────────────────────────────────────────────────────
+\usepackage[a4paper,
+            top    = 3cm,
+            bottom = 3cm,
+            left   = 3cm,
+            right  = 2.5cm]{geometry}
+
+% ── Graphics & floats ────────────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{wrapfig}
+
+% ── Tables ───────────────────────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{makecell}
+
+% ── Math ─────────────────────────────────────────────────────────────────────
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% ── Code listings ────────────────────────────────────────────────────────────
+\usepackage{listings}
+\usepackage{xcolor}
+
+% ── Typography ───────────────────────────────────────────────────────────────
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{emptypage}      % suppress headers/footers on blank pages
+
+% ── Headers & footers ────────────────────────────────────────────────────────
+\usepackage{fancyhdr}
+
+% ── Chapter / section titles ─────────────────────────────────────────────────
+\usepackage{titlesec}
+
+% ── TOC / LOF / LOT ──────────────────────────────────────────────────────────
+\usepackage{tocloft}
+
+% ── Abbreviations ────────────────────────────────────────────────────────────
+\usepackage{acronym}
+
+% ── Bibliography (load before hyperref) ──────────────────────────────────────
+\usepackage{csquotes}
+\usepackage[backend=biber, style=ieee, sorting=none]{biblatex}
+\addbibresource{references.bib}
+
+% ── Hyperlinks (always load last) ────────────────────────────────────────────
+\usepackage[hidelinks]{hyperref}
+\usepackage{bookmark}

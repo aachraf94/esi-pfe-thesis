@@ -1,0 +1,33 @@
+# LaTeX build artefacts
+build/
+!build/.gitkeep
+
+# Final PDF output (comment out to track the PDF in git)
+out/
+!out/.gitkeep
+
+# Common LaTeX temp files (if they land in root)
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+
+# Editor / OS files
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Claude/AI generated files
+.claude/
