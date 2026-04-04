@@ -2,65 +2,66 @@
     \centering
     \setlength{\parskip}{0pt}
 
-    % ── Top bilingual header ─────────────────────────────────────────────────
+    % Top bilingual header
     {\small République Algérienne Démocratique et Populaire}\\[2pt]
     {\small\textarabic{الجمهورية الجزائرية الديمقراطية الشعبية}}\\[4pt]
     {\small Ministère de l'Enseignement Supérieur et de la Recherche Scientifique}\\[2pt]
     {\small\textarabic{وزارة التعليم العالي و البحث العلمي}}
 
     \vspace{0.3cm}
-    \hrule height 0.6pt
+    \rule{\linewidth}{0.3mm}
+    \vspace{0.4cm}
+
+    % Logo + School info (two columns)
+    \begin{minipage}[c]{5cm}
+        \centering
+        \includegraphics[width=5cm]{esi_logo.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{10cm}
+        \begin{flushright}
+            {\small\textarabic{المدرسة الوطنية العليا للإعلام الآلي}}\\[2pt]
+            {\small\textarabic{(المعهد الوطني للتكوين في الإعلام الآلي سابقاً)}}\\[4pt]
+            {\small École nationale Supérieure d'Informatique}\\[2pt]
+            {\footnotesize ex.\ INI (Institut National de formation en Informatique)}
+        \end{flushright}
+    \end{minipage}
+
+    \vspace{1cm}
+
+    % Degree info
+    {\Large\bfseries Final Year Thesis}\\[6pt]
+    {\large For obtaining the State Engineer Diploma in Computer Science}\\[4pt]
+    {\large\bfseries Option: \thesisOption}
+
+    \rule{\linewidth}{0.3mm}\\[0.4cm]
+
+    % Title
+    {\huge\bfseries \thesisTitle}
+
+    \rule{\linewidth}{0.3mm}\\[1cm]
+
     \vspace{0.5cm}
 
-    % ── Logo + School info (two columns) ────────────────────────────────────
-    \begin{minipage}[c]{0.45\textwidth}
-        \raggedright
-        \includegraphics[width=3.5cm]{esi_logo.png}
+    % Author / Supervisors
+    \noindent
+    \begin{minipage}[t]{0.5\textwidth}
+        \begin{flushleft}\large
+            \emph{Realised by:}\\[6pt]
+            Mr.\ \textsc{Abdelkebir} Achraf
+        \end{flushleft}
     \end{minipage}
-    \hfill
-    \begin{minipage}[c]{0.45\textwidth}
-        \raggedleft
-        {\small\textarabic{المدرسة الوطنية العليا للإعلام الآلي}}\\[2pt]
-        {\small\textarabic{(المعهد الوطني للتكوين في الإعلام الآلي سابقاً)}}\\[4pt]
-        {\small École nationale Supérieure d'Informatique}\\[2pt]
-        {\footnotesize ex.\ INI (Institut National de formation en Informatique)}
-    \end{minipage}
-
-    \vspace{0.9cm}
-
-    % ── Degree info ──────────────────────────────────────────────────────────
-    {\large\bfseries Final Year Thesis}\\[6pt]
-    {\normalsize For obtaining the State Engineer Diploma in Computer Science}\\[4pt]
-    {\normalsize\bfseries Option: \thesisOption}
-
-    \vspace{0.6cm}
-    \hrule height 0.6pt
-    \vspace{0.8cm}
-
-    % ── Title ────────────────────────────────────────────────────────────────
-    {\Large\bfseries \thesisTitle}
-
-    \vspace{0.8cm}
-    \hrule height 0.6pt
-    \vspace{1.4cm}
-
-    % ── Author / Supervisors ─────────────────────────────────────────────────
-    \begin{minipage}[t]{0.45\textwidth}
-        \raggedright
-        {\itshape Realised by:}\\[8pt]
-        Mr.\ \thesisAuthor
-    \end{minipage}
-    \hfill
-    \begin{minipage}[t]{0.45\textwidth}
-        \raggedleft
-        {\itshape Supervised by:}\\[8pt]
-        \thesisSupervisorA\ (ESI)\\[2pt]
-        \thesisSupervisorB\ (Ourquilane)
+    \begin{minipage}[t]{0.49\textwidth}
+        \begin{flushleft}\large
+            \emph{Supervised by:}\\[6pt]
+            \thesisSupervisorA\ (ESI)\\[2pt]
+            \thesisSupervisorB\ (Ourquilane)
+        \end{flushleft}
     \end{minipage}
 
     \vfill
 
-    % ── Academic year ────────────────────────────────────────────────────────
-    {\normalsize Academic year: \textbf{\thesisYear}}
+    % Academic year
+    {\large Promotion: \textbf{\thesisYear}}
 
 \end{titlepage}
