@@ -26,11 +26,10 @@
 }
 
 % ── Colors ───────────────────────────────────────────────────────────────────
+% esiblue kept for logos/figures only — do NOT use in text or headings
 \definecolor{esiblue}{RGB}{0, 84, 166}
-\definecolor{codegray}{RGB}{128, 128, 128}
-\definecolor{codegreen}{RGB}{0, 128, 0}
-\definecolor{codepurple}{RGB}{128, 0, 128}
-\definecolor{backcolour}{RGB}{245, 245, 245}
+\definecolor{codegray}{RGB}{160, 160, 160}   % line numbers only
+\definecolor{backcolour}{RGB}{248, 248, 248}  % subtle code background
 
 % ── Line spacing ─────────────────────────────────────────────────────────────
 \onehalfspacing
@@ -39,9 +38,9 @@
 \lstdefinestyle{thesis}{
     backgroundcolor  = \color{backcolour},
     basicstyle       = \ttfamily\small,
-    keywordstyle     = \color{esiblue}\bfseries,
-    commentstyle     = \color{codegreen}\itshape,
-    stringstyle      = \color{codepurple},
+    keywordstyle     = \bfseries,
+    commentstyle     = \itshape,
+    stringstyle      = \normalfont\ttfamily,
     numberstyle      = \tiny\color{codegray},
     breaklines       = true,
     frame            = single,
@@ -70,7 +69,7 @@
 
 % ── Chapter title style ──────────────────────────────────────────────────────
 \titleformat{\chapter}[display]
-    {\normalfont\huge\bfseries\color{esiblue}}
+    {\normalfont\huge\bfseries}
     {\chaptertitlename~\thechapter}
     {16pt}{\Huge}
 \titlespacing*{\chapter}{0pt}{-20pt}{40pt}
