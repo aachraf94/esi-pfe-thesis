@@ -36,7 +36,13 @@
 
 % ── Paragraph style ──────────────────────────────────────────────────────────
 \setlength{\parindent}{1.5em}   % standard academic indent
-\setlength{\parskip}{0pt}       % no extra space between paragraphs
+\setlength{\parskip}{4pt}       % subtle breathing space between paragraphs
+
+% Force first-paragraph indent after ALL headings (works with titlesec + indentfirst).
+% Makes \@afterindentfalse behave like \@afterindenttrue globally.
+\makeatletter
+\let\@afterindentfalse\@afterindenttrue
+\makeatother
 
 % ── Code listing style ───────────────────────────────────────────────────────
 \lstdefinestyle{thesis}{
@@ -71,12 +77,17 @@
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[chapter]
 
-% ── Chapter title style ──────────────────────────────────────────────────────
+% ── Chapter / section title style ────────────────────────────────────────────
+% Non-starred \titlespacing preserves first-paragraph indentation.
 \titleformat{\chapter}[display]
     {\normalfont\huge\bfseries}
     {\chaptertitlename~\thechapter}
     {16pt}{\Huge}
-\titlespacing*{\chapter}{0pt}{-20pt}{40pt}
+\titlespacing{\chapter}{0pt}{-20pt}{40pt}
+
+\titlespacing{\section}{0pt}{1.5ex plus .5ex minus .2ex}{.5ex plus .1ex}
+\titlespacing{\subsection}{0pt}{1.2ex plus .4ex minus .2ex}{.4ex plus .1ex}
+\titlespacing{\subsubsection}{0pt}{1ex plus .3ex minus .1ex}{.3ex plus .1ex}
 
 % ── TOC dots for chapters ────────────────────────────────────────────────────
 \renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
