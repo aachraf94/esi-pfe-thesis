@@ -1,18 +1,123 @@
 % ── General Introduction ─────────────────────────────────────────────────────
 \uchapter{General Introduction}
 
-\section*{Context and Motivation}
-\addcontentsline{toc}{section}{Context and Motivation}
-% TODO
+\section*{Context}
+\addcontentsline{toc}{section}{Context}
 
+The logistics industry stands at a decisive turning point. As global supply chains grow more
+intricate and competitive pressures intensify, the ability to transform raw operational data
+into timely, actionable insights has shifted from a competitive advantage into an operational
+necessity. Each day, millions of data records are generated across supply chains from multiple
+systems, and the proliferation of digital technologies, IoT devices, and advanced tracking
+systems have compounded the challenge of data management~\cite{kpmg2024}.
+
+Yet despite this data abundance, many organizations remain analytically blind --- unable to
+convert their own information into decisions that drive profitability. The numbers paint a
+sobering picture. Research shows that approximately 89\% of organizations struggle with data
+integration, and 61\% of companies find that their rapidly growing data volumes limit their
+ability to fully exploit their datasets~\cite{enveyo2025}. More strikingly, only 7\% of
+supply chains currently possess the capability to access live data, analyze it, and enable
+rapid decisions~\cite{enveyo2025} --- leaving the vast majority of logistics operators
+reacting to problems rather than anticipating them. Meanwhile, companies that have embraced
+Business Intelligence and advanced analytics report slashing supply chain costs by up to 10\%
+and reducing inventory by as much as 25\%~\cite{intelligentaudit2024}, illustrating the
+transformative potential that remains largely untapped.
+
+This challenge is particularly acute in emerging markets. Algeria's logistics sector operates
+in a context of rapid digital transformation and surging e-commerce activity. The number of
+registered e-commerce businesses in Algeria has grown at an average annual rate of 92\% since
+2020, while online payment transactions for goods and services tripled between 2020 and
+2024~\cite{unctad2025}. Revenue in Algeria's e-commerce market is projected to reach
+USD~1.50~billion in 2025~\cite{statista2025}, placing mounting pressure on logistics providers
+to scale their operations intelligently and cost-efficiently. Yet, fragmented distribution
+systems and limited use of technology in the distribution and logistics sector result in
+inefficiency and unreliability --- a structural bottleneck that hampers the sector's ability
+to keep pace with demand.
+
+It is within this dual context --- global data complexity and local market dynamism --- that
+the present project takes shape. Most supply chain technology environments remain fragmented,
+with ERP, TMS, WMS, and planning systems operating on different data models, update cycles,
+and integration patterns. Even when each system performs as intended, the combined environment
+often responds slowly because coordination across systems is limited~\cite{logisticsviewpoints2026}.
+The consequence is clear: decisions are delayed, duplicated, or suboptimal --- a reality that
+erodes both operational efficiency and financial performance.
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section*{Problem Statement}
 \addcontentsline{toc}{section}{Problem Statement}
-% TODO
 
+In response to this landscape, the company Ourquilane --- a digital services provider based
+in Algiers --- has undertaken to equip its key partner, Yalidine Express, one of Algeria's
+leading logistics operators, with a state-of-the-art Business Intelligence system aligned
+with international standards. Operating a vast multi-site logistics network, Yalidine Express
+generates massive volumes of heterogeneous data on a daily basis: transport requests, delivery
+costs, parcel tracking records, route performance metrics, and pricing data. This information
+is currently dispersed across multiple disconnected systems, making consolidated analysis
+cumbersome, slow, and heavily reliant on manual effort.
+
+The central challenge lies not in the absence of data, but in its fragmentation and
+inaccessibility. Decision-makers are unable to rapidly assess the profitability of operations,
+detect financial deviations before they escalate, or evaluate the efficiency of delivery
+routes without labor-intensive data extraction processes. In a market where e-commerce volumes
+are growing exponentially and logistics margins are under constant pressure, this analytical
+gap represents a serious strategic vulnerability. The fundamental question driving this project
+is therefore:
+
+\begin{quote}
+    \itshape
+    How can a unified, automated, and scalable Business Intelligence architecture transform
+    fragmented logistics data into a reliable foundation for proactive, cost-aware
+    decision-making?
+\end{quote}
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section*{Objectives}
 \addcontentsline{toc}{section}{Objectives}
-% TODO
 
+To address this challenge, this thesis proposes the design and deployment of a comprehensive
+and evolvable Business Intelligence system built around three core technical pillars. First,
+a centralized Data Warehouse, consolidating data from Yalidine's internal systems and external
+APIs into a single, coherent analytical repository. Second, an automated ETL pipeline ensuring
+the reliable, repeatable, and high-quality flow of data from heterogeneous sources into the
+warehouse. Third, an interactive dashboard and proactive alerting layer, translating stored
+data into visual, real-time decision support tools for logistics managers.
+
+These technical components serve three hierarchically prioritized business domains. The
+primary axis --- classified as \textit{Must Have} --- focuses on transport demand analysis:
+evaluating expressed demands, assessing associated costs, and supporting pricing decisions to
+measure operational profitability. The secondary axis --- \textit{Should Have} --- addresses
+Parcel Cost Control (CCC), encompassing granular cost tracking per shipment, pricing support,
+and detection of profitability deviations. The tertiary axis --- \textit{Could Have} ---
+explores advanced route analysis through the integration of optimization solvers, enabling
+comparison between real and optimized delivery tours and their visualization through maps and
+comparative KPI tables.
+
+To achieve these objectives, the work follows a rigorous methodology: an in-depth
+bibliographic study to master BI and dimensional modeling concepts; an analysis of the
+existing data landscape at Yalidine Express; a structured needs analysis using the MoSCoW
+prioritization method; architectural design of the Data Warehouse schema and ETL flows;
+development and testing of dashboards and alerting modules against real data; and, finally,
+full system deployment delivering an operational, production-ready decision support solution.
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section*{Thesis Structure}
 \addcontentsline{toc}{section}{Thesis Structure}
-% TODO
+
+This thesis is organized into two main parts, framed by a general introduction and a general
+conclusion.
+
+\textbf{Part~I --- State of the Art} establishes the theoretical and technological foundations
+of the work. Chapter~1 surveys the field of Business Intelligence, covering dimensional
+modeling, Data Warehouse architectures, and ETL design principles. Chapter~2 examines the
+logistics domain, presenting key concepts in supply chain management, transport cost analysis,
+and the current state of analytical tools in the logistics sector.
+
+\textbf{Part~II --- Contribution} presents the practical realization of the system.
+Chapter~3 details the requirements analysis and system design, including the MoSCoW
+prioritization, the data source inventory, and the dimensional schema of the Data Warehouse.
+Chapter~4 describes the implementation of the ETL pipeline and the data integration
+architecture. Chapter~5 presents the interactive dashboards and the proactive alerting
+mechanism, illustrating their application to each of the three business domains.
+
+The thesis closes with a general conclusion summarizing the contributions, discussing
+limitations, and outlining directions for future work.
