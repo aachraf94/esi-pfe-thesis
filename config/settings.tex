@@ -30,6 +30,8 @@
 \definecolor{esiblue}{RGB}{0, 84, 166}
 \definecolor{codegray}{RGB}{160, 160, 160}   % line numbers only
 \definecolor{backcolour}{RGB}{248, 248, 248}  % subtle code background
+\definecolor{tblheader}{RGB}{45, 62, 72}     % slate charcoal — table header background
+\definecolor{tblrowalt}{RGB}{244, 245, 248}  % near-white blue-gray — alternating rows
 
 % ── Line spacing ─────────────────────────────────────────────────────────────
 \onehalfspacing
@@ -63,12 +65,16 @@
 \lstset{style=thesis}
 
 % ── Caption style ────────────────────────────────────────────────────────────
+% Custom label format produces "Table 1.1 ---" so captions need no manual prefix.
+\DeclareCaptionLabelFormat{thesisdash}{#1~#2~---}
 \captionsetup{
     font       = small,
     labelfont  = bf,
-    labelsep   = period,
+    labelsep   = space,
     justification = centering,
 }
+\captionsetup[table]{labelformat=thesisdash}
+\captionsetup[figure]{labelformat=thesisdash}
 
 % ── Theorem environments ─────────────────────────────────────────────────────
 \theoremstyle{definition}
@@ -84,6 +90,7 @@
     {\chaptertitlename~\thechapter}
     {16pt}{\Huge}
 \titlespacing{\chapter}{0pt}{-20pt}{40pt}
+\assignpagestyle{\chapter}{plain}
 
 \titlespacing{\section}{0pt}{1.5ex plus .5ex minus .2ex}{.5ex plus .1ex}
 \titlespacing{\subsection}{0pt}{1.2ex plus .4ex minus .2ex}{.4ex plus .1ex}
