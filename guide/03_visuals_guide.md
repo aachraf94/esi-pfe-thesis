@@ -12,7 +12,8 @@ comment so it is trackable:
 
 ### `[VISUAL-IMPLEMENT]` — generate it now (DEFAULT, prefer this)
 Claude produces real LaTeX output immediately. Use for:
-- **All tables** → real `booktabs` (`\toprule \midrule \bottomrule`, no vertical rules).
+- **All tables** → the project grid style (see §3): `tabularx` with vertical rules, a coloured
+  `tblheader` header row, and `\rowcolors` striping.
 - **Diagrams drawable in TikZ** → architecture layers, ETL flow, star/constellation schema fragments,
   layered warehouse stack, SCD-Type-2 illustration, alerting flow, deployment topology, DIKW pyramid,
   BI value chain, parcel lifecycle, use-case diagram, reading map.
@@ -66,10 +67,33 @@ Usage:
 ## 3. Figure & table rules (mandatory)
 - Every figure/table needs: a `\caption`, a `\label`, and **at least one in-text reference**
   ("Figure 4.2 shows..."). A floating figure no sentence points to is a defect.
-- Tables: `booktabs` only; no vertical rules; keep them narrow enough to fit the text width.
-- Diagrams: `tikz` (+ `positioning`); charts: `pgfplots`.
+- **Tables — use the project grid style** (matches `To-copy/chapter1.tex`; colours `tblheader`,
+  `tblrowalt`, `tblstruct`, `tblanal` are defined in `config/settings.tex`). Full-width `tabularx`,
+  vertical rules between columns, `\hline` only at the top / under the header / at the bottom, a
+  coloured `tblheader` header row in white bold, and automatic `\rowcolors` striping — do **not**
+  hand-colour data rows. Template:
+  ```latex
+  \begin{table}[H]
+  \centering
+  \renewcommand{\arraystretch}{1.35}
+  \rowcolors{2}{white}{tblrowalt}
+  \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+  \hline
+  \rowcolor{tblheader}
+  \textcolor{white}{\textbf{Col A}} & \textcolor{white}{\textbf{Col B}} & \textcolor{white}{\textbf{Col C}} \\
+  \hline
+  row & ... & ... \\
+  \hline
+  \end{tabularx}
+  \caption{...}\label{tab:...}
+  \end{table}
+  ```
+  For grouped/sectioned tables, shade sections with `tblstruct` / `tblanal` + `\multirow` instead of
+  striping (see the C1 table in `To-copy/chapter1.tex`).
+- Diagrams: `tikz` (+ `positioning`, `arrows.meta`); charts: `pgfplots`.
 - Caption style: short, descriptive, sentence case. Number by chapter (LaTeX default).
-- Keep figures near their first reference; use `[htbp]`.
+- Keep each visual near its first reference; use `[H]` (the established convention) and fall back to
+  `[htbp]` only if a float breaks the page.
 - **Density target:** ~1 visual per 1.5–2 pages. If a section has 3+ paragraphs and no visual, ask
   whether a table or diagram would serve better (§0.2).
 
