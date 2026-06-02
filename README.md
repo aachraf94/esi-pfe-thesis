@@ -113,7 +113,7 @@ style rules. **Read these before editing any chapter** (recommended order: `00` 
 | File | Purpose |
 |---|---|
 | `guide/00_README_pfe_guide.md` | Master / global rules: language, readability, corrected scope, references (APA), page budget, LaTeX hygiene, writing order, do-not list |
-| `guide/01_state-of-the-art_guide.md` | Part I — Chapter 1 (Data-Driven Decision Making) and Chapter 2 (Logistics) |
+| `guide/01_state-of-the-art_guide.md` | Part I — Chapter 1 (Data-Driven Decision Making) and Chapter 2 (Logistics in the Data Age) |
 | `guide/02_contribution_guide.md` | Part II — Chapters 3–6, General Introduction, General Conclusion, appendices |
 | `guide/03_visuals_guide.md` | Visual system (the three visual modes), the `\visualplaceholder` macro, figure rules, figures checklist |
 | `guide/thesis-technical-recap.md` | High-level technical recap of the built solution — source of truth for Part II |
@@ -167,7 +167,7 @@ esi-pfe-thesis/
 │   │   │   ├── chapter1.tex    # Chapter 1: Data-Driven Decision Making
 │   │   │   └── figures/
 │   │   └── chapter2/
-│   │       ├── chapter2.tex    # Chapter 2: Logistics
+│   │       ├── chapter2.tex    # Chapter 2: Logistics in the Data Age
 │   │       └── figures/
 │   │
 │   ├── part2/                  # Part II — Contribution
@@ -210,7 +210,7 @@ General Introduction
 ─────────────────────────────────────────────────────────────────
 Part I — State of the Art
   Chapter 1: Data-Driven Decision Making
-  Chapter 2: Logistics
+  Chapter 2: Logistics in the Data Age
 ─────────────────────────────────────────────────────────────────
 Part II — Contribution
   Chapter 3: Analysis of the Existing System & Methodology

@@ -1,24 +1,299 @@
-% ── Chapter 2: Logistics ─────────────────────────────────────────────────────
-% TODO: refine chapter title later
-\chapter{Logistics and Supply Chain Management}
+% ── Chapter 2: Logistics in the Data Age ─────────────────────────────────────
+\chapter{Logistics in the Data Age}
 
-\section{Introduction}
-% TODO
+% ─────────────────────────────────────────────────────────────────────────────
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
 
-\section{Logistics Operations}
-% TODO
+Chapter~1 established Business Intelligence as the technical means of data-driven decision support.
+This chapter grounds that capability in the domain the platform serves: \textbf{logistics}. Logistics
+is a vast, data-rich, and thin-margin domain in which decisions must be made continuously and under
+pressure --- which makes it a natural setting for Business Intelligence. The chapter proceeds from the
+general to the specific:
 
-\subsection{Transport Management}
-% TODO
+\begin{itemize}[noitemsep]
+    \item \textbf{The logistics landscape} (\S\ref{sec:ch2-landscape}) --- what logistics is, its
+          strategic weight, and the data-age pressures reshaping it.
+    \item \textbf{How logistics operates} (\S\ref{sec:ch2-operates}) --- the two complementary
+          operating models through which goods actually move.
+    \item \textbf{The economics of logistics} (\S\ref{sec:ch2-economics}) --- cost, profitability, and
+          performance, the three lenses through which any logistics activity is read.
+    \item \textbf{Business Intelligence in logistics} (\S\ref{sec:ch2-bi}) --- why the domain suits BI,
+          and the integration gap this thesis sets out to close.
+\end{itemize}
 
-\subsection{Cost Structures in Logistics}
-% TODO
+% ═════════════════════════════════════════════════════════════════════════════
+\section{The Logistics Landscape}
+\label{sec:ch2-landscape}
 
-\section{Information Systems in Logistics}
-% TODO
+Logistics is the part of supply-chain management that plans, implements, and controls the movement and
+storage of goods from point of origin to point of consumption \parencite{christopher2016}. More than
+the physical movement of goods, it is the coordinated management of \textbf{three parallel flows} that
+run through every supply chain (Figure~\ref{fig:ch2-three-flows}): a \emph{physical} flow of goods
+downstream, an \emph{informational} flow of orders and tracking data, and a \emph{financial} flow of
+payments \parencite{chopra2019}.
 
-\section{Existing Solutions — Comparative Study}
-% TODO
+% [VISUAL-IMPLEMENT] the three logistics flows
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\small,
+  stage/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct,
+                text width=20mm, align=center, minimum height=11mm}]
+  \node[stage] (s) {Suppliers};
+  \node[stage, right=16mm of s] (h) {Hubs \&\\ warehouses};
+  \node[stage, right=16mm of h] (d) {Distribution\\ \& last mile};
+  \node[stage, right=16mm of d] (c) {Customers};
+  \foreach \a/\b in {s/h, h/d, d/c}
+    \draw[-{Stealth[length=2.6mm]}, very thick, esiblue] (\a) -- (\b);
+  \draw[-{Stealth[length=2.6mm]}, thick, dashed]
+    ([yshift=10mm]c.north) -- ([yshift=10mm]s.north)
+    node[midway, above, font=\footnotesize] {Information flow --- orders, tracking, status};
+  \draw[-{Stealth[length=2.6mm]}, thick, densely dotted]
+    ([yshift=-10mm]c.south) -- ([yshift=-10mm]s.south)
+    node[midway, below, font=\footnotesize] {Financial flow --- payments};
+  \node[esiblue, font=\footnotesize] at ($(s.north)!0.5!(c.north)+(0,5mm)$) {Physical flow --- goods};
+\end{tikzpicture}
+\caption{Logistics as the coordination of three flows --- physical, informational, and financial ---
+along the supply chain.}
+\label{fig:ch2-three-flows}
+\end{figure}
 
-\section{Summary}
-% TODO
+Operationally, logistics rests on a small set of core functions: \textbf{transport}, \textbf{warehousing
+and handling}, \textbf{distribution}, and the final \textbf{last-mile} delivery to the customer. Far
+from a back-office cost centre, logistics is a recognised source of competitive advantage: it accounts
+for a substantial share of product cost, and superior logistics translates directly into service
+quality and margin \parencite{christopher2016}.
+
+\paragraph{The data-age pressures.}
+Three forces have turned logistics into a data-intensive discipline:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{The e-commerce surge} --- explosive growth in parcel volumes, especially in emerging
+          markets, raises both scale and customer expectations for speed and real-time visibility
+          \parencite{unctad2025, statista2025}.
+    \item \textbf{Digitalisation (Industry 4.0)} --- connected vehicles, IoT tracking, and warehouse
+          automation generate continuous streams of operational data \parencite{hofmann2017}.
+    \item \textbf{The resulting data deluge} --- the volume of data now generated across supply chains
+          far outstrips the capacity to exploit it, and that data remains scattered across
+          poorly-integrated systems \parencite{kpmg2024, logisticsviewpoints2026}.
+\end{itemize}
+
+\noindent These pressures set up the central tension of the domain: logistics generates more data than
+ever, yet struggles to turn it into decisions --- the very gap Business Intelligence addresses.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{How Logistics Operates}
+\label{sec:ch2-operates}
+
+Goods move through two complementary \textbf{operating models} that differ in granularity, network
+shape, and economics. A modern logistics operator typically runs both, on shared infrastructure but
+with very different cost and service profiles.
+
+\subsection{Networked Parcel Distribution and the Last Mile}
+
+The first model handles a high volume of small, individual shipments through a \textbf{hub-and-spoke}
+network: parcels are consolidated at hubs, line-hauled between regions, then fanned out for
+\textbf{last-mile} delivery --- the final, most expensive and least predictable leg to the recipient's
+door \parencite{christopher2016}. Each parcel follows a lifecycle of discrete states, from creation to
+final resolution (Figure~\ref{fig:ch2-parcel-lifecycle}).
+
+% [VISUAL-IMPLEMENT] parcel lifecycle state flow
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, node distance=8mm and 11mm,
+  st/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct,
+             align=center, text width=16mm, minimum height=9mm},
+  term/.style={rectangle, rounded corners, draw=black!55, thick, fill=tblanal,
+               align=center, text width=16mm, minimum height=9mm},
+  a/.style={-{Stealth[length=2.3mm]}, thick}]
+  \node[st] (cr) {Created};
+  \node[st, right=of cr] (co) {Collected\\(pickup)};
+  \node[st, right=of co] (tr) {In transit};
+  \node[st, right=of tr] (of) {Out for\\delivery};
+  \node[term, right=of of] (de) {Delivered};
+  \node[term, below=10mm of of] (re) {Returned};
+  \foreach \x/\y in {cr/co, co/tr, tr/of, of/de} \draw[a] (\x) -- (\y);
+  \draw[a] (of) -- (re) node[midway, right, font=\scriptsize] {failed attempts};
+  \draw[a, dashed] (of) to[bend left=38] node[above, font=\scriptsize] {re-attempt} (tr);
+\end{tikzpicture}
+\caption{The parcel lifecycle: discrete states from creation to final resolution (delivered or
+returned), with re-attempts on failed delivery.}
+\label{fig:ch2-parcel-lifecycle}
+\end{figure}
+
+This model is monitored through a characteristic set of operational indicators: the
+\textbf{delivery success rate}, \textbf{delays}, the \textbf{number of attempts} per parcel, and the
+\textbf{return rate}. Because volumes are large and margins per parcel are thin, small percentage
+movements in these indicators have a significant aggregate effect.
+
+\subsection{Dedicated and On-Demand Freight Transport}
+
+The second model is \textbf{dedicated} (business-to-business) transport: rather than sharing a parcel
+network, a customer commissions dedicated capacity for a specific need. It is lower in volume but higher
+in value per movement, and its economics are driven by vehicles, distance, and time rather than by
+per-parcel handling \parencite{chopra2019}. Several on-demand service models coexist
+(Table~\ref{tab:ch2-transport-services}), each with distinct cost drivers.
+
+% [VISUAL-IMPLEMENT] transport service models (grid style)
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Service model}} &
+\textcolor{white}{\textbf{Description}} &
+\textcolor{white}{\textbf{Main cost drivers}} \\
+\hline
+Dedicated trip & Full-vehicle, point-to-point (or multi-stop) transport reserved for one customer & Distance, vehicle and driver time, fuel \\
+Courier        & Fast, on-demand carriage of small/urgent consignments & Speed/urgency, labour, urban access \\
+Handling       & Loading, unloading, and material handling at a site & Labour, equipment, time on site \\
+\hline
+\end{tabularx}
+\caption{On-demand dedicated transport service models and their principal cost drivers.}
+\label{tab:ch2-transport-services}
+\end{table}
+
+\noindent The two models share staff, sites, and vehicles, yet their cost structures and service
+expectations diverge sharply. That divergence is precisely why they must be \emph{analysed separately}
+rather than aggregated --- a requirement that shapes the contribution in Part~II.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{The Economics of Logistics}
+\label{sec:ch2-economics}
+
+Logistics is a low-margin business in which decisions are won or lost on cost and service. This section
+sets out the cost structure, the difficulty of seeing profitability, and the three analytical lenses
+through which every logistics activity is read.
+
+\paragraph{Cost structure.}
+Logistics cost is distributed across transport, fuel, labour, handling, warehousing, and the last mile,
+with transport and the last mile typically dominating (Figure~\ref{fig:ch2-cost-structure})
+\parencite{christopher2016, chopra2019}. The relevant managerial concept is \textbf{cost-to-serve}: the
+true, fully-loaded cost of serving a given shipment, route, or customer --- which often differs
+markedly from the average and is invisible without integrated data.
+
+% [VISUAL-IMPLEMENT] illustrative cost structure (pgfplots; numbers illustrative)
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar, width=0.92\linewidth, height=5.4cm, bar width=15pt,
+  ymin=0, ymax=40, ylabel={Share of logistics cost (\%)},
+  symbolic x coords={Transport, Last mile, Labour, Warehousing, Fuel, Other},
+  xtick=data, x tick label style={font=\footnotesize, rotate=18, anchor=east},
+  nodes near coords, nodes near coords style={font=\scriptsize},
+  enlarge x limits=0.12, ymajorgrids, tick style={draw=none},
+  axis line style={draw=black!55},
+]
+\addplot[fill=esiblue!55, draw=esiblue] coordinates
+  {(Transport,32) (Last mile,24) (Labour,18) (Warehousing,12) (Fuel,9) (Other,5)};
+\end{axis}
+\end{tikzpicture}
+\caption{Illustrative breakdown of logistics cost by component (representative proportions, for
+illustration only). Transport and the last mile typically dominate.}
+\label{fig:ch2-cost-structure}
+\end{figure}
+
+\paragraph{Profitability and performance.}
+Margin must be tracked per shipment and per trip, yet profitability deviations are hard to detect
+inside raw operational systems, where the figures needed to compute them are dispersed. Alongside cost,
+\textbf{service performance} --- on-time delivery, reliability, and adherence to service-level
+agreements (SLAs) --- determines both customer retention and the penalties a provider incurs.
+
+\paragraph{Three analytical lenses.}
+Any logistics activity, in either operating model, is therefore read through the same three
+complementary lenses --- \textbf{operations}, \textbf{cost \& profitability}, and \textbf{performance}
+(Table~\ref{tab:ch2-lenses}). Together they give a complete picture of an activity rather than a purely
+financial one; pricing, by contrast, is treated here only as a general cost concept, not as a
+monitoring objective of this work.
+
+% [VISUAL-IMPLEMENT] the three analytical lenses (grid style)
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Lens}} &
+\textcolor{white}{\textbf{Question it answers}} &
+\textcolor{white}{\textbf{Example logistics KPIs}} \\
+\hline
+Operations            & What and how much is moving, and where? & Volume, throughput, success rate, geographic distribution \\
+Cost \& profitability & What does it cost, and is it profitable? & Cost per delivery, cost-to-serve, gross margin \\
+Performance           & How well are we serving customers?      & On-time rate, delays, attempts, SLA adherence, returns \\
+\hline
+\end{tabularx}
+\caption{The three analytical lenses through which any logistics activity is monitored.}
+\label{tab:ch2-lenses}
+\end{table}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Business Intelligence in Logistics}
+\label{sec:ch2-bi}
+
+The picture built so far --- a high-volume, geographically dispersed, thin-margin domain, generating
+streams of data across many systems --- describes an almost ideal setting for Business Intelligence.
+
+\paragraph{Why logistics suits BI.}
+Logistics combines every property that makes BI valuable: \textbf{high volume and velocity} of events,
+wide \textbf{geographic spread}, \textbf{many heterogeneous source systems}, \textbf{thin margins} that
+reward small efficiency gains, and \textbf{time-critical decisions} \parencite{wang2016}. In such a
+domain, analytics deliver KPI monitoring, cost and profitability analysis, network and flow visibility,
+and proactive alerting --- and they enable the climb from descriptive reporting toward predictive
+capability discussed in Chapter~1 \parencite{sharda2020, hofmann2017}.
+
+\paragraph{The integration gap.}
+The obstacle is not a lack of data but its fragmentation. Operational, financial, and performance data
+sit in separate, poorly-connected systems, so a unified, decision-oriented view --- across \emph{both}
+operating models and all three analytical lenses --- rarely exists
+(Figure~\ref{fig:ch2-integration-gap}) \parencite{enveyo2025, logisticsviewpoints2026}. Decision-makers
+are left to reconcile fragments manually, slowly, and late.
+
+% [VISUAL-IMPLEMENT] the integration gap
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize,
+  src/.style={rectangle, rounded corners, draw=black!55, fill=black!6,
+              align=center, text width=22mm, minimum height=7mm},
+  uni/.style={rectangle, rounded corners, draw=esiblue, very thick, fill=tblstruct,
+              align=center, text width=28mm, minimum height=18mm},
+  a/.style={-{Stealth[length=2.4mm]}, thick, black!55}]
+  \node[src] (s0) {HR / payroll};
+  \node[src, below=3mm of s0] (s1) {Transport system};
+  \node[src, below=3mm of s1] (s2) {Parcel system};
+  \node[src, below=3mm of s2] (s3) {Finance / cash};
+  \node[uni, right=42mm of s1, yshift=-4mm] (u) {Unified\\ analytical view\\ (BI platform)};
+  \foreach \x in {s0, s1, s2, s3} \draw[a] (\x.east) -- (u.west);
+  \node[above=1mm of s0, font=\scriptsize\bfseries, text=black!70] {Fragmented today};
+  \node[above=1mm of u, font=\scriptsize\bfseries, text=esiblue] {Unified (this work)};
+  \node[right=10mm of u, align=left, font=\scriptsize] (o)
+    {\textbf{Decisions}\\ Operations\\ Cost \& profitability\\ Performance};
+  \draw[-{Stealth[length=2.4mm]}, thick, esiblue] (u.east) -- (o.west);
+\end{tikzpicture}
+\caption{The integration gap: operational, financial, and human-resource data scattered across
+disconnected systems, versus the unified analytical view a BI platform provides.}
+\label{fig:ch2-integration-gap}
+\end{figure}
+
+\noindent Unifying these scattered sources into a single analytical foundation --- so that operations,
+cost \& profitability, and performance can be read together, across both operating models --- is exactly
+the gap this thesis sets out to close.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
+
+This chapter situated logistics as a data-rich, thin-margin, decision-intensive domain. It is built on
+three flows and a handful of core functions; it operates through two complementary models --- networked
+parcel distribution and dedicated transport --- whose distinct economics demand separate analysis; and
+every activity within it is read through the lenses of operations, cost \& profitability, and
+performance. The data-age pressures reshaping the sector have made it generate more data than ever,
+while leaving that data fragmented across disconnected systems.
+
+That fragmentation is the opening. A domain this data-rich and this margin-sensitive, yet this poorly
+integrated, is precisely where Business Intelligence delivers its greatest value. Part~II takes up the
+challenge directly, designing and building the platform that closes the integration gap for a
+real, multi-site logistics operator.

@@ -13,7 +13,7 @@ Before editing **any** chapter content, read the authoritative writing guides in
 | File | Authority over |
 |---|---|
 | `guide/00_README_pfe_guide.md` | Global rules: language, readability, **corrected scope** (§0.5), references (APA), page budget (§0.6), LaTeX hygiene, writing order, do-not list |
-| `guide/01_state-of-the-art_guide.md` | Part I — Chapter 1 (Data-Driven Decision Making), Chapter 2 (Logistics) |
+| `guide/01_state-of-the-art_guide.md` | Part I — Chapter 1 (Data-Driven Decision Making), Chapter 2 (Logistics in the Data Age) |
 | `guide/02_contribution_guide.md` | Part II — Chapters 3–6, General Introduction/Conclusion, appendices |
 | `guide/03_visuals_guide.md` | The three visual modes, the `\visualplaceholder` macro, figure rules |
 | `guide/thesis-technical-recap.md` | Source of truth for the built solution (Part II) |

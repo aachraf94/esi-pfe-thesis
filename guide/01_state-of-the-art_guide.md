@@ -1,6 +1,6 @@
 # 01 — State of the Art Guide (Part I)
 
-> Covers **Ch.1 (Data-Driven Decision Making)** and **Ch.2 (Logistics)**. Read `00_README_pfe_guide.md`
+> Covers **Ch.1 (Data-Driven Decision Making)** and **Ch.2 (Logistics in the Data Age)**. Read `00_README_pfe_guide.md`
 > and `03_visuals_guide.md` first. **Goal of Part I:** give the reader the theory needed to understand
 > the contribution, moving from **general/abstract** (decision, information) to **technical** (BI
 > architecture), then the **domain** (logistics). Citation-dense. Apply the no-dense-prose rule (§0.2):
@@ -81,47 +81,104 @@ Recap that BI is the technical answer to data-driven decision support; bridge to
 
 ---
 
-## CHAPTER 2 — Logistics & the Logistics Domain (12–14 pp)
+## CHAPTER 2 — Logistics in the Data Age (12–14 pp)
+**Narrative arc:** **global** (logistics as a vast, data-rich, thin-margin domain) → **how it operates**
+(the two operating models — which are the platform's two axes, but introduced *indirectly*, as the
+domain's natural structure) → **the economics** (cost, profitability, performance — the universal
+analytical lenses) → **Business Intelligence in logistics** (why it fits, and the integration gap this
+thesis fills). Move broad-to-specific; **never frame the chapter as "our two axes"** — let the two
+operating models emerge as the way logistics simply works.
+
+> **Structure at a glance**
+> 1. The Logistics Landscape *(global: what logistics is, its weight, the data-age pressures)*
+> 2. How Logistics Operates *(the two operating models — the axes, introduced indirectly)*
+> 3. The Economics of Logistics *(cost, profitability, performance — the three lenses)*
+> 4. Business Intelligence in Logistics *(why logistics fits BI; the integration gap)*
+
+> **Title.** Primary: *Logistics in the Data Age*. Alternatives if preferred: *The Logistics Domain:
+> Flows, Operations, and the Analytics Imperative* · *Steering Logistics with Data* · *Logistics as a
+> Data-Driven Decision Domain*.
 
 ### Introduction (½ pp)
-This chapter presents the logistics domain that the platform serves, and why it is a strong BI domain.
+2–3 sentences: logistics is a large, data-rich, thin-margin domain under intense pressure; this chapter
+situates it globally, shows how it operates and where its money and performance are decided, and argues
+why Business Intelligence is the natural instrument — setting up the contribution.
 
-### 2.1 Logistics & supply chain
-- Definitions; core logistics functions (transport, warehousing, distribution, last-mile).
-- Citations: Günther & Tempelmeier (2007); Hofmann & Rüsch (2017).
-- Lead sentence + short list of functions.
+### 2.1 The Logistics Landscape
+*Start global. Establish logistics as a large, strategic, data-intensive domain before any specifics.*
+- Definitions: logistics & supply-chain management; logistics as the orchestration of three flows ---
+  **physical, informational, financial**.
+- Core functions: transport, warehousing, handling, distribution, last mile.
+- Strategic weight: logistics cost as a share of product cost / GDP; logistics as a competitive
+  differentiator, not a back-office cost centre.
+- **The data-age pressures** (use recent refs): the e-commerce surge, rising customer expectations
+  (speed, real-time visibility), digitalisation / Industry 4.0, omni-channel, and the data deluge from
+  tracking and IoT.
+- `[VISUAL-IMPLEMENT]` TikZ: the **three flows** (physical / informational / financial) along a supply
+  chain — or a logistics-functions map.
 
-### 2.2 Parcel-delivery logistics (classic e-commerce express)
-- The **parcel lifecycle**: creation → pickup → transit → delivery attempt(s) → resolution
-  (delivered / returned / failed).
-- Key operational KPIs: delivery success rate, delays, number of attempts, return rate.
-- `[VISUAL-IMPLEMENT]` TikZ **parcel lifecycle** state flow.
-- This subsection grounds the **Parcel Delivery** axis of the platform.
+### 2.2 How Logistics Operates
+*The two dominant operating models of a modern logistics operator — presented as the domain's natural
+structure, NOT labelled as the platform's axes.*
+- Lead: goods move through two complementary operating models that differ in granularity, network
+  shape, and economics.
+- **2.2.1 Networked parcel distribution & the last mile** — many small shipments, hub-and-spoke
+  networks, the last-mile challenge; the **parcel lifecycle** (creation → pickup → transit → delivery
+  attempt(s) → resolution: delivered / returned / failed); operational KPIs (success rate, delays,
+  attempts, return rate).
+  - `[VISUAL-IMPLEMENT]` TikZ **parcel lifecycle** state flow.
+- **2.2.2 Dedicated & on-demand freight transport (B2B)** — dedicated capacity vs the shared parcel
+  network; on-demand service models (\eg dedicated trip, courier, handling) and their distinct cost
+  drivers.
+  - `[VISUAL-IMPLEMENT]` table (project grid style, §3 of `03_visuals_guide.md`): service model →
+    description → main cost drivers.
+- Close with one line: a single operator often runs **both** models on shared infrastructure yet with
+  very different economics — which is exactly why they must be analysed separately. *(This is the only,
+  indirect, hook to the platform's two axes — do not name them as "axes" or "sub-pages" here.)*
 
-### 2.3 On-demand / dedicated transport (B2B)
-- What dedicated transport is (B2B, dedicated capacity vs shared parcel network).
-- The three service types relevant to this work: **Dedicated Trip, Courier, Handling** — one line each
-  on what they are and their main cost drivers.
-- `[VISUAL-IMPLEMENT]` a `booktabs` table: service type → description → main cost drivers.
-- This subsection grounds the **Dedicated Transport** axis of the platform.
+### 2.3 The Economics of Logistics
+*Where logistics decisions are won or lost — and the three lenses every activity is read through.*
+- Cost structure: transport, fuel, labour, handling, warehousing, last mile; thin margins; the idea of
+  **cost-to-serve**.
+- Profitability: margin per shipment / per trip; why deviations are hard to see inside raw operational
+  systems.
+- Performance & service quality: on-time delivery, reliability, SLA adherence.
+- Frame the **three analytical lenses** — **operations, cost & profitability, performance** — as the
+  universal way *any* logistics activity is monitored. *(This echoes the thesis's three analytical
+  aspects without naming axes or sub-pages.)*
+  - `[VISUAL-IMPLEMENT]` table (grid style): analytical lens → question it answers → example logistics
+    KPIs.
+  - `[VISUAL-IMPLEMENT]` (optional) illustrative cost-structure breakdown (`pgfplots`; mark
+    "illustrative").
+- Note: pricing may appear here as a general logistics concept, but the built platform has **no pricing
+  page** — do not promise a pricing dashboard.
 
-### 2.4 Cost & profitability in logistics
-- Logistics cost structure; margin; the idea of profitability monitoring.
-- (Pricing may be mentioned here as a general concept — but remember the built platform has **no
-  pricing page**; do not promise a pricing dashboard.) Cite Wang & Alexander (2016).
-
-### 2.5 BI in logistics
-- Why logistics suits BI: high volume, cost pressure, geographic spread, many source systems.
-- The **integration gap** that motivates this work: transport analysis, parcel monitoring, and
-  decision-oriented visualisation are rarely unified.
-- `[VISUAL-IMPLEMENT]` (optional) a small diagram of the integration gap (scattered systems → unified
-  view).
+### 2.4 Business Intelligence in Logistics
+*Bring it home: why logistics is a prime BI domain, and the gap this thesis fills.*
+- Why logistics suits BI: high volume and velocity, geographic spread, many heterogeneous source
+  systems, thin margins, and time-critical decisions.
+- What analytics deliver in logistics: KPI monitoring, cost analytics, network/flow visibility,
+  proactive alerting, and the climb from descriptive toward predictive (ties back to Ch.1's maturity
+  idea).
+- **The integration gap (the motivating problem):** operations, cost, and performance data are
+  scattered across disconnected systems and rarely unified into one decision-oriented view — across
+  *both* operating models. This is the gap Part~II closes.
+  - `[VISUAL-IMPLEMENT]` TikZ: the integration gap (scattered source systems → unified analytical view
+    / dashboards).
 
 ### Conclusion & transition (½ pp)
-Recap the domain and the gap; bridge to Part II (the contribution).
+Recap: a data-rich, thin-margin, decision-intensive domain whose operations, costs, and performance are
+scattered and under-exploited — exactly the gap a BI platform can close. Bridge to Part~II (the
+contribution).
 
-**Citations available for Ch.2:** Günther & Tempelmeier (2007); Hofmann & Rüsch (2017); Wang &
-Alexander (2016); plus a parcel/last-mile logistics source (add to bib if used).
+**Citations for Ch.2 (mix recent + classic — add each to `references.bib` when cited; search the web
+for accurate details):**
+- SCM / logistics foundations: a standard SCM text (\eg Chopra \& Meindl, recent ed.); Günther \&
+  Tempelmeier (2007).
+- Digitalisation / Industry 4.0 in logistics: Hofmann \& Rüsch (2017) + a recent (2020s) survey.
+- Last-mile / e-commerce logistics: a recent dedicated reference.
+- Logistics cost & profitability / cost-to-serve: Wang \& Alexander (2016) + a recent reference.
+- BI / big-data analytics in logistics & SCM: a recent (2019–2024) survey.
 
 ---
 

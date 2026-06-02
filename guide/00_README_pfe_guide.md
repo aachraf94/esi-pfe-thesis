@@ -9,7 +9,7 @@
 | File | Covers |
 |---|---|
 | `00_README_pfe_guide.md` | **(this file)** global rules: language, scope, references, length, LaTeX hygiene, writing order |
-| `01_state-of-the-art_guide.md` | Part I — Ch.1 (Data-Driven Decision Making), Ch.2 (Logistics) |
+| `01_state-of-the-art_guide.md` | Part I — Ch.1 (Data-Driven Decision Making), Ch.2 (Logistics in the Data Age) |
 | `02_contribution_guide.md` | Part II — Ch.3–Ch.6, General Intro & Conclusion |
 | `03_visuals_guide.md` | the visual system, tags, the placeholder macro, and the figures checklist |
 
@@ -110,7 +110,7 @@ Stay within budget. Targets:
 | General Introduction | 3–4 |
 | **Part I — State of the Art** | **~30** |
 | Ch.1 Data-Driven Decision Making | 16–18 |
-| Ch.2 Logistics | 12–14 |
+| Ch.2 Logistics in the Data Age | 12–14 |
 | **Part II — Contribution** | **~70** |
 | Ch.3 Analysis & Methodology | 14–16 |
 | Ch.4 Design & Architecture | 22–26 |

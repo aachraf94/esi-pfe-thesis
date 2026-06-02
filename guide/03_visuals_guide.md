@@ -103,9 +103,11 @@ Usage:
 List every `[VISUAL-PLACEHOLDER]` and `[VISUAL-FETCH]` so Achraf has one checklist. Suggested columns:
 `ID | chapter | mode | what it shows | how to produce | status`.
 
-### Likely IMPLEMENT (TikZ / pgfplots / booktabs — Claude makes these directly)
-- DIKW pyramid; BI value chain; IS-type table; BI-building-blocks table (Ch.1)
-- Parcel lifecycle flow; transport service-types table (Ch.2)
+### Likely IMPLEMENT (TikZ / pgfplots / grid tables — Claude makes these directly)
+- Decision process; decision-types table; decision-levels pyramid; information-needs table; DIKW
+  pyramid; IS-type table; BI value chain; star schema; OLAP cube; building-blocks table (Ch.1)
+- Three-flows diagram; parcel-lifecycle flow; transport service-types table; analytical-lenses table;
+  integration-gap diagram (Ch.2)
 - Source-systems table; MoSCoW table; pages→sub-pages map; use-case diagram; project timeline (Ch.3)
 - Layered architecture; component table; two-DB routing; warehouse 4-layer stack; constellation
   fragment; techniques table; SCD2 illustration; ETL flow; ETL properties table; alerting flow; RBAC
@@ -116,7 +118,8 @@ List every `[VISUAL-PLACEHOLDER]` and `[VISUAL-FETCH]` so Achraf has one checkli
 - Capability-status table (Conclusion)
 
 ### Likely FETCH (generic textbook images — Part I)
-- Decision pyramid (Ch.1); generic star schema (Ch.1); optional generic asset-graph (Ch.4)
+- Optional generic asset-graph (Ch.4). *(The Ch.1 decision pyramid and star schema are now drawn in
+  TikZ — see the IMPLEMENT list — so no longer fetched.)*
 
 ### Likely PLACEHOLDER (live platform / hand-drawn — Achraf produces)
 - Company-context figure (Ch.3)
