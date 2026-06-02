@@ -9,52 +9,71 @@
 ---
 
 ## CHAPTER 1 — Data-Driven Decision Making (16–18 pp)
-**Order: theory first, technical second** (as requested).
+**Narrative arc:** from the **abstract** (what a decision is) → to the **conceptual** (how data and
+systems support decisions) → to the **technical** (BI and its building blocks). Four parent sections,
+each with grouped subsections, so related ideas live together instead of as a flat list.
 
-### 1.0 Introduction (½ pp)
-2–3 sentences: this chapter builds from what a decision is up to the technical means (BI) of supporting
-it with data.
+> **Structure at a glance**
+> 1. Decision-Making in Organisations *(the problem: deciding)*
+> 2. From Data to Decisions: Information Systems *(the conceptual progression — DIKW → IS → DSS)*
+> 3. Business Intelligence *(the modern paradigm)*
+> 4. The Building Blocks of a BI System *(the technical components)*
 
-### 1.1 Decision & decision-making
-- What a decision is; Simon's **intelligence → design → choice** model.
-- Decision types: **structured / semi-structured / unstructured**.
-- Decision levels: **operational / tactical / strategic**.
-- `[VISUAL-FETCH]` the classic **decision pyramid** (operational→tactical→strategic).
-- Citations: Simon (add to bib), plus a general DSS/management text.
-- Keep it as: 2 short paragraphs + 1 list (decision types) + 1 figure.
+### Introduction (½ pp)
+2–3 sentences: this chapter builds from what a decision is, through the systems that support it, up to
+Business Intelligence as the technical means of doing so with data.
 
-### 1.2 Data, information, knowledge
-- The **DIKW** hierarchy; data vs information vs knowledge vs wisdom; the role of context.
-- `[VISUAL-IMPLEMENT]` TikZ **DIKW pyramid**.
-- Lead sentence + short list of the four levels with one-line definitions.
+### 1.1 Decision-Making in Organisations
+*The "why" — characterise decisions and their limits before introducing any supporting tool.*
 
-### 1.3 Information systems
-- Definition; categories: **TPS, MIS, DSS, EIS**; where each sits by decision level.
-- `[VISUAL-IMPLEMENT]` a `booktabs` table mapping IS type → decision level → purpose.
+- **1.1.1 The nature of a decision** — what a decision is; Simon's **intelligence → design → choice**
+  model. Cite Simon.
+- **1.1.2 Types of decisions** — **structured / semi-structured / unstructured** (short list).
+- **1.1.3 Levels of decision-making** — **operational / tactical / strategic**, and how information
+  needs differ by level.
+  - `[VISUAL-FETCH]` the classic **decision pyramid** (operational → tactical → strategic).
+- **1.1.4 Bounded rationality & the need for decision support** — cognitive limits (incomplete
+  information, finite capacity, scarce time) → why structured, data-driven support is required. This is
+  the bridge into §1.2. Cite Simon.
+- Keep §1.1 to ~2 short paragraphs + 1 list + the pyramid figure.
 
-### 1.4 Decision Support Systems (DSS)
-- Definition; three components (**data, model, user interface**); evolution from DSS toward BI.
-- Short list of components + 1 short paragraph on the DSS→BI evolution.
+### 1.2 From Data to Decisions: Information Systems
+*The conceptual progression that turns raw data into decision support — DIKW → information systems →
+DSS.*
 
-### 1.5 Business Intelligence
-- Definition; BI as the **technical realisation** of data-driven decision support.
-- The **BI value chain**: sources → integration → storage → analysis → delivery.
-- `[VISUAL-IMPLEMENT]` TikZ **BI value-chain** diagram.
-- Citations: Chaudhuri, Dayal & Narasayya (2011); Bose (2008).
+- **1.2.1 Data, information, knowledge** — the **DIKW** hierarchy; data vs information vs knowledge vs
+  wisdom; the role of context. *(Lead sentence + short list of the four levels, one line each.)*
+  - `[VISUAL-IMPLEMENT]` TikZ **DIKW pyramid**.
+- **1.2.2 Information systems and their types** — definition; **TPS, MIS, DSS, EIS**; where each sits
+  by decision level (ties back to §1.1.3).
+  - `[VISUAL-IMPLEMENT]` `booktabs` table: IS type → decision level → purpose.
+- **1.2.3 Decision Support Systems (DSS)** — definition; three components (**data, model, user
+  interface**); evolution from DSS toward BI (short list of components + 1 paragraph on the DSS → BI
+  evolution).
 
-### 1.6 Core BI building blocks (technical)
-Keep each block to a short paragraph — **deep design detail lives in Ch.4, not here.**
-- **Data Warehouse** — Inmon (top-down) vs Kimball (bottom-up / dimensional); fact vs dimension;
+### 1.3 Business Intelligence
+*BI as the modern, technical realisation of everything above.*
+
+- **1.3.1 Definition & strategic value** — BI as the technical answer to data-driven decision support;
+  what makes it more than reporting. Cite Chaudhuri, Dayal & Narasayya (2011); Bose (2008).
+- **1.3.2 The BI value chain** — sources → integration → storage → analysis → delivery.
+  - `[VISUAL-IMPLEMENT]` TikZ **BI value-chain** diagram.
+
+### 1.4 The Building Blocks of a BI System (technical)
+Keep each block to a short paragraph — **deep design detail lives in Ch.4, not here.** This section
+names the components; Ch.4 designs them.
+
+- **1.4.1 Data Warehouse** — Inmon (top-down) vs Kimball (bottom-up / dimensional); fact vs dimension;
   what a dimensional model is. Cite Inmon (2005), Kimball & Ross (2013).
   - `[VISUAL-FETCH]` a generic textbook **star schema** illustration.
-- **ETL** — extract / transform / load. Cite Vassiliadis (2009).
-- **OLAP** — slice/dice/drill; cube idea (brief).
-- **Dashboards & reporting** — principles of good dashboard design. Cite Few (2006).
-- **KPIs & alerting** — what a KPI is; proactive vs descriptive monitoring (sets up the alerting in
-  Ch.4).
-- `[VISUAL-IMPLEMENT]` a `booktabs` table: building block → role → relevance to this work.
+- **1.4.2 ETL** — extract / transform / load. Cite Vassiliadis (2009).
+- **1.4.3 OLAP** — slice / dice / drill; the cube idea (brief).
+- **1.4.4 Dashboards & reporting** — principles of good dashboard design. Cite Few (2006).
+- **1.4.5 KPIs & proactive alerting** — what a KPI is; proactive vs descriptive monitoring (sets up the
+  alerting designed in Ch.4).
+- `[VISUAL-IMPLEMENT]` `booktabs` table: building block → role → relevance to this work.
 
-### 1.7 Conclusion & transition (½ pp)
+### Conclusion & transition (½ pp)
 Recap that BI is the technical answer to data-driven decision support; bridge to the logistics domain.
 
 **Citations available for Ch.1:** Simon; Inmon (2005); Kimball & Ross (2013); Vassiliadis (2009); Few
@@ -64,7 +83,7 @@ Recap that BI is the technical answer to data-driven decision support; bridge to
 
 ## CHAPTER 2 — Logistics & the Logistics Domain (12–14 pp)
 
-### 2.0 Introduction (½ pp)
+### Introduction (½ pp)
 This chapter presents the logistics domain that the platform serves, and why it is a strong BI domain.
 
 ### 2.1 Logistics & supply chain
@@ -98,7 +117,7 @@ This chapter presents the logistics domain that the platform serves, and why it 
 - `[VISUAL-IMPLEMENT]` (optional) a small diagram of the integration gap (scattered systems → unified
   view).
 
-### 2.6 Conclusion & transition (½ pp)
+### Conclusion & transition (½ pp)
 Recap the domain and the gap; bridge to Part II (the contribution).
 
 **Citations available for Ch.2:** Günther & Tempelmeier (2007); Hofmann & Rüsch (2017); Wang &

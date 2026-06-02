@@ -39,13 +39,13 @@ delivery routes to the long-term investment in new distribution infrastructure, 
 managerial act ultimately reduces to a choice among alternatives under conditions of
 uncertainty. Herbert Simon, in his landmark work on administrative behavior, defined
 decision-making as the process by which an actor selects a course of action from a set of
-alternatives in pursuit of an organizational objective~\cite{simon1947}. This deceptively
+alternatives in pursuit of an organizational objective~\parencite{simon1947}. This deceptively
 simple definition conceals a profound complexity: in real organizations, the full range of
 alternatives is rarely enumerable, the consequences of each choice are inherently uncertain,
 and the information available to decision-makers is almost invariably incomplete.
 
 Simon famously distinguished between two fundamental categories of organizational
-decisions~\cite{simon1960}. \textit{Programmed decisions} are repetitive and routine in
+decisions~\parencite{simon1960}. \textit{Programmed decisions} are repetitive and routine in
 character; they can be handled by established procedures, policies, or computational
 algorithms. Inventory replenishment triggered by a minimum-stock threshold, or the automatic
 assignment of a delivery vehicle to a route based on predefined criteria, are archetypal
@@ -65,7 +65,7 @@ The heterogeneity of organizational decisions is further structured by the hiera
 nature of organizations themselves. Robert Anthony's seminal framework, introduced in 1965,
 proposed that managerial activity in any organization can be decomposed into three distinct
 levels, each characterized by its own temporal horizon, scope of responsibility, and
-information requirements~\cite{anthony1965}. This tripartite model, widely known as
+information requirements~\parencite{anthony1965}. This tripartite model, widely known as
 \textit{Anthony's Pyramid}, remains the canonical reference for structuring information
 systems around organizational decision-making needs and has been adopted as a cornerstone
 of both management science and information systems design.
@@ -127,7 +127,7 @@ refinement---it is a fundamental architectural requirement.
 The contrasting information profiles of each managerial level can be systematically
 characterized along several key dimensions: time horizon, level of aggregation, data
 source, frequency of use, required precision, and structural complexity.
-Gorry and Scott Morton~\cite{gorry1971} extended Anthony's framework by overlaying Simon's
+\textcite{gorry1971} extended Anthony's framework by overlaying Simon's
 programmed/non-programmed distinction, producing a matrix that maps decision types to
 information system requirements and clarifies the analytical gap that decision support
 technologies must fill. Table~\ref{tab:ch1-info-needs} synthesizes these dimensions.
@@ -154,7 +154,7 @@ Example decision & Market expansion & Budget reallocation & Route assignment \\
 \hline
 \end{tabularx}
 \caption{Information needs across the three decision-making levels (adapted from
-Anthony~\cite{anthony1965} and Gorry \& Scott Morton~\cite{gorry1971}).}
+\textcite{anthony1965} and \textcite{gorry1971}).}
 \label{tab:ch1-info-needs}
 \end{table}
 
@@ -165,7 +165,7 @@ were unlimited. It is not. Simon's theory of \textit{bounded rationality}---perh
 most enduring intellectual contribution---holds that human decision-makers are constrained
 by three irreducible limits: the information available to them is always incomplete; their
 cognitive capacity to process and integrate that information is finite; and the time
-available to deliberate and choose is invariably scarce~\cite{simon1957}. Faced with these
+available to deliberate and choose is invariably scarce~\parencite{simon1957}. Faced with these
 constraints, managers do not optimize in any mathematically rigorous sense---they
 \textit{satisfice}, accepting the first alternative that meets a minimum threshold of
 adequacy rather than exhaustively identifying the globally optimal course of action.
@@ -195,8 +195,8 @@ The intellectual roots of Decision Support Systems (DSS) trace to the late 1960s
 the convergence of management science, organizational theory, and nascent computing
 capability gave rise to a new research agenda: could computers be used not merely to
 automate clerical routines, but to actively assist managers in making better decisions?
-The landmark contribution of Gorry and Scott Morton in 1971 established the theoretical
-scaffolding for this agenda~\cite{gorry1971}. Combining Simon's programmed/non-programmed
+The landmark contribution of \textcite{gorry1971} established the theoretical
+scaffolding for this agenda. Combining Simon's programmed/non-programmed
 taxonomy with Anthony's management hierarchy, they defined a matrix of decision types and
 proposed that different classes of information systems were appropriate for different
 positions in that matrix. Crucially, their framework identified an underserved domain:
@@ -208,7 +208,7 @@ set out to bridge.
 The term \textit{Decision Support System} was formally introduced and elaborated by Keen
 and Scott Morton in their 1978 monograph, which defined a DSS as an interactive,
 computer-based system designed to help decision-makers utilize data and models to solve
-unstructured and semi-structured problems~\cite{keen1978}. The emphasis on interactivity
+unstructured and semi-structured problems~\parencite{keen1978}. The emphasis on interactivity
 was deliberate and significant: unlike batch-processing management information systems that
 delivered pre-formatted reports on fixed schedules, a DSS was conceived as a responsive
 tool that allowed the user to pose exploratory questions, adjust parameters, and receive
@@ -255,7 +255,7 @@ As the DSS field matured, it became evident that the label covered a broad and
 heterogeneous family of tools that shared a decision-support orientation but differed
 radically in their underlying technology, their primary mode of assistance, and the types
 of problem they were best equipped to handle. Daniel Power's influential taxonomy, refined
-across multiple publications~\cite{power2002}, proposed classifying DSS according to the
+across multiple publications~\parencite{power2002}, proposed classifying DSS according to the
 \textit{primary enabling technology} and resource each system employs. This framework
 identifies five canonical types, each with distinct characteristics and application domains.
 
@@ -295,7 +295,7 @@ Document-driven & Text corpora, unstructured repositories & Full-text search, te
 Communication-driven & Collaboration platforms, shared workspaces & Group decision support, electronic negotiation & Virtual project rooms, multi-party negotiation \\
 \hline
 \end{tabularx}
-\caption{Taxonomy of Decision Support Systems (adapted from Power~\cite{power2002}).}
+\caption{Taxonomy of Decision Support Systems (adapted from \textcite{power2002}).}
 \label{tab:ch1-dss-types}
 \end{table}
 
@@ -348,16 +348,16 @@ discipline.
 
 The term \textit{Business Intelligence} was popularized by Howard Dresner of Gartner Research
 in 1989, who used it to describe the concepts and methods through which fact-based decision
-support could be institutionalized across the enterprise~\cite{chaudhuri2011}. While the
+support could be institutionalized across the enterprise~\parencite{chaudhuri2011}. While the
 label was new, the underlying ambition was the natural extension of the DSS agenda: to
 provide decision-makers at all levels of the organizational hierarchy with timely, accurate,
 and relevant information, delivered through interfaces accessible to non-technical users,
 drawn from a coherent and integrated view of all organizational data. Chaudhuri, Dayal, and
 Narasayya define Business Intelligence as ``a collection of decision support technologies
 for the enterprise, aimed at enabling knowledge workers to make better and faster
-decisions''~\cite{chaudhuri2011}. Negash further characterizes BI as a set of processes,
+decisions''~\parencite{chaudhuri2011}. \textcite{negash2004} further characterizes BI as a set of processes,
 technologies, and tools that transform raw data into meaningful and useful information for
-business analysis~\cite{negash2004}. What these definitions share is their emphasis on
+business analysis. What these definitions share is their emphasis on
 \textit{purpose} over technology: BI is fundamentally a decision-support discipline that
 happens to employ specific technical architectures.
 
@@ -399,7 +399,7 @@ decision-making population of the organization.
 The transformation from raw organizational data to actionable business insight does not
 occur in a single step. It follows a structured pipeline, commonly conceptualized as the
 \textit{BI value chain}, through which data is progressively refined, integrated, stored,
-analyzed, and communicated~\cite{chaudhuri2011}. At the upstream end of the chain lie
+analyzed, and communicated~\parencite{chaudhuri2011}. At the upstream end of the chain lie
 heterogeneous operational data sources: ERP systems, CRM platforms, Transport Management
 Systems (TMS), Warehouse Management Systems (WMS), IoT sensor feeds, external partner APIs,
 and manual data contributions. Each source generates data in its own format, on its own
@@ -451,7 +451,7 @@ insight.
 The transformative potential of Business Intelligence is substantial, but its realization
 is by no means guaranteed. Across numerous empirical studies and industry surveys, a
 consistent set of organizational and technical conditions has been identified that
-discriminate between successful and failed BI deployments~\cite{yeoh2010}. These
+discriminate between successful and failed BI deployments~\parencite{yeoh2010}. These
 \textit{Critical Success Factors} (CSFs) span the full spectrum from executive sponsorship
 and organizational culture to data governance and system architecture. Their systematic
 management is a prerequisite for translating the conceptual promise of BI into sustained
@@ -479,7 +479,7 @@ Methodological & Business--IT alignment & Technical teams must understand busine
 \hline
 \end{tabularx}
 \caption{Critical Success Factors of a Business Intelligence initiative
-(synthesized from Yeoh \& Koronios~\cite{yeoh2010} and Chaudhuri et~al.~\cite{chaudhuri2011}).}
+(synthesized from \textcite{yeoh2010} and \textcite{chaudhuri2011}).}
 \label{tab:ch1-bi-csf}
 \end{table}
 
@@ -491,7 +491,7 @@ Methodological & Business--IT alignment & Technical teams must understand busine
 
 A mature Business Intelligence system is organized around a layered reference architecture
 that enforces a clear separation of concerns between data integration, analytical storage,
-and information presentation~\cite{kimball2013}. This separation reflects a fundamental
+and information presentation~\parencite{kimball2013}. This separation reflects a fundamental
 distinction between three worlds: the \textit{operational} world, where transactions occur
 and source systems record them; the \textit{analytical} world, where data is consolidated,
 structured, and stored for querying; and the \textit{decision} world, where analytical
@@ -542,7 +542,7 @@ critical component of the BI architecture. It serves as the trusted intermediary
 the heterogeneous disorder of operational data and the structured analytical order of the
 Data Warehouse. This mission is executed through a sequence of three phases, collectively
 known as the ETL process: \textit{Extraction}, \textit{Transformation}, and
-\textit{Loading}~\cite{vassiliadis2009}.
+\textit{Loading}~\parencite{vassiliadis2009}.
 
 \textbf{Extraction} is the first phase, in which data is retrieved from the operational
 source systems that generate it. These sources are diverse in nature: relational databases
@@ -614,7 +614,7 @@ Data quality management deserves particular emphasis within the ETL layer. The m
 ``garbage in, garbage out'' is especially damaging in an analytical context, because quality
 errors compound through aggregation: a single miscoded delivery cost contaminates not only
 the transactional record in which it appears but every KPI, report, and dashboard panel
-that draws on that cost attribute across the entire history of the data warehouse~\cite{olson2003}.
+that draws on that cost attribute across the entire history of the data warehouse~\parencite{olson2003}.
 A robust ETL architecture therefore incorporates systematic data profiling at the source,
 automated validation rules at the transformation stage, threshold-based quality gates that
 can halt a load cycle when error rates exceed acceptable bounds, and comprehensive audit
@@ -630,7 +630,7 @@ authoritative repository upon which all analytical work is grounded. The most ci
 definition in the literature is that of William Inmon, widely regarded as the founding
 father of the data warehousing discipline:
 
-\begin{definition}[Data Warehouse, Inmon~\cite{inmon2005}]
+\begin{definition}[Data Warehouse, Inmon, \citeyear{inmon2005}]
 A data warehouse is a \textit{subject-oriented}, \textit{integrated},
 \textit{time-variant}, and \textit{non-volatile} collection of data in support of
 management's decision-making process.
@@ -654,7 +654,7 @@ enterprise analytics. The \textit{top-down} approach, associated with Inmon, adv
 designing the enterprise Data Warehouse as a normalized, third-normal-form (3NF) relational
 database \textit{first}, then deriving departmental Data Marts as subject-specific subsets
 of this central repository. The \textit{bottom-up} approach, associated with Ralph Kimball
-and Margy Ross~\cite{kimball2013}, proceeds in the inverse direction: it designs
+and Margy Ross~(\citeyear{kimball2013}), proceeds in the inverse direction: it designs
 denormalized, dimensional Data Marts independently for each business process, integrating
 them into a coherent enterprise picture through the disciplined use of \textit{conformed
 dimensions}---shared dimensional tables whose definitions are standardized and reused
@@ -690,7 +690,7 @@ Best suited for & Large enterprises with stable, comprehensive, well-defined req
 Regardless of the top-level architectural philosophy adopted, the analytical schemas through
 which BI tools actually query and present data in modern practice are almost universally
 \textit{dimensional}. Dimensional modeling, systematized and disseminated principally
-through the work of Kimball and Ross~\cite{kimball2013}, organizes data around two
+through the work of \textcite{kimball2013}, organizes data around two
 complementary and complementary table types that map directly onto the natural structure
 of business analysis.
 
@@ -783,7 +783,7 @@ The Data Warehouse is the repository; Online Analytical Processing (OLAP) is the
 engine that transforms its stored data into navigable, multidimensional insight. The concept
 of OLAP was formally codified by E.\,F. Codd in 1993, who proposed a set of criteria
 defining a system capable of presenting data through genuinely multidimensional analytical
-views~\cite{codd1993}. The central insight of OLAP is that business performance data is
+views~\parencite{codd1993}. The central insight of OLAP is that business performance data is
 inherently multidimensional: revenue can be simultaneously examined along the axes of time,
 geography, product category, and customer segment. OLAP systems make this multidimensional
 perspective computationally efficient by pre-computing aggregations and organizing data into
@@ -840,7 +840,7 @@ otherwise technically excellent BI system operationally useless.
 
 The principles of effective dashboard design have been rigorously articulated by Stephen
 Few, whose work established an evidence-based framework for the visual communication of
-quantitative information~\cite{few2006}. A dashboard should present, on a single
+quantitative information~\parencite{few2006}. A dashboard should present, on a single
 screen or view, the most critical information needed to achieve one or more specified
 decision-making objectives, arranged for immediate and effortless comprehension. This
 principle generates a set of concrete design requirements: selecting chart types matched to
@@ -896,7 +896,7 @@ to open the relevant dashboard, navigate to the appropriate view, and actively s
 problem. Proactive BI inverts this relationship by continuously monitoring key metrics
 against predefined operational thresholds and automatically notifying responsible parties
 when those thresholds are exceeded---surfacing problems long before they would otherwise
-become visible in periodic reporting cycles~\cite{chaudhuri2011}.
+become visible in periodic reporting cycles~\parencite{chaudhuri2011}.
 
 The alerting mechanism operates on a structured, cyclical workflow. First, during system
 configuration, KPIs and their associated alert thresholds are defined in collaboration with
