@@ -38,3 +38,16 @@
 
 % ── TODO marker (visible in draft, invisible in final) ────────────────────────
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+% ── Framed placeholder for a pending visual ──────────────────────────────────
+% Usage: \visualplaceholder{what it shows}{how to produce it}{caption}
+% (caption package already loaded in packages.tex, so \captionof is available)
+\newcommand{\visualplaceholder}[3]{%
+    \begin{center}
+    \fbox{\parbox{0.9\linewidth}{\centering\vspace{1em}
+        \textbf{[ VISUAL PLACEHOLDER ]}\\[0.6em]
+        \textit{Shows:} #1\\[0.4em]
+        \textit{How to produce:} #2\\[1em]}}
+    \end{center}
+    \captionof{figure}{#3}%
+}

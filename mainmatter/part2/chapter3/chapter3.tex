@@ -47,92 +47,147 @@ contribution:
 \section{Host and Client Organisations}
 \label{sec:ch3-orgs}
 
+This project was conducted as a partnership between two organisations with complementary roles:
+\textbf{Ourquilane}, the software company that designed and built the platform, and \textbf{Yalidine},
+the logistics operator for which it was built and whose data it analyses. The scale and structure of
+Yalidine's operations, in particular, frame every design decision in the chapters that follow, so both
+organisations are introduced here before the existing systems are examined.
+
 % -----------------------------------------------------------------------------
 \subsection{Ourquilane — The Project Carrier}
-% NOTES FOR REDACTION (Ourquilane):
-%   - A dynamic startup specialised in developing innovative software solutions,
-%     based in Hydra, Algiers.
-%   - Mission: transform and modernise various sectors through digital platforms,
-%     digital marketing, and decision-support tools.
-%   - Product portfolio (gives credibility + shows the logistics-IT focus):
-%       * HR Force   — HR management (used by Yalidine)
-%       * FLEET GO   — fleet management
-%       * ITOP       — IT management
-%       * CASH Box   — financial operations
-%       * Route Planner — route / tour planning
-%       * CS Care    — complaints management
-%   - Ourquilane is the entity CARRYING this project (la societe porteuse).
-%   - [VISUAL-PLACEHOLDER] Ourquilane organisation chart (organigramme) + logo.
+
+Ourquilane is a dynamic Algerian software company based in Hydra, Algiers, specialising in innovative
+software solutions. Its mission is to modernise a range of sectors through digital platforms, digital
+marketing, and decision-support tools. Rather than rely on a single product, it operates a portfolio
+of business applications (Table~\ref{tab:ch3-ourquilane}), several of them built for the logistics
+sector --- which gives it direct familiarity with the operations this thesis addresses.
+
+% [VISUAL-IMPLEMENT] Ourquilane product portfolio
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Product}} & \textcolor{white}{\textbf{Purpose}} \\
+\hline
+HR Force & Human-resources management (deployed at Yalidine) \\
+FLEET GO & Vehicle-fleet management \\
+ITOP & IT asset and service management \\
+CASH Box & Financial and cash operations \\
+Route Planner & Delivery-route and tour planning \\
+CS Care & Customer-complaint management \\
+\hline
+\end{tabularx}
+\caption{Ourquilane's product portfolio; several applications target the logistics sector.}
+\label{tab:ch3-ourquilane}
+\end{table}
+
+Ourquilane is the entity carrying the present project: the decision-support platform described in this
+thesis was specified, designed, and developed within it, for deployment to its logistics partner. The
+company's brand identity is shown in Figure~\ref{fig:ch3-ourquilane-logo}.
+
+% [VISUAL-IMPLEMENT] Ourquilane logo
+\fig[0.55\textwidth]{logo_dark}{Ourquilane --- company logo.}{ch3-ourquilane-logo}
 
 % -----------------------------------------------------------------------------
 \subsection{Yalidine El Djazair Services — The Client}
-% NOTES FOR REDACTION (Yalidine — the final client of the project):
-%   - Leader of express delivery in Algeria; provides cutting-edge national logistics.
-%   - Core services: B2B courier, B2C e-commerce delivery, and cash-on-delivery
-%     collection (COD = Cash On Delivery).
-%   - Recognised for real-time tracking ensuring the security and speed of shipments.
-%   - Certifications: ISO 9001 (Quality), ISO 14001 (Environment),
-%     ISO 27001 (Information Security).
-%   - [VISUAL-PLACEHOLDER] Yalidine logo (Figure "Logo de l'organisme client").
-%
-% PRINCIPAL SERVICES OF YALIDINE  --> these become the project's TWO BUSINESS AXES:
-%   (1) Express parcel delivery (B2C / e-commerce) — last-mile delivery - Pricipal service.
-%   (2) On-demand dedicated transport (B2B) — companies transporting goods/parcels/Papers.
-%   NB: introduce them here as Yalidine's real services; the MoSCoW prioritisation
-%       (§3.4) is what frames them as Must/Should-have axes.
+
+Yalidine El Djazair Services is the leader of express delivery in Algeria, operating a nationwide
+logistics network (Figure~\ref{fig:ch3-yalidine-logo}). Its activity covers B2B courier services, B2C
+e-commerce delivery, and cash-on-delivery (COD) collection, and it is widely recognised for the
+real-time parcel tracking that secures and accelerates its shipments. Its operational maturity is
+reflected in three ISO certifications --- ISO~9001 (Quality), ISO~14001 (Environment), and ISO~27001
+(Information Security) --- a standard of rigour that the analytical platform serving it is expected to
+match.
+
+% [VISUAL-IMPLEMENT] Yalidine logo
+\fig[0.32\textwidth]{Yalidine_logo}{Yalidine El Djazair Services --- company logo.}{ch3-yalidine-logo}
+
+Yalidine's activity rests on two principal services, which later define the project's two business
+axes (\S\ref{sec:ch3-scope}):
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Express parcel delivery (B2C, e-commerce)} --- its principal activity: the last-mile
+          delivery of parcels ordered online, from the merchant to the end customer.
+    \item \textbf{On-demand dedicated transport (B2B)} --- moving goods, parcels, or documents on
+          dedicated trips commissioned by client companies.
+\end{itemize}
 
 % -----------------------------------------------------------------------------
 \subsubsection{The Logistics Network}
-% NOTES FOR REDACTION (Yalidine network / operational structure):
-%
-% Organisational layer:
-%   - General direction + 3 regional directions
-%   - Call centres
-%   - Vehicle fleet
-%
-% Three-tier operational structure (Hub -> Regional centre -> Station):
-%   * HUB (Main Sorting Centre / Centre de Tri Principal):
-%       The principal platforms of the national network. They receive parcels
-%       from various origins, perform major sorting, then redistribute them to
-%       the Regional Centres. Yalidine has FOUR strategically located hubs:
-%         - Oued Smar (Algiers) : covers the north of the country
-%         - Relizane            : covers the west
-%         - Constantine         : covers the east
-%         - Ghardaia            : covers the Great South
-%   * REGIONAL SORTING CENTRE (Centre de tri regional):
-%       A logistics entity that manages several delivery stations. Receives
-%       consolidated parcels from the hubs and organises their distribution to
-%       its attached stations.
-%   * STATION (Centre / unite de proximite):
-%       The proximity unit responsible for LAST-MILE delivery. Each station
-%       covers a set of communes and is the unique attachment point of its
-%       drivers. Its main mission: receive parcels from the regional centre and
-%       organise the precise assignment of parcels to drivers for the daily
-%       tours. This is where volume-forecast precision matters most.
-%       Yalidine has a dense network of 182 stations covering the 55 wilayas.
-%
-% Delivery ZONES (drive pricing/distance):
-%       - Zone 0 : intra-wilaya
-%       - Zone 1 : inter-wilaya, short distance
-%       - Zone 2 : inter-wilaya, long distance
-%       - Zone 3 : inter-wilaya, very long distance (south)
-%
-% Delivery TYPES:
-%       - SD = Stop Desk (collection at a desk/point)
-%       - HD = Home Delivery
-%
-% KEY FIGURES (decide whether to include; CONFIRM before printing):
-%   % TODO(achraf): confirm Yalidine figures before they appear in the PDF
-%       - 1 general direction
-%       - 3 regional directions
-%       - 3000+ employees
-%       - 1000+ vehicles
-%       - 4 hubs
-%       - 180+ delivery stations
-%
-%   - [VISUAL-IMPLEMENT] TikZ diagram of the Hub -> Regional Centre -> Station
-%     hierarchy (optionally annotated with the 4 hubs and their coverage).
-%   - [VISUAL-IMPLEMENT] grid table: delivery zones (0-3) and delivery types (SD/HD).
+
+At the organisational level, Yalidine is run by a general direction supported by three regional
+directions, a network of call centres, and a large vehicle fleet. Physically, parcels move through a
+\textbf{three-tier operational structure} (Figure~\ref{fig:ch3-network}):
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Hubs (main sorting centres)} --- the principal platforms of the national network.
+          They receive parcels from many origins, perform the heaviest sorting, and redistribute them
+          to the regional centres. Yalidine operates four hubs, each covering a part of the country:
+          Oued~Smar (Algiers) for the north, Relizane for the west, Constantine for the east, and
+          Ghardaïa for the Great South.
+    \item \textbf{Regional sorting centres} --- each manages several delivery stations, receiving
+          consolidated parcels from the hubs and organising their distribution to the stations attached
+          to it.
+    \item \textbf{Delivery stations} --- the proximity units responsible for last-mile delivery. Each
+          station covers a set of communes and is the single attachment point for its drivers,
+          assigning parcels to them for the daily delivery tours. It is at this level that the
+          precision of volume forecasting matters most.
+\end{itemize}
+
+% [VISUAL-IMPLEMENT] three-tier operational network
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\small, node distance=9mm,
+  tier/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct, align=center,
+               text width=8cm, minimum height=1.15cm},
+  lbl/.style={font=\footnotesize\itshape, text=black!55}]
+  \node[tier] (hub) {\textbf{National Hubs} (4)\\[1pt]
+        \footnotesize Oued~Smar~$\cdot$ Relizane~$\cdot$ Constantine~$\cdot$ Ghardaïa};
+  \node[tier, below=of hub] (reg) {\textbf{Regional Sorting Centres}\\[1pt]
+        \footnotesize each manages several stations};
+  \node[tier, below=of reg] (sta) {\textbf{Delivery Stations} --- last mile\\[1pt]
+        \footnotesize each covers a set of communes};
+  \draw[-{Stealth[length=3mm]}, thick, esiblue] (hub) -- node[right]{\lbl sort \& redistribute} (reg);
+  \draw[-{Stealth[length=3mm]}, thick, esiblue] (reg) -- node[right]{\lbl assign to drivers} (sta);
+\end{tikzpicture}
+\caption{Yalidine's three-tier operational network: hubs consolidate and sort, regional centres
+distribute, and stations handle last-mile delivery.}
+\label{fig:ch3-network}
+\end{figure}
+
+Two further attributes of the network shape how deliveries are priced and recorded. Each delivery falls
+into one of four \textbf{distance zones}, from intra-wilaya to the long inter-wilaya routes of the south
+(Table~\ref{tab:ch3-zones}), and is fulfilled through one of two \textbf{delivery types}: \emph{stop
+desk} (SD), where the customer collects the parcel from a desk, or \emph{home delivery} (HD), where it
+is delivered to the address. Both attributes reappear throughout the analysis as natural dimensions
+along which operations, cost, and performance are read.
+
+% [VISUAL-IMPLEMENT] delivery distance zones
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Zone}} & \textcolor{white}{\textbf{Coverage}} \\
+\hline
+Zone 0 & Intra-wilaya (within the same wilaya) \\
+Zone 1 & Inter-wilaya, short distance \\
+Zone 2 & Inter-wilaya, long distance \\
+Zone 3 & Inter-wilaya, very long distance (the south) \\
+\hline
+\end{tabularx}
+\caption{Yalidine's four delivery distance zones.}
+\label{tab:ch3-zones}
+\end{table}
+
+% TODO(achraf): confirm Yalidine scale figures before adding them to the prose:
+%   - ~182 delivery stations across the wilayas (NB: Algeria has 58 wilayas since 2021; notes said 55)
+%   - 3000+ employees ; 1000+ vehicles ; 1 general direction + 3 regional directions ; 4 hubs
 
 
 % ═════════════════════════════════════════════════════════════════════════════
