@@ -1,80 +1,104 @@
 # 02 — Contribution Guide (Part II + General Intro/Conclusion)
 
+### Structural conventions (apply to every Part II chapter)
+- **No part-level general introduction for Part II.** The thesis has exactly **one** general
+  introduction (at the very start) and **one** general conclusion (at the very end). Each *part*
+  opens straight into its first chapter — do **not** write a "Contribution" introduction.
+- **Each chapter's opening "Introduction" and closing "Conclusion" are unnumbered.** Use
+  `\section*{Introduction}` / `\section*{Conclusion}` followed by
+  `\addcontentsline{toc}{section}{Introduction}` (the convention already in Ch.1–Ch.2), so they
+  appear in the TOC but carry **no section number** (no "3.1 Introduction"). Numbered sections start
+  at the first substantive section.
+
+
 > Covers the **General Introduction**, **Ch.3–Ch.6**, and the **General Conclusion**. Read
 > `00_README_pfe_guide.md` and `03_visuals_guide.md` first. Source of truth = `thesis-technical-recap.md`
 > (+ `docs/`). Stay at **design / general-aspects** level — no code dumps, no invented detail. Apply the
 > no-dense-prose rule (§0.2): short paragraphs, frequent lists/tables/figures.
 
 > **Scope reminder (corrected — §0.5):** two delivered axes = **On-Demand Dedicated Transport** (B2B;
-> Dedicated Trip / Courier / Handling) and **Parcel Delivery** (classic e-commerce express). Each axis
+> Dedicated Trip / Courier / Handling) and **Parcel Delivery Express** (classic e-commerce express). Each axis
 > page has **three sub-pages: Operations / Cost & Profitability / Performance** — **NO Pricing page**.
 > Route Analysis = future work (neutral framing).
 
----
-
-## GENERAL INTRODUCTION (3–4 pp)
-Five short movements (≤1 short paragraph each, plus the objectives as a list):
-1. **Context** — logistics in Algeria is data-rich but the data is scattered; decision-makers lack a
-   unified, reliable view of operations and costs.
-2. **Problem** — existing solutions rarely integrate transport-demand analysis, parcel monitoring, and
-   decision-oriented visualisation in one place.
-3. **Objectives (list)** — centralised Data Warehouse; reliable automated ETL; interactive dashboards;
-   proactive alerting.
-4. **Contribution & host** — LOGIQ, built with **Ourquilane** (Hydra, Alger): a full-stack open-source
-   BI platform on the two business axes.
-5. **Manuscript structure** — one sentence per chapter; end with a transition to Part I.
-- `[VISUAL-IMPLEMENT]` (optional) a small TikZ "reading map" of the manuscript.
 
 ---
 
 ## CHAPTER 3 — Analysis of the Existing System & Methodology (14–16 pp)
 
-### 3.0 Introduction
-### 3.1 Host organisation
-- Ourquilane (Hydra, Alger); the logistics activity; the multi-site network.
-- `[VISUAL-PLACEHOLDER]` company-context figure → *Shows:* position in the parcel + transport network.
-  *Produce:* Claude Design / PowerPoint.
+> All the collected raw material for this chapter is now organised, in English, as comment blocks
+> inside `mainmatter/part2/chapter3/chapter3.tex` (under the matching section). This guide holds only
+> the **plan**; the `.tex` holds the **content to redact**.
 
-### 3.2 Study of the existing situation
-- The scattered source systems and the analytical gap; what decision-makers cannot do today.
-- Present the **five internal source systems** at a **functional** level — *what each provides*, not
-  internals. **Describe them as the real source systems** (simulation is introduced only in Ch.6).
-- `[VISUAL-IMPLEMENT]` `booktabs` table: source system → domain it provides:
-  - Core logistics system → geography, delivery centres, pricing grid, full parcel-event history
-  - HR system → companies, agencies, employees, org hierarchy
-  - Cash-box system → operating expenses, freelance-driver payments, reimbursements, transfers
-  - Payroll system → monthly payslips
-  - Transport system → dedicated B2B transport requests and their stops
+### Introduction *(unnumbered)*
+- Purpose of the chapter: present the host + client organisations, study the existing systems and
+  processes, expose the analytical gap, then derive the requirements, scope, and methodology.
 
-### 3.3 Problem statement & requirements
-- Restate the integration gap; derive functional requirements (short list).
+### 3.1 Host and Final Client Organisations
+- **Ourquilane** (Hydra, Algiers) — the project carrier: software startup; products HR Force, FLEET GO,
+  ITOP, CASH Box, Route Planner, CS Care.
+- **Yalidine El Djazair Services** — the final client: Algeria's express-delivery leader; ISO 9001 /
+  14001 / 27001 certified; two principal services that become the **two business axes**:
+  - **Express parcel delivery (B2C e-commerce)** — last-mile delivery.
+  - **On-demand dedicated transport (B2B)** — moving goods/parcels for companies.
+- **The logistics network**: general + regional directions, call centres, vehicle fleet, and the
+  **three-tier operational structure** — Hubs (4) → regional sorting centres → stations (182 over 55
+  wilayas); delivery **zones** (0–3) and **types** (SD stop-desk / HD home-delivery). Stats: confirm
+  before printing (mark `% TODO`).
+- `[VISUAL-PLACEHOLDER]` company-context / network-position figure → *Produce:* Claude Design /
+  PowerPoint. `[VISUAL-IMPLEMENT]` optional TikZ of the Hub → Regional → Station hierarchy.
 
-### 3.4 Business scope & MoSCoW (corrected)
+### 3.2 Study of the Existing Systems
+*(Order: business processes → source systems → analytical gap.)*
+- **Business processes** first (this is where the parcel lifecycle lives — *one process subsection,
+  organised per service*, not a separate section each):
+  - *Parcel delivery*: parcel **lifecycle**, parcel **statuses**, and **pricing** (delivered tariff,
+    return tariff, theoretical vs real tariff by volume+weight, COD reimbursement).
+  - *Dedicated transport*: request → pricing agreement → assigned trip → pickup → delivery → completion.
+  - `[VISUAL-IMPLEMENT]` TikZ parcel-lifecycle / status flow.
+- **Source systems** at a **functional** level (*what each provides*, not internals) — describe them as
+  the **real** source systems (simulation appears only in Ch.6). The **five internal systems** the
+  warehouse consumes:
+  - Core logistics system (**Yalidine App**) → geography, delivery centres, pricing grid, full
+    parcel-event history.
+  - HR system (**HR Force**) → companies, agencies, employees, org hierarchy.
+  - Cash-box system (**CashBox**) → operating expenses, freelance-driver payments, reimbursements,
+    transfers.
+  - Payroll system (**PC Paie**) → monthly payslips.
+  - Transport system → dedicated B2B transport requests and their stops.
+  - (**Returly** — returns management — noted but outside the consumed set.)
+  - `[VISUAL-IMPLEMENT]` `booktabs`/grid table: source system → domain it provides.
+- **Identified weaknesses & the analytical gap**: scattered systems; what decision-makers cannot do
+  today (consolidated, timely view across operations, cost & profitability, performance).
+
+### 3.3 Requirements Specification
+- **Functional requirements** — derived from the gap (short, numbered list): the **two axis pages**,
+  each with **three sub-treatments** (Operations / Cost & Profitability / Performance), plus
+  **Overview**, **Alerts**, **Administration**; **RBAC** (users imported from HR Force, activated by a
+  super-admin, role-based dashboard access); proactive **alerting** tied to KPIs.
+- **Non-functional requirements** — performance, scalability, security, usability, maintainability,
+  open-source/cost.
+- `[VISUAL-IMPLEMENT]` use-case diagram (TikZ) **OR** `[VISUAL-PLACEHOLDER]` drawn UML.
+
+### 3.4 Business Scope and Prioritisation (MoSCoW)
 - **Must have — On-Demand Dedicated Transport** (B2B; Dedicated Trip / Courier / Handling).
 - **Should have — Parcel Delivery** (classic e-commerce express).
 - **Could have — Route Analysis** → one neutral line: future work, data not available in scope (§0.4).
 - State the **two-independent-financial-perimeters** principle (costs/revenues never mixed).
 - `[VISUAL-IMPLEMENT]` MoSCoW table (priority → axis → what it delivers).
 
-### 3.5 Functional requirements
-- The **two axis pages**, each with **three sub-pages: Operations / Cost & Profitability /
-  Performance** (NO pricing). Plus Overview, Alerts, Settings, Administration.
-- The **user/role model (RBAC)**: users imported from HR, activated by a super-admin, each assigned a
-  role that controls dashboard access.
-- `[VISUAL-IMPLEMENT]` use-case diagram (TikZ) **OR** `[VISUAL-PLACEHOLDER]` for a drawn UML.
-- `[VISUAL-IMPLEMENT]` a small map of pages → sub-pages (tree/table) to make the structure scannable.
+### 3.5 Development Methodology and Planning
+- Development approach (iterative); project timeline (from `thesis.md` schedule); tools.
+- `[VISUAL-IMPLEMENT]` Gantt-style timeline (`pgfgantt`) — *optional, decide initial vs final Gantt*;
+  fall back to a milestone table if a Gantt is not kept.
 
-### 3.6 Methodology
-- Development approach (iterative); the project timeline (from `thesis.md` schedule); tools.
-- `[VISUAL-IMPLEMENT]` Gantt-style timeline (`pgfgantt` or a simple table).
-
-### 3.7 Conclusion & transition to Design.
+### Conclusion *(unnumbered)* — transition to Design.
 
 ---
 
 ## CHAPTER 4 — Design & Architecture (22–26 pp) — heart of the thesis
 
-### 4.0 Introduction
+### Introduction
 ### 4.1 Global architecture
 - Layered, service-oriented; **one-directional** data flow; **operational vs analytical** plane split.
 - Component view: sources → integration (ETL) → storage (DW + operational DB) → application (REST API)
@@ -137,7 +161,7 @@ Five short movements (≤1 short paragraph each, plus the objectives as a list):
   Django + DRF (backend) · Celery + Redis (background) · Next.js/React/TS (frontend) ·
   ECharts/D3.js/Leaflet/Tremor (viz) · Docker Compose + Nginx + Let's Encrypt (deploy).
 
-### 4.8 Conclusion & transition to Implementation.
+### Conclusion & transition to Implementation.
 
 ---
 
@@ -145,7 +169,7 @@ Five short movements (≤1 short paragraph each, plus the objectives as a list):
 > From *how it was designed* to *how it was built and shipped*. General-aspects level; tiny snippets
 > only if they clarify (≤10 lines, `listings`). No full code.
 
-### 5.0 Introduction
+### Introduction
 ### 5.1 Backend implementation
 - REST API responsibilities: auth/session, RBAC authorisation, **read-only** analytics services over
   the **aggregate layer**, administration, alert engine.
@@ -180,14 +204,14 @@ Five short movements (≤1 short paragraph each, plus the objectives as a list):
 - `[VISUAL-IMPLEMENT]` TikZ **deployment topology** (containers behind reverse proxy on one VPS;
   private network; only web ports exposed).
 
-### 5.6 Conclusion & transition to Testing & Results.
+### Conclusion & transition to Testing & Results.
 
 ---
 
 ## CHAPTER 6 — Testing, Validation & Results (14–18 pp) — NEW CHAPTER
 > The **test apparatus** belongs here (recap §10), plus the results that justify the project.
 
-### 6.0 Introduction
+### Introduction
 - Because the real production systems could not be connected during development, a faithful **test
   environment** was built to exercise the full chain end to end. **Neutral framing** — do not
   editorialise about why (§0.4).
@@ -232,7 +256,7 @@ Five short movements (≤1 short paragraph each, plus the objectives as a list):
 ### 6.7 Discussion
 - Objectives met; both axes delivered in full; honest limitations.
 
-### 6.8 Conclusion & transition to the General Conclusion.
+### Conclusion 
 
 ---
 
