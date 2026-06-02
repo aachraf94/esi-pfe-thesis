@@ -134,24 +134,28 @@ technologies must fill. Table~\ref{tab:ch1-info-needs} synthesizes these dimensi
 
 \begin{table}[H]
 \centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Dimension}} &
+\textcolor{white}{\textbf{Strategic}} &
+\textcolor{white}{\textbf{Tactical}} &
+\textcolor{white}{\textbf{Operational}} \\
+\hline
+Time horizon & Years (long-term) & Weeks to months & Hours to days \\
+Aggregation level & Highly summarized & Semi-aggregated & Granular / transactional \\
+Data source & Internal \& external & Primarily internal & Exclusively internal \\
+Frequency & Occasional / ad hoc & Periodic (monthly/weekly) & Continuous / real-time \\
+Precision & Approximate trends & Moderate accuracy & Exact values \\
+Decision structure & Unstructured / novel & Semi-structured & Highly structured \\
+Example decision & Market expansion & Budget reallocation & Route assignment \\
+\hline
+\end{tabularx}
 \caption{Information needs across the three decision-making levels (adapted from
 Anthony~\cite{anthony1965} and Gorry \& Scott Morton~\cite{gorry1971}).}
 \label{tab:ch1-info-needs}
-\renewcommand{\arraystretch}{1.5}
-\begin{tabularx}{\textwidth}{>{\bfseries}l X X X}
-\toprule
-\rowcolor{tblheader}
-\thcell{Dimension} & \thcell{Strategic} & \thcell{Tactical} & \thcell{Operational} \\
-\midrule
-Time horizon      & Years (long-term)       & Weeks to months          & Hours to days \\
-Aggregation level & Highly summarized        & Semi-aggregated          & Granular / transactional \\
-Data source       & Internal \& external     & Primarily internal        & Exclusively internal \\
-Frequency         & Occasional / ad hoc      & Periodic (monthly/weekly) & Continuous / real-time \\
-Precision         & Approximate trends       & Moderate accuracy         & Exact values \\
-Decision structure & Unstructured / novel    & Semi-structured           & Highly structured \\
-Example decision  & Market expansion         & Budget reallocation        & Route assignment \\
-\bottomrule
-\end{tabularx}
 \end{table}
 
 \subsection{Cognitive Limits and the Need for Decision Support}
@@ -274,40 +278,25 @@ systems, and coordination platforms that support group deliberation and consensu
 
 \begin{table}[H]
 \centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{DSS Type}} &
+\textcolor{white}{\textbf{Primary Resource}} &
+\textcolor{white}{\textbf{Key Capabilities}} &
+\textcolor{white}{\textbf{Example Applications}} \\
+\hline
+Data-driven & Historical databases, data warehouses & OLAP querying, trend analysis, KPI reporting & Supply chain dashboards, logistics cost analysis \\
+Model-driven & Mathematical / simulation / optimization models & Scenario analysis, forecasting, what-if simulation & Financial planning, route optimization \\
+Knowledge-driven & Expert rules, case bases, ontologies & Inference engine, recommendation generation & Medical diagnosis, fraud detection \\
+Document-driven & Text corpora, unstructured repositories & Full-text search, text mining, summarization & Legal research, contract compliance \\
+Communication-driven & Collaboration platforms, shared workspaces & Group decision support, electronic negotiation & Virtual project rooms, multi-party negotiation \\
+\hline
+\end{tabularx}
 \caption{Taxonomy of Decision Support Systems (adapted from Power~\cite{power2002}).}
 \label{tab:ch1-dss-types}
-\renewcommand{\arraystretch}{1.5}
-\begin{tabularx}{\textwidth}{>{\bfseries}l X X X}
-\toprule
-\rowcolor{tblheader}
-\thcell{DSS Type} & \thcell{Primary Resource} & \thcell{Key Capabilities} & \thcell{Example Applications} \\
-\midrule
-Data-driven
-  & Historical databases, data warehouses
-  & OLAP querying, trend analysis, KPI reporting
-  & Supply chain dashboards, logistics cost analysis \\
-\addlinespace
-Model-driven
-  & Mathematical / simulation / optimization models
-  & Scenario analysis, forecasting, what-if simulation
-  & Financial planning, route optimization \\
-\addlinespace
-Knowledge-driven
-  & Expert rules, case bases, ontologies
-  & Inference engine, recommendation generation
-  & Medical diagnosis, fraud detection \\
-\addlinespace
-Document-driven
-  & Text corpora, unstructured repositories
-  & Full-text search, text mining, summarization
-  & Legal research, contract compliance \\
-\addlinespace
-Communication-driven
-  & Collaboration platforms, shared workspaces
-  & Group decision support, electronic negotiation
-  & Virtual project rooms, multi-party negotiation \\
-\bottomrule
-\end{tabularx}
 \end{table}
 
 \subsection{Limitations of Classical DSS}
@@ -471,44 +460,27 @@ from the academic and practitioner literature.
 
 \begin{table}[H]
 \centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Category}} &
+\textcolor{white}{\textbf{Critical Success Factor}} &
+\textcolor{white}{\textbf{Rationale}} \\
+\hline
+Organizational & Executive sponsorship & Ensures strategic alignment, budget security, and organizational change management \\
+Organizational & Clear, prioritized business objectives & Prevents scope creep; focuses development effort on value-generating use cases \\
+Organizational & User adoption and change management & A technically sound system that users distrust or cannot interpret delivers no value \\
+Technical & Data quality and governance & Analytical outputs are only as trustworthy as the data upon which they are based \\
+Technical & Scalable and evolvable architecture & The system must accommodate growing data volumes and evolving business requirements \\
+Technical & Iterative and incremental delivery & Agile delivery sustains stakeholder engagement and enables early course correction \\
+Methodological & Business--IT alignment & Technical teams must understand business needs; business users must trust IT outputs \\
+\hline
+\end{tabularx}
 \caption{Critical Success Factors of a Business Intelligence initiative
 (synthesized from Yeoh \& Koronios~\cite{yeoh2010} and Chaudhuri et~al.~\cite{chaudhuri2011}).}
 \label{tab:ch1-bi-csf}
-\renewcommand{\arraystretch}{1.5}
-\begin{tabularx}{\textwidth}{>{\bfseries}l X X}
-\toprule
-\rowcolor{tblheader}
-\thcell{Category} & \thcell{Critical Success Factor} & \thcell{Rationale} \\
-\midrule
-Organizational
-  & Executive sponsorship
-  & Ensures strategic alignment, budget security, and organizational change management \\
-\addlinespace
-Organizational
-  & Clear, prioritized business objectives
-  & Prevents scope creep; focuses development effort on value-generating use cases \\
-\addlinespace
-Organizational
-  & User adoption and change management
-  & A technically sound system that users distrust or cannot interpret delivers no value \\
-\addlinespace
-Technical
-  & Data quality and governance
-  & Analytical outputs are only as trustworthy as the data upon which they are based \\
-\addlinespace
-Technical
-  & Scalable and evolvable architecture
-  & The system must accommodate growing data volumes and evolving business requirements \\
-\addlinespace
-Technical
-  & Iterative and incremental delivery
-  & Agile delivery sustains stakeholder engagement and enables early course correction \\
-\addlinespace
-Methodological
-  & Business--IT alignment
-  & Technical teams must understand business needs; business users must trust IT outputs \\
-\bottomrule
-\end{tabularx}
 \end{table}
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -691,43 +663,26 @@ comparison of the two approaches along the dimensions most relevant to practitio
 
 \begin{table}[H]
 \centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Dimension}} &
+\textcolor{white}{\textbf{Inmon --- Top-Down}} &
+\textcolor{white}{\textbf{Kimball --- Bottom-Up}} \\
+\hline
+Overall philosophy & Build normalized enterprise DW first; derive Data Marts from it & Build dimensional Data Marts first; integrate via conformed dimensions \\
+Data model & Third Normal Form (3NF) relational & Denormalized dimensional (star / snowflake schema) \\
+Time to first delivery & Longer (full enterprise model must be defined upfront) & Shorter (individual Data Marts delivered iteratively) \\
+Flexibility to change & Lower (normalized schema requires structural redesign for new subjects) & Higher (new Data Marts added incrementally without disturbing existing ones) \\
+Query performance & Requires complex multi-table joins; slower for ad hoc analytics & Optimized for analytical queries; fewer and shallower joins \\
+Data redundancy & Minimal (controlled by normalization) & Moderate (deliberately controlled redundancy for query performance) \\
+Best suited for & Large enterprises with stable, comprehensive, well-defined requirements & Project-driven, iterative BI implementations with evolving scope \\
+\hline
+\end{tabularx}
 \caption{Comparison of Inmon (top-down) and Kimball (bottom-up) data warehouse design approaches.}
 \label{tab:ch1-inmon-kimball}
-\renewcommand{\arraystretch}{1.5}
-\begin{tabularx}{\textwidth}{>{\bfseries}l X X}
-\toprule
-\rowcolor{tblheader}
-\thcell{Dimension} & \thcell{Inmon --- Top-Down} & \thcell{Kimball --- Bottom-Up} \\
-\midrule
-Overall philosophy
-  & Build normalized enterprise DW first; derive Data Marts from it
-  & Build dimensional Data Marts first; integrate via conformed dimensions \\
-\addlinespace
-Data model
-  & Third Normal Form (3NF) relational
-  & Denormalized dimensional (star / snowflake schema) \\
-\addlinespace
-Time to first delivery
-  & Longer (full enterprise model must be defined upfront)
-  & Shorter (individual Data Marts delivered iteratively) \\
-\addlinespace
-Flexibility to change
-  & Lower (normalized schema requires structural redesign for new subjects)
-  & Higher (new Data Marts added incrementally without disturbing existing ones) \\
-\addlinespace
-Query performance
-  & Requires complex multi-table joins; slower for ad hoc analytics
-  & Optimized for analytical queries; fewer and shallower joins \\
-\addlinespace
-Data redundancy
-  & Minimal (controlled by normalization)
-  & Moderate (deliberately controlled redundancy for query performance) \\
-\addlinespace
-Best suited for
-  & Large enterprises with stable, comprehensive, well-defined requirements
-  & Project-driven, iterative BI implementations with evolving scope \\
-\bottomrule
-\end{tabularx}
 \end{table}
 
 \subsubsection{Dimensional Modeling: Facts, Dimensions, and Hierarchies}
