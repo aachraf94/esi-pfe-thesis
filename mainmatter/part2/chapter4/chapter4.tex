@@ -92,47 +92,45 @@ decision-makers can be onboarded as the organisation evolves, without changing t
 % -----------------------------------------------------------------------------
 \subsection{Functional Specifications}
 
-The specifications expected of the system group into five families, each answering one or more of the
-specific objectives of Chapter~3 (Table~\ref{tab:ch4-capabilities}). They run from bringing the
-scattered data together, through consulting it along the two axes and three views, to being warned
-proactively when an indicator drifts --- the whole governed by role-appropriate access and supported
-by administration.
+The specifications expected of the system group into four families, each answering one or more of the
+specific objectives of Chapter~3 (Table~\ref{tab:ch4-capabilities}). They run from consulting the
+activity along the two axes and three views, through being warned proactively when an indicator
+drifts, to personalising the experience --- the whole mediated by role-appropriate access and
+supported by administration.
 
-% [VISUAL-IMPLEMENT] functional specification families traced to the Ch.3 objectives
+% [VISUAL-IMPLEMENT] functional specifications, numbered and grouped into four families
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.35}
-\rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.3cm}|}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\centering\arraybackslash}p{1.0cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \rowcolor{tblheader}
-\textcolor{white}{\textbf{Specification family}} & \textcolor{white}{\textbf{What the system must do}} &
-\textcolor{white}{\textbf{Objective served (Ch.3)}} \\
+\textcolor{white}{\textbf{Specification category}} & \textcolor{white}{\textbf{ID}} &
+\textcolor{white}{\textbf{Specification}} \\
 \hline
-Data consolidation &
-Bring the scattered operational data into a single, coherent source \newline
-Refresh it continuously &
-Consolidate the scattered data (Obj.~1). \\
-Multi-axis decision consultation &
-Consult each business axis --- parcel delivery and dedicated transport --- along its three views (Operations, Cost \& Profitability, Performance) \newline
-Show a consolidated overview of both axes &
-Read each axis in depth (Obj.~2, 3). \\
-Proactive monitoring &
-Define threshold rules on sensitive indicators \newline
-Alert automatically, through the preferred channel, when a metric drifts beyond its acceptable level &
-Monitor proactively (Obj.~4). \\
-Role-appropriate access &
-Present each decision-maker only the sections suited to their role \newline
-Let them save personal filters and notification preferences &
-Deliver the right information to the right decision-maker (Obj.~5). \\
-Administration &
-Activate HR-imported users \newline
-Assign and adjust roles \newline
-Supervise the data-refresh pipeline and its run history &
-Underpin reliable, governed operation; found decisions on reliable data (Obj.~1, 6). \\
+\multirow{2}{3.5cm}{\raggedright Multi-axis decision consultation} & FS01 &
+Consult each business axis --- parcel delivery and dedicated transport --- along its three views (Operations, Cost \& Profitability, Performance). \\
+ & FS02 & Show a consolidated overview of both axes. \\
+\hline
+\rowcolor{tblrowalt}\multirow{2}{3.5cm}{\raggedright Proactive monitoring} & FS03 &
+Define threshold rules on sensitive indicators. \\
+\rowcolor{tblrowalt} & FS04 & Alert automatically, through the preferred channel, when a metric drifts beyond its acceptable level. \\
+\hline
+\multirow{5}{3.5cm}{\raggedright Role-appropriate access \& personalisation} & FS05 &
+Present each decision-maker only the sections suited to their role. \\
+ & FS06 & Save personal filters and view preferences. \\
+ & FS07 & Customise the channels through which alerts are delivered. \\
+ & FS08 & Switch between dark and light interface themes. \\
+ & FS09 & Switch the interface language between Arabic, French, and English. \\
+\hline
+\rowcolor{tblrowalt}\multirow{3}{3.5cm}{\raggedright Administration} & FS10 &
+Activate HR-imported users. \\
+\rowcolor{tblrowalt} & FS11 & Assign and adjust roles. \\
+\rowcolor{tblrowalt} & FS12 & Supervise the data-refresh pipeline and its run history. \\
 \hline
 \end{tabularx}
-\caption{The five functional specification families, each traced to a specific objective of Chapter~3.}
+\caption{The functional specifications of LOGIQ (FS01--FS12), grouped into four families that
+together answer the specific objectives of Chapter~3.}
 \label{tab:ch4-capabilities}
 \end{table}
 
@@ -310,44 +308,52 @@ the product-quality characteristics of the ISO/IEC~25010 model~\cite{iso25010}; 
 this chapter, each requirement is stated independently of any particular technology.
 Table~\ref{tab:ch4-techspec} collects them.
 
-% [VISUAL-IMPLEMENT] technical (non-functional) specification, organised by ISO/IEC 25010 attributes
+% [VISUAL-IMPLEMENT] technical (non-functional) specifications, numbered and grouped by ISO/IEC 25010 attributes
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.35}
-\rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{2.8cm}|}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\centering\arraybackslash}p{1.0cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \rowcolor{tblheader}
-\textcolor{white}{\textbf{Quality attribute}} & \textcolor{white}{\textbf{Technical specification}} &
-\textcolor{white}{\textbf{Driven by}} \\
+\textcolor{white}{\textbf{Specification category}} & \textcolor{white}{\textbf{ID}} &
+\textcolor{white}{\textbf{Specification}} \\
 \hline
-Performance efficiency & Analytical views and KPI queries return within a few seconds --- not minutes
---- over the full national history; response time and resource use stay bounded as the data grows, by
-reading from a pre-computed aggregate layer and isolating analytical from operational workloads. &
-Responsiveness \\
-Capacity \& scalability & Sized for production-scale volumes (a parcel history on the order of hundreds
-of millions of status events over a multi-year horizon), refreshed incrementally rather than reloaded
-in full, leaving headroom to grow with the activity. & National scale \\
-Reliability & Figures are consistent across every view; the data refresh is idempotent and
-recoverable, so a failed or repeated run never corrupts or duplicates data; the system degrades
-gracefully when the analytical store is briefly unavailable. & Reliability \\
-Security & Every view is gated by role-based access control; users are provisioned only by an
-administrator; the two financial perimeters are kept strictly separate; sessions use stateless
-authentication and all transport is encrypted. & Role-appropriate access \\
-Usability & Readable and navigable by managers who are not data specialists --- visual-first, clear
-indicators over raw tables --- and consistent across the two axes and their three views. &
-Simplicity \\
-Maintainability & Built as the loosely coupled functional modules of \S\ref{sec:ch4-funcarch} on open,
-non-proprietary foundations, with a clean separation of operational and analytical concerns, so each
-part can evolve independently. & Sustainable evolution \\
-Compatibility \& portability & Source integration depends only on each system's API contract --- so the
-real production systems connect unchanged --- and the design accommodates the deferred Route Analysis
-axis without restructuring; the whole is reproducibly deployable on modest infrastructure. &
-Integration \& future work \\
+\multirow{3}{3.5cm}{\raggedright Performance efficiency} & TS01 &
+Analytical views and KPI queries return within a few seconds --- not minutes --- over the full national history. \\
+ & TS02 & Response time and resource use stay bounded as the data grows, by reading from a pre-computed aggregate layer. \\
+ & TS03 & Analytical workloads are isolated from operational ones. \\
+\hline
+\rowcolor{tblrowalt}\multirow{2}{3.5cm}{\raggedright Capacity \& scalability} & TS04 &
+Sized for production-scale volumes --- a parcel history on the order of hundreds of millions of status events over a multi-year horizon. \\
+\rowcolor{tblrowalt} & TS05 & Refreshed automatically and incrementally rather than reloaded in full, leaving headroom to grow with the activity. \\
+\hline
+\multirow{3}{3.5cm}{\raggedright Reliability} & TS06 &
+Figures are consistent across every view. \\
+ & TS07 & The data refresh is idempotent and recoverable, so a failed or repeated run never corrupts or duplicates data. \\
+ & TS08 & The system degrades gracefully when the analytical store is briefly unavailable. \\
+\hline
+\rowcolor{tblrowalt}\multirow{3}{3.5cm}{\raggedright Security} & TS09 &
+Every view is gated by role-based access control; user accounts are provisioned from the company's HR system by an administrator, never self-registered. \\
+\rowcolor{tblrowalt} & TS10 & The two financial perimeters are kept strictly separate. \\
+\rowcolor{tblrowalt} & TS11 & Sessions use stateless authentication and all transport is encrypted. \\
+\hline
+\multirow{3}{3.5cm}{\raggedright Usability} & TS12 &
+Readable and navigable by managers who are not data specialists --- visual-first, clear indicators over raw tables. \\
+ & TS13 & Each KPI is presented as a chart or graphic, backed by an on-demand data-table view of the same underlying figures. \\
+ & TS14 & Consistent across the two axes and their three views. \\
+\hline
+\rowcolor{tblrowalt}\multirow{2}{3.5cm}{\raggedright Maintainability} & TS15 &
+Built as the loosely coupled functional modules of \S\ref{sec:ch4-funcarch} on open, non-proprietary foundations. \\
+\rowcolor{tblrowalt} & TS16 & Operational and analytical concerns are cleanly separated, so each part can evolve independently. \\
+\hline
+\multirow{3}{3.5cm}{\raggedright Compatibility \& portability} & TS17 &
+Source integration depends only on each system's API contract, so the real production systems connect unchanged. \\
+ & TS18 & The design accommodates the deferred Route Analysis axis without restructuring. \\
+ & TS19 & Reproducibly deployable on modest infrastructure. \\
 \hline
 \end{tabularx}
-\caption{Technical specification of LOGIQ, organised along the product-quality characteristics of
-ISO/IEC~25010 and traced to the quality expectations of \S\ref{subsec:ch4-quality}.}
+\caption{The technical specifications of LOGIQ (TS01--TS19), grouped along the product-quality
+characteristics of ISO/IEC~25010 and tracing the quality expectations of \S\ref{subsec:ch4-quality}.}
 \label{tab:ch4-techspec}
 \end{table}
 
