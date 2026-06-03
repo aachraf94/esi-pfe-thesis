@@ -56,40 +56,21 @@ organisations are introduced here before the existing systems are examined.
 % -----------------------------------------------------------------------------
 \subsection{Ourquilane — The Project Carrier}
 
-Ourquilane is a dynamic Algerian software company based in Hydra, Algiers, specialising in innovative
-software solutions. Its mission is to modernise a range of sectors through digital platforms, digital
-marketing, and decision-support tools. Rather than rely on a single product, it operates a portfolio
-of business applications (Table~\ref{tab:ch3-ourquilane}), several of them built for the logistics
-sector --- which gives it direct familiarity with the operations this thesis addresses.
+Ourquilane is a dynamic Algerian startup based in Hydra, Algiers, specialising in innovative software
+solutions. Its mission is to modernise a range of sectors through digital platforms, digital marketing,
+and decision-support tools, supported by a portfolio of business applications (HR~Force, FLEET~GO,
+CASH~Box, Route~Planner, \etc). It is the host organisation carrying the present project; its logo is
+shown in Figure~\ref{fig:ch3-ourquilane-logo}.
 
-% [VISUAL-IMPLEMENT] Ourquilane product portfolio
-\begin{table}[H]
+% [VISUAL-IMPLEMENT] Ourquilane logo (host organisation)
+\begin{figure}[H]
 \centering
-\renewcommand{\arraystretch}{1.35}
-\rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|}
-\hline
-\rowcolor{tblheader}
-\textcolor{white}{\textbf{Product}} & \textcolor{white}{\textbf{Purpose}} \\
-\hline
-HR Force & Human-resources management (deployed at Yalidine) \\
-FLEET GO & Vehicle-fleet management \\
-ITOP & IT asset and service management \\
-CASH Box & Financial and cash operations \\
-Route Planner & Delivery-route and tour planning \\
-CS Care & Customer-complaint management \\
-\hline
-\end{tabularx}
-\caption{Ourquilane's product portfolio; several applications target the logistics sector.}
-\label{tab:ch3-ourquilane}
-\end{table}
-
-Ourquilane is the entity carrying the present project: the decision-support platform described in this
-thesis was specified, designed, and developed within it, for deployment to its logistics partner. The
-company's brand identity is shown in Figure~\ref{fig:ch3-ourquilane-logo}.
-
-% [VISUAL-IMPLEMENT] Ourquilane logo
-\fig[0.55\textwidth]{logo_dark}{Ourquilane --- company logo.}{ch3-ourquilane-logo}
+\vspace{1.2em}
+\includegraphics[width=0.5\textwidth]{logo_dark}
+\vspace{1.2em}
+\caption{Ourquilane --- logo of the host organisation.}
+\label{fig:ch3-ourquilane-logo}
+\end{figure}
 
 % -----------------------------------------------------------------------------
 \subsection{Yalidine El Djazair Services — The Client}
@@ -103,7 +84,14 @@ reflected in three ISO certifications --- ISO~9001 (Quality), ISO~14001 (Environ
 match.
 
 % [VISUAL-IMPLEMENT] Yalidine logo
-\fig[0.32\textwidth]{Yalidine_logo}{Yalidine El Djazair Services --- company logo.}{ch3-yalidine-logo}
+\begin{figure}[H]
+\centering
+\vspace{1.2em}
+\includegraphics[width=0.42\textwidth]{Yalidine_logo}
+\vspace{1.2em}
+\caption{Yalidine El Djazair Services --- company logo.}
+\label{fig:ch3-yalidine-logo}
+\end{figure}
 
 Yalidine's activity rests on two principal services, which later define the project's two business
 axes (\S\ref{sec:ch3-scope}):
@@ -126,8 +114,12 @@ directions, a network of call centres, and a large vehicle fleet. Physically, pa
     \item \textbf{Hubs (main sorting centres)} --- the principal platforms of the national network.
           They receive parcels from many origins, perform the heaviest sorting, and redistribute them
           to the regional centres. Yalidine operates four hubs, each covering a part of the country:
-          Oued~Smar (Algiers) for the north, Relizane for the west, Constantine for the east, and
-          Ghardaïa for the Great South.
+          \begin{itemize}[noitemsep, topsep=2pt]
+              \item \textbf{Oued~Smar} (Algiers) --- the north;
+              \item \textbf{Relizane} --- the west;
+              \item \textbf{Constantine} --- the east;
+              \item \textbf{Ghardaïa} --- the Great South.
+          \end{itemize}
     \item \textbf{Regional sorting centres} --- each manages several delivery stations, receiving
           consolidated parcels from the hubs and organising their distribution to the stations attached
           to it.
@@ -137,33 +129,98 @@ directions, a network of call centres, and a large vehicle fleet. Physically, pa
           precision of volume forecasting matters most.
 \end{itemize}
 
-% [VISUAL-IMPLEMENT] three-tier operational network
+% [VISUAL-IMPLEMENT] three-tier operational network (hub -> regional -> stations, fan-out)
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[font=\small, node distance=9mm,
-  tier/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct, align=center,
-               text width=8cm, minimum height=1.15cm},
-  lbl/.style={font=\footnotesize\itshape, text=black!55}]
-  \node[tier] (hub) {\textbf{National Hubs} (4)\\[1pt]
-        \footnotesize Oued~Smar~$\cdot$ Relizane~$\cdot$ Constantine~$\cdot$ Ghardaïa};
-  \node[tier, below=of hub] (reg) {\textbf{Regional Sorting Centres}\\[1pt]
-        \footnotesize each manages several stations};
-  \node[tier, below=of reg] (sta) {\textbf{Delivery Stations} --- last mile\\[1pt]
-        \footnotesize each covers a set of communes};
-  \draw[-{Stealth[length=3mm]}, thick, esiblue] (hub) -- node[right]{\lbl sort \& redistribute} (reg);
-  \draw[-{Stealth[length=3mm]}, thick, esiblue] (reg) -- node[right]{\lbl assign to drivers} (sta);
+\begin{tikzpicture}[font=\footnotesize, >={Stealth[length=2mm]},
+  hub/.style={rectangle, rounded corners, draw=esiblue, very thick, fill=esiblue, text=white,
+              align=center, text width=3.0cm, minimum height=1cm},
+  reg/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct,
+              align=center, text width=2.5cm, minimum height=0.95cm},
+  sta/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblanal,
+              align=center, text width=2.3cm, minimum height=0.8cm},
+  fl/.style={->, esiblue, thick}]
+  \node[hub] (h)  at (0,0)       {\textbf{National Hubs}\\[-1pt]\scriptsize 4 sites, nationwide};
+  \node[reg] (r1) at (-2.6,-1.8) {\textbf{Regional centre}\\[-1pt]\scriptsize consolidate \& distribute};
+  \node[reg] (r2) at ( 2.6,-1.8) {\textbf{Regional centre}\\[-1pt]\scriptsize consolidate \& distribute};
+  \node[sta] (s1) at (-3.9,-3.6) {Delivery stations};
+  \node[sta] (s2) at (-1.3,-3.6) {Delivery stations};
+  \node[sta] (s3) at ( 1.3,-3.6) {Delivery stations};
+  \node[sta] (s4) at ( 3.9,-3.6) {Delivery stations};
+  \draw[fl] (h) -- (r1);  \draw[fl] (h) -- (r2);
+  \draw[fl] (r1) -- (s1); \draw[fl] (r1) -- (s2);
+  \draw[fl] (r2) -- (s3); \draw[fl] (r2) -- (s4);
 \end{tikzpicture}
-\caption{Yalidine's three-tier operational network: hubs consolidate and sort, regional centres
-distribute, and stations handle last-mile delivery.}
+\caption{Yalidine's three-tier operational network: four national hubs feed the regional sorting
+centres, which in turn distribute parcels to the delivery stations that handle the last mile.}
 \label{fig:ch3-network}
 \end{figure}
 
-Two further attributes of the network shape how deliveries are priced and recorded. Each delivery falls
-into one of four \textbf{distance zones}, from intra-wilaya to the long inter-wilaya routes of the south
-(Table~\ref{tab:ch3-zones}), and is fulfilled through one of two \textbf{delivery types}: \emph{stop
-desk} (SD), where the customer collects the parcel from a desk, or \emph{home delivery} (HD), where it
-is delivered to the address. Both attributes reappear throughout the analysis as natural dimensions
-along which operations, cost, and performance are read.
+% TODO(achraf): confirm Yalidine scale figures before adding them to the prose:
+%   - ~182 delivery stations across the wilayas (NB: Algeria has 58 wilayas since 2021; notes said 55)
+%   - 3000+ employees ; 1000+ vehicles ; 1 general direction + 3 regional directions ; 4 hubs
+
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Study of the Existing Systems}
+\label{sec:ch3-existing}
+
+Having introduced the organisations, this section turns to how Yalidine operates day to day and how
+that activity is recorded. It first follows the two services as business processes, then inventories
+the operational systems that capture their data --- the raw material the platform must later
+consolidate.
+
+% -----------------------------------------------------------------------------
+\subsection{Business Processes}
+
+\paragraph{Parcel delivery.}
+This is Yalidine's principal activity. Every parcel follows a well-defined lifecycle, from the moment a
+merchant hands it over to its final delivery (Figure~\ref{fig:ch3-parcel-lifecycle}). After
+\textbf{pickup}, the parcel reaches a \textbf{hub}, where it is sorted and routed to the
+\textbf{regional centre} responsible for its destination, then to the \textbf{station} that covers the
+delivery area. The station assigns it to a driver, who takes it \textbf{out for delivery}; on success
+the parcel is marked \textbf{delivered} and, where applicable, the cash-on-delivery amount is
+collected. When delivery fails or the recipient refuses the parcel, it enters a \textbf{return} flow
+back to the merchant.
+
+% [VISUAL-IMPLEMENT] parcel lifecycle / status flow
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, node distance=5mm,
+  step/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct, align=center,
+               text width=1.9cm, minimum height=1cm},
+  ret/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblrowalt, align=center,
+              text width=2.6cm, minimum height=0.9cm},
+  fl/.style={-{Stealth[length=2.5mm]}, thick, esiblue}]
+  \node[step] (pick) {Pickup};
+  \node[step, right=of pick] (hub) {Hub sorting};
+  \node[step, right=of hub] (reg) {Regional centre};
+  \node[step, right=of reg] (sta) {Station};
+  \node[step, right=of sta] (ofd) {Out for delivery};
+  \node[step, right=of ofd] (del) {Delivered\\(COD collected)};
+  \draw[fl] (pick) -- (hub);
+  \draw[fl] (hub) -- (reg);
+  \draw[fl] (reg) -- (sta);
+  \draw[fl] (sta) -- (ofd);
+  \draw[fl] (ofd) -- (del);
+  \node[ret, below=9mm of ofd] (rtn) {Returned to merchant};
+  \draw[fl] (ofd) -- node[right, font=\scriptsize\itshape, text=black!55]{failed / refused} (rtn);
+\end{tikzpicture}
+\caption{The parcel lifecycle at Yalidine, from pickup to delivery, with the return flow for
+undeliverable parcels.}
+\label{fig:ch3-parcel-lifecycle}
+\end{figure}
+
+Throughout this journey the parcel carries a \textbf{status} reflecting its current step. These statuses
+are the backbone of Yalidine's real-time tracking and, later, of the operational indicators the
+platform reports. % TODO(achraf): list / confirm the exact parcel status set
+
+Beyond its route through the network, each delivery is characterised by two attributes that shape how it
+is priced and recorded. It falls into one of four \textbf{distance zones}, from intra-wilaya to the long
+inter-wilaya routes of the south (Table~\ref{tab:ch3-zones}), and is fulfilled through one of two
+\textbf{delivery types}: \emph{stop desk} (SD), where the customer collects the parcel from a desk, or
+\emph{home delivery} (HD), where it is delivered to the address. Both attributes reappear throughout the
+analysis as natural dimensions along which operations, cost, and performance are read.
 
 % [VISUAL-IMPLEMENT] delivery distance zones
 \begin{table}[H]
@@ -185,59 +242,75 @@ Zone 3 & Inter-wilaya, very long distance (the south) \\
 \label{tab:ch3-zones}
 \end{table}
 
-% TODO(achraf): confirm Yalidine scale figures before adding them to the prose:
-%   - ~182 delivery stations across the wilayas (NB: Algeria has 58 wilayas since 2021; notes said 55)
-%   - 3000+ employees ; 1000+ vehicles ; 1 general direction + 3 regional directions ; 4 hubs
+\paragraph{Parcel pricing.}
+The price of a parcel is not a single figure but a small set of related tariffs
+(Table~\ref{tab:ch3-pricing}). A delivered parcel is billed at one rate and a returned parcel at
+another; in parallel, a \emph{theoretical} tariff taken from the published pricing grid is compared
+against a \emph{real} tariff recomputed from the parcel's measured weight and volume, the divergence
+between the two being a direct signal for cost and profitability. Finally, where a sender insures a
+parcel, Yalidine operates a reimbursement scheme covering loss or damage.
 
+% [VISUAL-IMPLEMENT] parcel pricing components
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Pricing component}} & \textcolor{white}{\textbf{Basis}} \\
+\hline
+Delivered-parcel tariff & Billed on successful delivery, from the zone-based pricing grid. \\
+Return-parcel tariff & Billed when an undeliverable parcel is returned to the merchant. \\
+Theoretical vs.\ real tariff & Theoretical $=$ grid price; real $=$ recomputed from the parcel's
+measured weight and volume; the gap between them signals cost and profitability. \\
+Reimbursement (insurance) & Optional cover at $\sim$1\% of the declared value: 100\% reimbursed if the
+parcel is lost, 60--80\% if damaged, depending on the condition of its packaging. \\
+\hline
+\end{tabularx}
+\caption{The components that make up a parcel's price at Yalidine.}
+\label{tab:ch3-pricing}
+\end{table}
 
-% ═════════════════════════════════════════════════════════════════════════════
-\section{Study of the Existing Systems}
-\label{sec:ch3-existing}
-
-% -----------------------------------------------------------------------------
-\subsection{Business Processes}
-% NOTES FOR REDACTION (the existing processes — ONE subsection, organised per service):
-%
-% A) PARCEL DELIVERY (B2C e-commerce):
-%   - Parcel lifecycle at Yalidine (cycle de vie d'un colis): from creation/pickup,
-%     through hub & regional sorting, to station and last-mile delivery (or return).
-%   - Parcel statuses (status d'un colis): the multiple states a parcel moves
-%     through across its lifecycle.  % TODO(achraf): list the exact status set
-%   - Parcel pricing / tariffs (tarification d'un colis):
-%       * delivered-parcel tariff (tarif colis livre)
-%       * return-parcel tariff (tarif colis retour)
-%       * theoretical tariff vs real tariff  (theoretical = grid; real = f(volume, weight))
-%       * parcel reimbursement (remboursement — tied to COD in case of assurance pay 1% of the value of the parcel, reimbursed in case damaged or lost, lost 100% , bu damaged depends on the embalage status of the parcel from 60% to 80%).
-%   - [VISUAL-IMPLEMENT] TikZ parcel-lifecycle / status flow diagram.
-%
-% B) DEDICATED TRANSPORT (B2B, on-demand):
-%   - Process: transport request -> Pricing and agremment on pricing -> assigned dedicated trip -> pickup -> delivery -> completion.
-%   % TODO(achraf): confirm the exact transport request -> stops workflow (you can develop it yourself)
+\paragraph{Dedicated transport.}
+The B2B service follows a shorter, linear path: a client request, a price quotation and agreement, the
+assignment of a dedicated trip, pickup, delivery to the agreed destination, and completion.
+% TODO(achraf): confirm the exact transport request -> stops workflow
 
 % -----------------------------------------------------------------------------
 \subsection{Source Systems}
-% NOTES FOR REDACTION (existing IT systems of Yalidine):
-%   - Present each at a FUNCTIONAL level (what it provides), not internals.
-%   - Describe them as the REAL source systems (the simulation is introduced
-%     only in Ch.6 — do NOT mention simulation here).
-%
-% The FIVE internal systems the warehouse consumes:
-%   1. Core logistics system  (Yalidine App)
-%        -> geography, delivery centres, pricing grid, full parcel-event history
-%   2. HR system              (HR Force)
-%        -> companies, agencies, employees, organisational hierarchy
-%   3. Cash-box system        (CashBox)
-%        -> operating expenses, freelance-driver payments, reimbursements, transfers
-%   4. Payroll system         (PC Paie)
-%        -> monthly payslips
-%   5. Transport system
-%        -> dedicated B2B transport requests and their stops
-%
-%   ( Returly App -> returns management — exists at Yalidine but is NOT part of
-%     the consumed source set; mention only if useful, otherwise omit. )
-%
-%   - [VISUAL-IMPLEMENT] grid table: source system -> domain it provides
-%     (5 rows, columns: System | Domain provided).
+
+Yalidine's operations are recorded across several independent IT systems. Five of them hold the data
+relevant to this project, each owning a distinct slice of the business
+(Table~\ref{tab:ch3-sources}); they are described here at a functional level --- by \emph{what each
+provides} rather than how it is built.
+
+% [VISUAL-IMPLEMENT] source systems and the domain each provides
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.3cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Source system}} & \textcolor{white}{\textbf{Domain it provides}} \\
+\hline
+Core logistics system (Yalidine~App) & Geography, delivery centres, the pricing grid, and the full
+parcel-event history. \\
+HR system (HR~Force) & Companies, agencies, employees, and the organisational hierarchy. \\
+Cash-box system (CashBox) & Operating expenses, freelance-driver payments, reimbursements, and
+transfers. \\
+Payroll system (PC~Paie) & Monthly payslips. \\
+Transport system & Dedicated B2B transport requests and their stops. \\
+\hline
+\end{tabularx}
+\caption{The five internal source systems and the business domain each one provides.}
+\label{tab:ch3-sources}
+\end{table}
+
+A sixth application, \textbf{Returly}, manages parcel returns but lies outside the set of systems this
+project consumes. Each of the five systems performs its own role well; the difficulty, examined next,
+is that they remain disconnected from one another.
 
 % -----------------------------------------------------------------------------
 \subsection{Identified Weaknesses and the Analytical Gap}
