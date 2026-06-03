@@ -172,30 +172,38 @@ consolidate.
 % -----------------------------------------------------------------------------
 \subsection{Business Processes}
 
-Yalidine runs two distinct business services, each with its own process, lifecycle, and cost
-structure: 
+Yalidine runs two distinct business services, each with its own process: 
 
 % =============================================================================
 \subsubsection{Express Parcel Delivery}
 
-This is Yalidine's principal activity. Every parcel follows a well-defined lifecycle, from the moment a
-merchant hands it over to its final delivery (Figure~\ref{fig:ch3-parcel-lifecycle}). After
-\textbf{pickup}, the parcel reaches a \textbf{hub}, where it is sorted and routed to the
-\textbf{regional centre} responsible for its destination, then to the \textbf{station} that covers the
-delivery area. The station assigns it to a driver, who takes it \textbf{out for delivery}; on success
-the parcel is marked \textbf{delivered} and, where applicable, the cash-on-delivery (COD) amount is
-collected. When a delivery fails or the recipient refuses the parcel, it enters a \textbf{return} flow
-back to the merchant.
+Express parcel delivery is Yalidine's principal activity: the last-mile, business-to-consumer
+delivery of goods ordered online, from the merchant to the end customer. Every parcel follows a
+well-defined lifecycle, from the moment a merchant hands it over to its final delivery
+(Figure~\ref{fig:ch3-parcel-lifecycle}).
 
-% [VISUAL-PLACEHOLDER] high-level parcel lifecycle — author inserts the drawn diagram
-\visualplaceholder
-  {The high-level parcel lifecycle as a linear status flow --- Pickup $\rightarrow$ Hub $\rightarrow$
-   Regional centre $\rightarrow$ Station $\rightarrow$ Out for delivery $\rightarrow$ Delivered ---
-   with the return branch for undeliverable parcels.}
-  {Hand-drawn / diagram tool, inserted by the author. General statuses only, not the detailed set.}
-  {The parcel lifecycle at Yalidine, from pickup to delivery, with the return flow for undeliverable
-   parcels.}
+% [VISUAL-FETCH] author-provided parcel lifecycle diagram (PNG in figures/)
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{Parcel Lifecycle 1.png}
+\caption{The parcel lifecycle at Yalidine, from pickup to delivery, with the reverse-logistics
+return flow for undeliverable parcels.}
 \label{fig:ch3-parcel-lifecycle}
+\end{figure}
+
+As Figure~\ref{fig:ch3-parcel-lifecycle} shows, the journey runs through six stages:
+
+\begin{enumerate}[noitemsep, label=\textbf{\arabic*.}]
+    \item \textbf{Pickup} : the parcel is collected from the merchant and registered in the system.
+    \item \textbf{Shipping} : the parcel is packed and dispatched into the network.
+    \item \textbf{Transport} : the parcel travels between hubs and regional centres towards the
+          destination region.
+    \item \textbf{Reception} : the parcel arrives at the destination station and awaits assignment
+          to a driver.
+    \item \textbf{Delivery} : the parcel goes out with a driver and is handed to the customer.
+    \item \textbf{Return} : any parcel that cannot be delivered is routed back to the merchant
+          along the same network (reverse logistics).
+\end{enumerate}
 
 Behind this high-level flow, the operational system tracks a finer set of \textbf{statuses}, each
 attached to one phase of the journey (Table~\ref{tab:ch3-status}). These statuses are the backbone of
@@ -231,39 +239,24 @@ retirer}, \emph{Retourné au vendeur} & Undeliverable parcel routed back to the 
 \label{tab:ch3-status}
 \end{table}
 
-Beyond its route through the network, each delivery is characterised by two attributes that shape how it
-is priced and recorded. It falls into one of four \textbf{distance zones}, from intra-wilaya to the long
-inter-wilaya routes of the south (Table~\ref{tab:ch3-zones}), and is fulfilled through one of two
-\textbf{delivery types}: \emph{stop desk} (SD), where the customer collects the parcel from a desk, or
-\emph{home delivery} (HD), where it is delivered to the address. Both attributes reappear throughout the
-analysis as natural dimensions along which operations, cost, and performance are read.
 
-% [VISUAL-IMPLEMENT] delivery distance zones
-\begin{table}[H]
-\centering
-\renewcommand{\arraystretch}{1.35}
-\rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}X|}
-\hline
-\rowcolor{tblheader}
-\textcolor{white}{\textbf{Zone}} & \textcolor{white}{\textbf{Coverage}} \\
-\hline
-Zone 0 & Intra-wilaya (within the same wilaya) \\
-Zone 1 & Inter-wilaya, short distance \\
-Zone 2 & Inter-wilaya, long distance \\
-Zone 3 & Inter-wilaya, very long distance (the south) \\
-\hline
-\end{tabularx}
-\caption{Yalidine's four delivery distance zones.}
-\label{tab:ch3-zones}
-\end{table}
+Beyond its route through the network, each parcel carries two commercial attributes that the
+analytical platform must later measure: its \textbf{delivery type} and its \textbf{price}.
 
-The price of a parcel is not a single figure but a small set of related tariffs
+The \textbf{delivery type} records how the parcel reaches the customer:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Home Delivery (HD)} : the parcel is delivered to the address specified by the
+          customer.
+    \item \textbf{Stop Desk (SD)} : the customer collects the parcel from a delivery station.
+\end{itemize}
+
+\paragraph{Pricing.}
+The \textbf{price} of a parcel is not a single figure but a small set of related tariffs
 (Table~\ref{tab:ch3-pricing}). A delivered parcel is billed at one rate and a returned parcel at
-another; in parallel, a \emph{theoretical} tariff taken from the published pricing grid is compared
-against a \emph{real} tariff recomputed from the parcel's measured weight and volume, the divergence
-between the two being a direct signal for cost and profitability. Finally, where a sender insures a
-parcel, Yalidine operates a reimbursement scheme covering loss or damage.
+another. In parallel, a \emph{theoretical} tariff read from the published pricing grid is compared
+with a \emph{real} tariff recomputed from the parcel's measured weight and volume; the gap between
+the two is a direct signal of cost and profitability.
 
 % [VISUAL-IMPLEMENT] parcel pricing components
 \begin{table}[H]
@@ -279,135 +272,144 @@ Delivered-parcel tariff & Billed on successful delivery, from the zone-based pri
 Return-parcel tariff & Billed when an undeliverable parcel is returned to the merchant. \\
 Theoretical vs.\ real tariff & Theoretical $=$ grid price; real $=$ recomputed from the parcel's
 measured weight and volume; the gap between them signals cost and profitability. \\
-Reimbursement (insurance) & Optional cover at $\sim$1\% of the declared value: 100\% reimbursed if the
-parcel is lost, 60--80\% if damaged, depending on the condition of its packaging. \\
 \hline
 \end{tabularx}
-\caption{The components that make up a parcel's price at Yalidine.}
+\caption{The tariffs that make up a parcel's price at Yalidine.}
 \label{tab:ch3-pricing}
 \end{table}
+
+\paragraph{Reimbursement.}
+Separately, a sender may insure a parcel against loss or damage. For an optional premium of roughly
+1\% of the declared value, Yalidine operates a reimbursement scheme: a lost parcel is reimbursed in
+full, while a damaged one is reimbursed at 60--80\% of its declared value, depending on the
+condition of its packaging.
 
 % =============================================================================
 \subsubsection{On-Demand Dedicated Transport (B2B)}
 
-Where parcel delivery pools thousands of small shipments through a shared network, dedicated transport
-serves one client at a time: a company commissions a \textbf{dedicated vehicle} for a specific trip.
-The process is therefore organised around a single \emph{request} rather than an individual parcel, and
-follows the lifecycle shown in Figure~\ref{fig:ch3-transport-flow}.
+Where parcel delivery pools thousands of small shipments through a shared network, dedicated
+transport serves one client at a time: a company commissions a \textbf{dedicated vehicle} for a
+specific trip. The process is therefore organised around a single \emph{request} rather than an
+individual parcel, and follows the simple lifecycle shown in Figure~\ref{fig:ch3-transport-flow}.
 
-A request is \textbf{created} by, or for, a client, then \textbf{confirmed} once the trip is quoted and
-agreed. A suitable vehicle is \textbf{dispatched from a hub} and runs an ordered \textbf{route} of
-stops --- first the pickup points where cargo is loaded, then the delivery points where it is dropped
---- before returning. The request is finally marked \textbf{completed}; at any point before completion
-it may be \textbf{cancelled}, in which case the reason is recorded.
+% colours for the process flow (figures only)
+\definecolor{procorange}{RGB}{240,150,40}
+\definecolor{procblue}{RGB}{45,108,223}
+\definecolor{procgreen}{RGB}{63,162,76}
+\definecolor{procpurple}{RGB}{106,44,143}
 
-% [VISUAL-IMPLEMENT] dedicated-transport request lifecycle
+% [VISUAL-IMPLEMENT] dedicated-transport request lifecycle (simplified four-step flow)
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[font=\footnotesize, node distance=6mm,
-  step/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblanal, align=center,
-               text width=1.9cm, minimum height=1.05cm},
-  cancel/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblrowalt, align=center,
-                 text width=2.3cm, minimum height=0.9cm},
-  fl/.style={-{Stealth[length=2.5mm]}, thick, esiblue}]
-  \node[step] (req) {Request created};
-  \node[step, right=of req] (conf) {Confirmed\\\scriptsize quoted \& agreed};
-  \node[step, right=of conf] (disp) {Vehicle dispatched\\\scriptsize from hub};
-  \node[step, right=of disp] (route) {Multi-stop route\\\scriptsize pickups $\to$ deliveries};
-  \node[step, right=of route] (done) {Completed};
-  \draw[fl] (req) -- (conf);
-  \draw[fl] (conf) -- (disp);
-  \draw[fl] (disp) -- (route);
-  \draw[fl] (route) -- (done);
-  \node[cancel, below=9mm of conf] (canc) {Cancelled\\\scriptsize reason recorded};
-  \draw[fl] (conf) -- node[right, font=\scriptsize\itshape, text=black!55]{before completion} (canc);
+\begin{tikzpicture}[node distance=11mm, >={Stealth[length=3mm]},
+  stp/.style={rectangle, rounded corners=6pt, text=white, align=center,
+              text width=2.4cm, minimum height=1.25cm, font=\sffamily\bfseries},
+  fl/.style={-{Stealth[length=3mm]}, line width=1.3pt}]
+  \node[stp, fill=procorange] (req)  {Transport\\request};
+  \node[stp, fill=procblue,   right=of req]  (agr)  {Agreement};
+  \node[stp, fill=procgreen,  right=of agr]  (pick) {Pickup};
+  \node[stp, fill=procpurple, right=of pick] (del)  {Delivery};
+  \draw[fl, procorange] (req)  -- (agr);
+  \draw[fl, procblue]   (agr)  -- (pick);
+  \draw[fl, procgreen]  (pick) -- (del);
 \end{tikzpicture}
-\caption{The dedicated-transport request lifecycle, from creation to completion, with the cancellation
-branch available before the trip ends.}
+\caption{The dedicated-transport request lifecycle: a client request that, once agreed, leads to the
+pickup and delivery of the cargo.}
 \label{fig:ch3-transport-flow}
 \end{figure}
 
-Each request carries far more information than a parcel: it records the vehicle and its crew, the
-cargo, the full routing, and a performance outcome (Table~\ref{tab:ch3-transport-anatomy}). These
-attributes are what make the service measurable along the same three views --- operations, cost, and
-performance --- as parcel delivery.
+As Figure~\ref{fig:ch3-transport-flow} shows, a request moves through four stages:
 
-% [VISUAL-IMPLEMENT] anatomy of a dedicated-transport request
-\begin{table}[H]
-\centering
-\renewcommand{\arraystretch}{1.35}
-\rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}X|}
-\hline
-\rowcolor{tblheader}
-\textcolor{white}{\textbf{Facet}} & \textcolor{white}{\textbf{Key attributes recorded}} \\
-\hline
-Vehicle & Type, registration, brand and model, payload and volume capacity, the assigned driver and an
-optional second driver. \\
-Cargo & Merchandise type, fragile and hazardous flags, total weight and volume, piece counts by weight
-band, forklift and packaging needs, and the declared value. \\
-Routing & Number of pickup and delivery stops, planned vs.\ real vs.\ extra distance, total duration and
-waiting time, night-shift hours, number of floors, and whether it is a return trip. \\
-Performance & Departure and arrival delays, the on-time flag, and the client rating and feedback. \\
-\hline
-\end{tabularx}
-\caption{What characterises a dedicated-transport request, grouped by facet.}
-\label{tab:ch3-transport-anatomy}
-\end{table}
+\begin{enumerate}[noitemsep, label=\textbf{\arabic*.}]
+    \item \textbf{Transport request} : a client company requests a dedicated trip, specifying the
+          cargo and the pickup and delivery points.
+    \item \textbf{Agreement} : the trip is quoted and, once the client accepts, confirmed.
+    \item \textbf{Pickup} : a vehicle is dispatched from a hub and loads the cargo at the pickup point.
+    \item \textbf{Delivery} : the cargo is carried to its destination and handed over, and the
+          request is marked completed.
+\end{enumerate}
 
+Beyond this flow, each request records the \textbf{vehicle and its crew}, the \textbf{cargo} (type,
+weight, volume, and any special handling needs), and the \textbf{routing and performance} of the trip
+(distance, duration, delays, and the client's rating). Together these attributes make the service
+measurable.
+
+\paragraph{Cost.}
 Unlike a parcel, whose price is read off a grid, the cost of a dedicated trip is built up from several
-components (Table~\ref{tab:ch3-transport-cost}). A fixed base and a distance supplement are combined
-with the operational costs of pickup, delivery, handling and packaging; any applicable surcharges for
-night work, perishable goods, or insurance; and the direct travel costs of fuel and tolls. Comparing
-this built-up cost against the amount invoiced is the basis of the profitability analysis for the axis.
+components: a fixed base and a distance supplement, the operational costs of pickup, delivery and
+handling, any surcharges (night work, perishable goods, insurance), and the direct travel costs of
+fuel and tolls. Comparing this built-up cost with the amount invoiced is the basis of the
+profitability analysis for this axis.
 
 
 
 % -----------------------------------------------------------------------------
-\subsection{Source Systems}
+\subsection{Operational Applications}
 
-Yalidine's operations are recorded across several independent IT systems. Five of them hold the data
-relevant to this project, each owning a distinct slice of the business
-(Table~\ref{tab:ch3-sources}); they are described here at a functional level --- by \emph{what each
-provides} rather than how it is built.
+Yalidine's day-to-day operations run on a suite of in-house applications, each managing a distinct
+part of the business --- from the core logistics flow to the vehicle fleet, returns, payroll, and
+customer care (Table~\ref{tab:ch3-apps}). They are described here at a functional level, by
+\emph{what each one manages} rather than how it is built.
 
-% [VISUAL-IMPLEMENT] source systems and the domain each provides
+% [VISUAL-IMPLEMENT] internal operational applications and the domain each manages
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.3cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \rowcolor{tblheader}
-\textcolor{white}{\textbf{Source system}} & \textcolor{white}{\textbf{Domain it provides}} \\
+\textcolor{white}{\textbf{Application}} & \textcolor{white}{\textbf{What it manages}} \\
 \hline
-Core logistics system (Yalidine~App) & Geography, delivery centres, the pricing grid, and the full
-parcel-event history. \\
-HR system (HR~Force) & Companies, agencies, employees, and the organisational hierarchy. \\
-Cash-box system (CashBox) & Operating expenses, freelance-driver payments, reimbursements, and
-transfers. \\
-Payroll system (PC~Paie) & Monthly payslips. \\
-Transport system & Dedicated B2B transport requests and their stops. \\
+Yalidine App & The core application driving the overall logistics flow --- physical, financial, and
+operational. \\
+FleetGo & Vehicle fleet management: maintenance tracking, preventive planning, and spare-parts
+inventory. \\
+HR~Force & Human resources: personnel records, contracts, absences, and internal job postings. \\
+Retour App & QR-based tracking of returned parcels: registration, localisation, and storage
+optimisation. \\
+iTop & Centralised management of warehouse stock, IT equipment, and the phone fleet. \\
+CS~Care & Customer-complaint management: reception, processing, and resolution tracking. \\
+QApp & Queue management at Stop Desk counters, with temporary parcel-storage tracking. \\
+Cash~Box & Company-wide expense management for Yalidine. \\
+PC~Paie & Salary and payroll management. \\
+Transport & Dedicated B2B transport management (integrated within Yalidine App). \\
+\hline
+\rowcolor{tblstruct}
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}%
+{\small\textbf{Note —} user accounts for \emph{all} of these applications are created and managed
+centrally through HR~Force.} \\
 \hline
 \end{tabularx}
-\caption{The five internal source systems and the business domain each one provides.}
-\label{tab:ch3-sources}
+\caption{Yalidine's internal operational applications and the domain each one manages.}
+\label{tab:ch3-apps}
 \end{table}
 
-A sixth application, \textbf{Returly}, manages parcel returns but lies outside the set of systems this
-project consumes. Each of the five systems performs its own role well; the difficulty, examined next,
-is that they remain disconnected from one another.
+Each application performs its own role well; the difficulty, examined next, is that they remain
+disconnected from one another --- the same parcel, vehicle, or expense is recorded in several systems
+that do not communicate to each other.
 
 % -----------------------------------------------------------------------------
 \subsection{Identified Weaknesses and the Analytical Gap}
-% NOTES FOR REDACTION:
-%   - Data is scattered across the disconnected source systems above; no single
-%     consolidated, analytical view.
-%   - What decision-makers CANNOT do today: get a timely, reliable, cross-system
-%     view of each axis along Operations / Cost & Profitability / Performance,
-%     without slow, manual extraction and reconciliation.
-%   - This analytical gap is the justification for the BI platform (ties back to
-%     the General Introduction problem statement).
+
+Each of the applications described above does its own job well, but they were never meant to work
+together. The business is therefore run from a set of disconnected islands of information: the same
+parcel, vehicle, client, or expense is recorded separately in several places, with no single
+consolidated view of the activity. This fragmentation undermines the very qualities a decision needs
+from its data. \textbf{Coherence} suffers, because the same fact is counted differently from one
+application to the next; \textbf{integrity} suffers, because there is no shared reference to reconcile
+those versions against; and \textbf{availability} suffers, because obtaining a simple cross-cutting
+figure --- the cost of an axis, the performance of a region, the profitability of a service ---
+demands slow, manual extraction and reconciliation across systems that do not communicate. By the time
+a consolidated picture is assembled, it is often partial and already out of date.
+
+The consequence is a clear analytical gap: top management cannot read the business as a whole, along
+its operations, its cost and profitability, and its performance, from a single trustworthy source.
+Decisions that should rest on evidence end up resting on intuition, on fragments, or on figures whose
+reliability cannot be guaranteed. Closing this gap calls for a reliable, consolidated system that
+brings the scattered data together into one coherent and readily available basis --- one that gives the
+organisation's decision-makers a faithful, timely view of their activity, so that strategic choices
+can genuinely be made on data rather than on impression.
 
 
 % ═════════════════════════════════════════════════════════════════════════════

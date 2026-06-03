@@ -10,7 +10,7 @@ Status legend: ☐ to do · ◐ in progress · ☑ done.
 
 | ID | Chapter | Mode | What it shows | How to produce | Status |
 |----|---------|------|---------------|----------------|--------|
-| C3-P3 | Ch.3 §3.2 | PLACEHOLDER | Parcel lifecycle (`fig:ch3-parcel-lifecycle`) — high-level status flow Pickup → … → Delivered + return branch | Hand-drawn / diagram tool, inserted by the author (general statuses only) | ☐ |
+| C3-P3 | Ch.3 §3.2 | FETCH | Parcel lifecycle (`fig:ch3-parcel-lifecycle`) — six-stage forward flow Pickup → … → Delivery + reverse-return branch | Author-provided diagram embedded as `Parcel Lifecycle 1.png` | ☑ |
 
 ## Planned (from `guide/02_contribution_guide.md` / `guide/03_visuals_guide.md` — not yet in the `.tex`)
 
