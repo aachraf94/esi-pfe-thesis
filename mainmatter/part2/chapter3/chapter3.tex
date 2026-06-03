@@ -35,8 +35,10 @@ remainder of the contribution:
           business processes in operation and the operational applications that record them.
     \item \textbf{Diagnosis of the existing situation} (\S\ref{sec:ch3-diagnosis}) --- the weaknesses
           of the current setup and the analytical gap it leaves behind.
-    \item \textbf{Objectives of the target system} (\S\ref{sec:ch3-objectives}) --- the business
-          outcomes the system must achieve, derived from that diagnosis.
+    \item \textbf{Needs-gathering methods} (\S\ref{sec:ch3-methods}) --- the techniques used to
+          understand the business and collect its needs.
+    \item \textbf{Needs analysis and synthesis} (\S\ref{sec:ch3-objectives}) --- the synthesised needs
+          and the objectives of the target system derived from them.
     \item \textbf{Business scope and prioritisation} (\S\ref{sec:ch3-scope}) --- the two business axes,
           ranked with the MoSCoW method.
     \item \textbf{Development methodology and planning} (\S\ref{sec:ch3-methodology}) --- the iterative
@@ -173,15 +175,19 @@ consolidate.
 % -----------------------------------------------------------------------------
 \subsection{Business Processes}
 
-Yalidine runs two distinct business services, each with its own process: 
+Yalidine runs two distinct business services, each with its own process:
+
+% Number the two service subsubsections (3.2.1.1, 3.2.1.2); restored to 2 after them.
+\setcounter{secnumdepth}{3}
 
 % =============================================================================
 \subsubsection{Express Parcel Delivery}
 
-Express parcel delivery is Yalidine's principal activity: the last-mile, business-to-consumer
-delivery of goods ordered online, from the merchant to the end customer. Every parcel follows a
-well-defined lifecycle, from the moment a merchant hands it over to its final delivery
-(Figure~\ref{fig:ch3-parcel-lifecycle}).
+Express parcel delivery is the classic e-commerce parcel-delivery service: a merchant sells goods
+online and entrusts Yalidine with carrying each order to the buyer. It is Yalidine's principal
+activity --- the last-mile, business-to-consumer delivery of goods ordered online, from the merchant
+to the end customer. Every parcel follows a well-defined lifecycle, from the moment a merchant hands
+it over to its final delivery (Figure~\ref{fig:ch3-parcel-lifecycle}).
 
 % [VISUAL-FETCH] author-provided parcel lifecycle diagram (PNG in figures/)
 \begin{figure}[H]
@@ -342,6 +348,9 @@ handling, any surcharges (night work, perishable goods, insurance), and the dire
 fuel and tolls. Comparing this built-up cost with the amount invoiced is the basis of the
 profitability analysis for this axis.
 
+% Restore default numbering depth (subsubsections unnumbered again).
+\setcounter{secnumdepth}{2}
+
 
 
 % -----------------------------------------------------------------------------
@@ -494,13 +503,49 @@ and synthesises into the objectives of the target system.
 
 
 % ═════════════════════════════════════════════════════════════════════════════
-\section{Objectives of the Target System}
+\section{Needs Analysis and Synthesis}
 \label{sec:ch3-objectives}
 
-The analysis of the existing situation exposed a clear gap between the data Yalidine produces and the
-decisions its management needs to take. From that diagnosis follow the objectives of the target
-system. They are stated here in business terms --- as the outcomes expected of the system --- rather
+The material gathered through the methods above --- the interviews, the management meeting, the field
+observation, and the study of documents and applications --- was cross-checked and analysed. Although
+the needs were voiced differently by different people, they converged on the same core: the business
+must be able to see itself clearly, as a whole, and to act on what it sees. This section synthesises
+those needs and turns them into the objectives of the target system, stated in business terms rather
 than as a technical specification.
+
+% -----------------------------------------------------------------------------
+\subsection{Synthesis of the Needs}
+
+Once analysed, the expressed needs fall into three families (Table~\ref{tab:ch3-needs}):
+\emph{informational} needs --- what management must be able to see; \emph{operational} needs --- what
+it must be able to do with that information; and \emph{quality} needs --- the conditions under which
+the system would actually be adopted.
+
+% [VISUAL-IMPLEMENT] synthesis of the business needs, grouped by family
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Family of need}} & \textcolor{white}{\textbf{What the business expressed}} \\
+\hline
+Informational & A single, consolidated, and trustworthy source of information; a reading of each
+activity along its operations, its cost and profitability, and its performance; a clear separation
+between the finances of the two services; and enough history to compare one period with another. \\
+Operational & Early warning when a key indicator drifts; information matched to each decision-maker's
+role; and, above all, decisions grounded in evidence rather than in intuition. \\
+Quality & A system that is reliable and responsive at the scale of Yalidine's national operations, and
+simple enough for non-technical managers to use day to day. \\
+\hline
+\end{tabularx}
+\caption{Synthesis of the business needs, grouped by family.}
+\label{tab:ch3-needs}
+\end{table}
+
+These needs crystallise into a clear set of objectives for the target system: a single general
+objective and the specific objectives that realise it.
 
 % -----------------------------------------------------------------------------
 \subsection{General Objective}
@@ -531,35 +576,108 @@ This general aim breaks down into a set of concrete objectives:
           clear, decision-oriented indicators that support both day-to-day and strategic choices.
 \end{enumerate}
 
-To serve these objectives in practice, the system must also remain \textbf{reliable} and
-\textbf{responsive} at the scale of Yalidine's national operations, and stay \textbf{simple enough}
-for non-technical managers to use in their daily work.
+These objectives define what the target system must achieve. Because they cannot all be delivered at
+once, the next section sets the scope and the order of priority across the two business axes.
 
 
 % ═════════════════════════════════════════════════════════════════════════════
-\section{Business Scope and Prioritisation (MoSCoW)}
+\section{Business Scope and Prioritisation of the Needs (MoSCoW)}
 \label{sec:ch3-scope}
-% NOTES FOR REDACTION:
-%   - Must have   -> On-Demand Dedicated Transport (B2B; Dedicated Trip / Courier / Handling)
-%   - Should have -> Parcel Delivery (classic e-commerce express)
-%   - Could have  -> Route Analysis  (ONE neutral line: future work; data not
-%                    available within project scope — no GPS/confidentiality talk)
-%   - Won't have  -> (state explicitly what is out of scope for this version)
-%   - Two-independent-financial-perimeters principle: the costs and revenues of
-%     the two axes are NEVER mixed (each axis read on its own perimeter).
-%   - [VISUAL-IMPLEMENT] MoSCoW grid table: priority -> axis -> what it delivers.
+
+The objectives describe what the system should ideally do; delivering all of them at once, however, is
+neither realistic nor wise for a first version. The scope was therefore prioritised with the
+\textbf{MoSCoW} method, which sorts what is to be built into four levels --- \emph{Must have},
+\emph{Should have}, \emph{Could have}, and \emph{Won't have (this time)} --- according to how essential
+each element is to a useful first release (Table~\ref{tab:ch3-moscow}).
+
+% [VISUAL-IMPLEMENT] MoSCoW prioritisation of the scope
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Priority}} & \textcolor{white}{\textbf{Scope item}} &
+\textcolor{white}{\textbf{What it delivers}} \\
+\hline
+Must have & On-demand dedicated transport (B2B) & Full decision support for the dedicated-transport
+axis along its three views: Operations, Cost \& Profitability, and Performance. \\
+Should have & Express parcel delivery (B2C) & The same three-view decision support applied to the
+parcel-delivery axis. \\
+Could have & Route analysis & A future extension analysing delivery routes; deferred because the data
+it requires is not available within the project scope. \\
+Won't have (this time) & Analytics beyond the two axes, and any operational functions & The system is
+a read-only decision-support layer for the two delivery axes; it does not extend to other domains
+(HR, payroll, fleet, \etc) nor duplicate the operational applications that run the business. \\
+\hline
+\end{tabularx}
+\caption{MoSCoW prioritisation of the system's scope.}
+\label{tab:ch3-moscow}
+\end{table}
+
+\paragraph{Two independent financial perimeters.}
+Whichever axis is considered, one principle governs the whole scope: the costs and revenues of the two
+services are never mixed. Dedicated transport and parcel delivery are each read on their own financial
+perimeter, so that the profitability of one is never inflated or masked by the other. This separation
+holds across every view of the system and is a direct response to the \emph{blurred financial
+perimeters} identified in the diagnosis.
 
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Development Methodology and Planning}
 \label{sec:ch3-methodology}
-% NOTES FOR REDACTION:
-%   - Development approach: iterative.
-%   - Project timeline / schedule from thesis.md (the PFE planning).
-%   - Tools used (link forward to the Ch.4 technology stack at a high level).
-%   - [VISUAL-IMPLEMENT] Gantt-style timeline (pgfgantt) — DECIDE: keep initial +
-%     final Gantt, or fall back to a milestone table if a Gantt is not kept.
-%     % TODO(achraf): decide Gantt vs milestone table; needs pgfgantt package if Gantt.
+
+\subsection{Development Approach}
+
+The project followed an \textbf{iterative and incremental} approach rather than a single linear pass.
+Two reasons made this natural. First, the needs could only be fully grasped through ongoing contact
+with the business, so the analysis had to keep evolving as understanding grew. Second, a
+decision-support system is best validated by putting concrete views in front of its users: showing a
+dashboard raises questions that a specification never would. The work therefore advanced in short
+cycles --- each one deepening the analysis, extending the data model and the dashboards, and feeding
+back into the next --- which kept the solution aligned with the business and let the scope be
+reprioritised as it matured.
+
+\subsection{Project Planning}
+
+The work was organised into four main phases spanning the academic year, from the analysis of the
+existing situation through to the final documentation, with the writing of this thesis running in
+parallel from February onwards (Figure~\ref{fig:ch3-gantt}).
+
+% [VISUAL-IMPLEMENT] project timeline (Gantt) — schedule from the PFE planning form
+\begin{figure}[H]
+\centering
+\begin{ganttchart}[
+  hgrid, vgrid={*1{draw=black!12}},
+  x unit=1.15cm,
+  y unit title=0.62cm,
+  y unit chart=0.6cm,
+  title height=1,
+  bar height=0.6,
+  bar/.append style={fill=esiblue!85, draw=esiblue},
+  bar label font=\footnotesize,
+  title label font=\footnotesize\bfseries,
+  canvas/.append style={draw=black!25}
+]{1}{9}
+  \gantttitle{2025}{3}\gantttitle{2026}{6} \\
+  \gantttitlelist{Oct,Nov,Dec,Jan,Feb,Mar,Apr,May,Jun}{1} \\
+  \ganttbar{Analysis of the existing situation}{1}{3} \\
+  \ganttbar{Solution design}{4}{5} \\
+  \ganttbar{Development, deployment \& testing}{6}{8} \\
+  \ganttbar{Documentation \& user manual}{9}{9} \\
+  \ganttbar[bar/.append style={fill=black!35, draw=black!45}]{Thesis writing (in parallel)}{5}{9}
+\end{ganttchart}
+\caption{Project timeline: the four main phases of the work, with thesis writing running in parallel.}
+\label{fig:ch3-gantt}
+\end{figure}
+
+\subsection{Tools}
+
+The technical tooling --- the open-source data and web stack used to build the data warehouse, the
+ETL pipeline, the backend, and the dashboards --- is presented in detail in Chapter~4. At this stage
+it is enough to note that the project relied entirely on free, open-source technologies, which keeps
+the solution free of licensing costs and able to evolve without vendor lock-in.
 
 
 % ─────────────────────────────────────────────────────────────────────────────
