@@ -22,7 +22,8 @@ here is a faithful blueprint, independent of any particular implementation.
 The presentation follows a single thread, from the abstract to the concrete. It begins with the
 \emph{functional specification} (what the system must do, traced back to the objectives of
 Chapter~3), then derives the \emph{functional architecture} (how those functions are decomposed and
-related). From there it introduces LOGIQ and its \emph{global architecture}, before zooming in on
+related), and the \emph{technical specifications} that frame its realisation. From there it introduces
+LOGIQ and its \emph{global architecture}, before zooming in on
 the three pillars that give the system its value: the \emph{data warehouse} at its core, the
 \emph{ETL pipeline} that populates it, and the \emph{application platform} through which it is used.
 The chapter closes on the cross-cutting concerns of \emph{security and conformity}, and on a
@@ -45,43 +46,51 @@ design answers the diagnosed needs rather than adding features for their own sak
 LOGIQ is used not by the public but by Yalidine's own decision-makers, each consulting the system
 from the angle of their responsibility. Users are not self-registered: they are imported from the
 company's HR system and activated by an administrator, who assigns each one a \textbf{role}. The role
-then governs which parts of the system the user may consult --- the foundation of the
-role-appropriate access objective. Table~\ref{tab:ch4-actors} lists the principal actors, the
-decision each is concerned with, and what they typically consult.
+then governs which views the user may consult --- the foundation of the role-appropriate access
+objective. Table~\ref{tab:ch4-actors} lists the \emph{default} roles the system ships with and the
+views each one consults.
 
-% [VISUAL-IMPLEMENT] actors of the system, their concern, and what they consult
+% [VISUAL-IMPLEMENT] default roles of the system and the views each one consults
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.3cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \rowcolor{tblheader}
-\textcolor{white}{\textbf{Actor}} & \textcolor{white}{\textbf{Decision concern}} &
-\textcolor{white}{\textbf{What they consult}} \\
+\textcolor{white}{\textbf{Default role}} & \textcolor{white}{\textbf{What they consult}} \\
 \hline
-Top management \newline (general \& regional direction) & Strategic steering of the business as a
-whole. & The consolidated overview of both axes and, on demand, every analytical view. \\
-Operations manager & Day-to-day steering of the delivery activity. & The Operations and Performance
-views of both axes. \\
-Returns manager & Control of reverse logistics. & The parcel-delivery views, with attention to
-returns and failed deliveries. \\
-Financial controller \newline (management control) & Cost and margin control on each perimeter. & The
-Cost \& Profitability views of both axes, read on their separate perimeters. \\
-Administrator \newline (super-administrator) & Governance of the system itself. & User activation,
-role assignment, and the data-pipeline run history. \\
+Direction Générale \newline (general management) &
+Consolidated overview of both axes \newline
+Parcel Delivery view (Operations, Cost \& Profitability, Performance) \newline
+Dedicated Transport view (Operations, Cost \& Profitability, Performance) \newline
+Route Analysis view (future work) \\
+Responsable Colis \& PCC \newline (parcel \& PCC manager) &
+Consolidated overview \newline
+Parcel Delivery view (Operations, Cost \& Profitability, Performance) \\
+Responsable Tournées \newline (routes manager) &
+Consolidated overview \newline
+Route Analysis view (future work) \\
+Responsable Transport \newline (transport manager) &
+Consolidated overview \newline
+Dedicated Transport view (Operations, Cost \& Profitability, Performance) \\
+Administrator &
+User activation \newline
+Role assignment \newline
+Data-pipeline run history \\
 \hline
 \end{tabularx}
-\caption{The principal actors of LOGIQ, their decision concern, and what each one consults.}
+\caption{The default roles of LOGIQ and the views each one consults.}
 \label{tab:ch4-actors}
 \end{table}
 
-The roles in Table~\ref{tab:ch4-actors} are representative rather than fixed: because access is
-governed by configurable roles, the set can be extended or refined without changing the system, so
-that new decision-makers can be onboarded as the organisation evolves.
+The roles in Table~\ref{tab:ch4-actors} are only the \emph{default} roles shipped with the system.
+Because access is governed by configurable, view-level permissions, the administrator can create and
+manage additional roles --- granting or restricting access to any view --- so that new
+decision-makers can be onboarded as the organisation evolves, without changing the system.
 
 % -----------------------------------------------------------------------------
-\subsection{Functional Capabilities}
+\subsection{Functional Specifications}
 
 The capabilities expected of the system group into five families, each answering one or more of the
 specific objectives of Chapter~3 (Table~\ref{tab:ch4-capabilities}). They run from bringing the
@@ -225,6 +234,10 @@ around two axes and three readable views.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Functional Architecture}
+% TODO
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Technical Specifications}
 % TODO
 
 % ═════════════════════════════════════════════════════════════════════════════

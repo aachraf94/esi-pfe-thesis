@@ -244,6 +244,26 @@ latexmk main
 
 Output: `out/main.pdf` · Auxiliary files: `build/`
 
+### Compile a single chapter (fast)
+
+Building the whole thesis on every edit is slow. To typeset **one chapter only** in a single
+XeLaTeX pass, inject `\includeonly` via latexmk's `-usepretex` (no file edits needed):
+
+```bash
+# Compile Chapter 3 only — swap the path for any chapter you want
+latexmk -pdfxe -g "-usepretex=\includeonly{mainmatter/part2/chapter3/chapter3}" main
+```
+
+- **Run a full `latexmk main` at least once first.** `\includeonly` reuses the other chapters'
+  `.aux` files (from the last full build) for page numbers, the TOC, and cross-references, so they
+  must already exist; references *into* chapters you skip stay resolved from that build.
+- `-g` forces the run — latexmk doesn't track the `-usepretex` flag, so without it the build may be
+  skipped as "up to date".
+- The output `out/main.pdf` will then contain **only that chapter** (other chapters are omitted but
+  still counted for numbering). Run a plain **`latexmk main`** to rebuild the complete document.
+- Biber is skipped, so a brand-new `\cite{}` shows as `[?]` until the next full build — existing
+  citations remain resolved.
+
 ### Clean build artifacts
 
 ```bash
