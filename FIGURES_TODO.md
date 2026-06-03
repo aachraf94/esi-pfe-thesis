@@ -8,7 +8,9 @@ Status legend: ☐ to do · ◐ in progress · ☑ done.
 
 ## Active (already rendered as a placeholder/fetch in the `.tex`)
 
-*(none open — logos supplied and embedded)*
+| ID | Chapter | Mode | What it shows | How to produce | Status |
+|----|---------|------|---------------|----------------|--------|
+| C3-P3 | Ch.3 §3.2 | PLACEHOLDER | Parcel lifecycle (`fig:ch3-parcel-lifecycle`) — high-level status flow Pickup → … → Delivered + return branch | Hand-drawn / diagram tool, inserted by the author (general statuses only) | ☐ |
 
 ## Planned (from `guide/02_contribution_guide.md` / `guide/03_visuals_guide.md` — not yet in the `.tex`)
 

@@ -93,8 +93,7 @@ match.
 \label{fig:ch3-yalidine-logo}
 \end{figure}
 
-Yalidine's activity rests on two principal services, which later define the project's two business
-axes (\S\ref{sec:ch3-scope}):
+Yalidine's activity rests on two principal services:
 
 \begin{itemize}[noitemsep]
     \item \textbf{Express parcel delivery (B2C, e-commerce)} --- its principal activity: the last-mile
@@ -111,19 +110,19 @@ directions, a network of call centres, and a large vehicle fleet. Physically, pa
 \textbf{three-tier operational structure} (Figure~\ref{fig:ch3-network}):
 
 \begin{itemize}[noitemsep]
-    \item \textbf{Hubs (main sorting centres)} --- the principal platforms of the national network.
+    \item \textbf{Hubs (main sorting centres)} : the principal platforms of the national network.
           They receive parcels from many origins, perform the heaviest sorting, and redistribute them
           to the regional centres. Yalidine operates four hubs, each covering a part of the country:
           \begin{itemize}[noitemsep, topsep=2pt]
-              \item \textbf{Oued~Smar} (Algiers) --- the north;
-              \item \textbf{Relizane} --- the west;
-              \item \textbf{Constantine} --- the east;
-              \item \textbf{Ghardaïa} --- the Great South.
+              \item \textbf{Oued~Smar} (Algiers) in the north;
+              \item \textbf{Relizane} in the west;
+              \item \textbf{Constantine} in the east;
+              \item \textbf{Ghardaïa} in the Great South.
           \end{itemize}
-    \item \textbf{Regional sorting centres} --- each manages several delivery stations, receiving
+    \item \textbf{Regional sorting centres} : each manages several delivery stations, receiving
           consolidated parcels from the hubs and organising their distribution to the stations attached
           to it.
-    \item \textbf{Delivery stations} --- the proximity units responsible for last-mile delivery. Each
+    \item \textbf{Delivery stations} : the proximity units responsible for last-mile delivery. Each
           station covers a set of communes and is the single attachment point for its drivers,
           assigning parcels to them for the daily delivery tours. It is at this level that the
           precision of volume forecasting matters most.
@@ -173,47 +172,67 @@ consolidate.
 % -----------------------------------------------------------------------------
 \subsection{Business Processes}
 
-\paragraph{Parcel delivery.}
+Yalidine runs two distinct business processes, each with its own lifecycle, actors, and cost
+structure: high-volume \textbf{express parcel delivery} for e-commerce, and \textbf{on-demand dedicated
+transport} commissioned trip by trip. Reading them as processes --- rather than as static services ---
+exposes the events and attributes that the analytical platform must later measure, and shows why the
+two are kept on separate financial perimeters throughout this work.
+
+% =============================================================================
+\subsubsection{Express Parcel Delivery (B2C)}
+
 This is Yalidine's principal activity. Every parcel follows a well-defined lifecycle, from the moment a
 merchant hands it over to its final delivery (Figure~\ref{fig:ch3-parcel-lifecycle}). After
 \textbf{pickup}, the parcel reaches a \textbf{hub}, where it is sorted and routed to the
 \textbf{regional centre} responsible for its destination, then to the \textbf{station} that covers the
 delivery area. The station assigns it to a driver, who takes it \textbf{out for delivery}; on success
-the parcel is marked \textbf{delivered} and, where applicable, the cash-on-delivery amount is
-collected. When delivery fails or the recipient refuses the parcel, it enters a \textbf{return} flow
+the parcel is marked \textbf{delivered} and, where applicable, the cash-on-delivery (COD) amount is
+collected. When a delivery fails or the recipient refuses the parcel, it enters a \textbf{return} flow
 back to the merchant.
 
-% [VISUAL-IMPLEMENT] parcel lifecycle / status flow
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[font=\footnotesize, node distance=5mm,
-  step/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct, align=center,
-               text width=1.9cm, minimum height=1cm},
-  ret/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblrowalt, align=center,
-              text width=2.6cm, minimum height=0.9cm},
-  fl/.style={-{Stealth[length=2.5mm]}, thick, esiblue}]
-  \node[step] (pick) {Pickup};
-  \node[step, right=of pick] (hub) {Hub sorting};
-  \node[step, right=of hub] (reg) {Regional centre};
-  \node[step, right=of reg] (sta) {Station};
-  \node[step, right=of sta] (ofd) {Out for delivery};
-  \node[step, right=of ofd] (del) {Delivered\\(COD collected)};
-  \draw[fl] (pick) -- (hub);
-  \draw[fl] (hub) -- (reg);
-  \draw[fl] (reg) -- (sta);
-  \draw[fl] (sta) -- (ofd);
-  \draw[fl] (ofd) -- (del);
-  \node[ret, below=9mm of ofd] (rtn) {Returned to merchant};
-  \draw[fl] (ofd) -- node[right, font=\scriptsize\itshape, text=black!55]{failed / refused} (rtn);
-\end{tikzpicture}
-\caption{The parcel lifecycle at Yalidine, from pickup to delivery, with the return flow for
-undeliverable parcels.}
+% [VISUAL-PLACEHOLDER] high-level parcel lifecycle — author inserts the drawn diagram
+\visualplaceholder
+  {The high-level parcel lifecycle as a linear status flow --- Pickup $\rightarrow$ Hub $\rightarrow$
+   Regional centre $\rightarrow$ Station $\rightarrow$ Out for delivery $\rightarrow$ Delivered ---
+   with the return branch for undeliverable parcels.}
+  {Hand-drawn / diagram tool, inserted by the author. General statuses only, not the detailed set.}
+  {The parcel lifecycle at Yalidine, from pickup to delivery, with the return flow for undeliverable
+   parcels.}
 \label{fig:ch3-parcel-lifecycle}
-\end{figure}
 
-Throughout this journey the parcel carries a \textbf{status} reflecting its current step. These statuses
-are the backbone of Yalidine's real-time tracking and, later, of the operational indicators the
-platform reports. % TODO(achraf): list / confirm the exact parcel status set
+Behind this high-level flow, the operational system tracks a finer set of \textbf{statuses}, each
+attached to one phase of the journey (Table~\ref{tab:ch3-status}). These statuses are the backbone of
+Yalidine's real-time tracking and, later, of the operational indicators the platform reports --- a
+parcel's movement between them is precisely what the Operations view measures.
+
+% [VISUAL-IMPLEMENT] parcel status set grouped by lifecycle phase
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}p{4.6cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Phase}} & \textcolor{white}{\textbf{Statuses (system labels)}} &
+\textcolor{white}{\textbf{What it captures}} \\
+\hline
+Creation & \emph{En préparation}, \emph{Prêt à expédier} & Parcel registered and prepared by the
+merchant. \\
+Outbound & \emph{Expédié} & Picked up and dispatched into the network. \\
+Transit & \emph{Vers Wilaya}, \emph{Transfert}, \emph{Reçu à Wilaya} & Inter-hub and inter-wilaya
+movement to the destination region. \\
+Delivery preparation & \emph{Centre}, \emph{Prêt pour livreur}, \emph{En attente du client} & At the
+destination station, awaiting assignment to a driver or the customer. \\
+Delivery attempt & \emph{Sorti en livraison}, \emph{En alerte}, \emph{Tentative échouée} & Out with the
+driver; flagged at risk or a failed attempt. \\
+Delivered & \emph{Livré} & Successfully delivered, COD collected where applicable. \\
+Return & \emph{Échec livraison}, \emph{Retourné au centre}, \emph{Retour vers centre}, \emph{Retour à
+retirer}, \emph{Retourné au vendeur} & Undeliverable parcel routed back to the merchant. \\
+\hline
+\end{tabularx}
+\caption{The parcel status set, grouped by lifecycle phase (system labels in French, as recorded).}
+\label{tab:ch3-status}
+\end{table}
 
 Beyond its route through the network, each delivery is characterised by two attributes that shape how it
 is priced and recorded. It falls into one of four \textbf{distance zones}, from intra-wilaya to the long
@@ -242,7 +261,6 @@ Zone 3 & Inter-wilaya, very long distance (the south) \\
 \label{tab:ch3-zones}
 \end{table}
 
-\paragraph{Parcel pricing.}
 The price of a parcel is not a single figure but a small set of related tariffs
 (Table~\ref{tab:ch3-pricing}). A delivered parcel is billed at one rate and a returned parcel at
 another; in parallel, a \emph{theoretical} tariff taken from the published pricing grid is compared
@@ -272,10 +290,100 @@ parcel is lost, 60--80\% if damaged, depending on the condition of its packaging
 \label{tab:ch3-pricing}
 \end{table}
 
-\paragraph{Dedicated transport.}
-The B2B service follows a shorter, linear path: a client request, a price quotation and agreement, the
-assignment of a dedicated trip, pickup, delivery to the agreed destination, and completion.
-% TODO(achraf): confirm the exact transport request -> stops workflow
+% =============================================================================
+\subsubsection{On-Demand Dedicated Transport (B2B)}
+
+Where parcel delivery pools thousands of small shipments through a shared network, dedicated transport
+serves one client at a time: a company commissions a \textbf{dedicated vehicle} for a specific trip.
+The process is therefore organised around a single \emph{request} rather than an individual parcel, and
+follows the lifecycle shown in Figure~\ref{fig:ch3-transport-flow}.
+
+A request is \textbf{created} by, or for, a client, then \textbf{confirmed} once the trip is quoted and
+agreed. A suitable vehicle is \textbf{dispatched from a hub} and runs an ordered \textbf{route} of
+stops --- first the pickup points where cargo is loaded, then the delivery points where it is dropped
+--- before returning. The request is finally marked \textbf{completed}; at any point before completion
+it may be \textbf{cancelled}, in which case the reason is recorded.
+
+% [VISUAL-IMPLEMENT] dedicated-transport request lifecycle
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize, node distance=6mm,
+  step/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblanal, align=center,
+               text width=1.9cm, minimum height=1.05cm},
+  cancel/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblrowalt, align=center,
+                 text width=2.3cm, minimum height=0.9cm},
+  fl/.style={-{Stealth[length=2.5mm]}, thick, esiblue}]
+  \node[step] (req) {Request created};
+  \node[step, right=of req] (conf) {Confirmed\\\scriptsize quoted \& agreed};
+  \node[step, right=of conf] (disp) {Vehicle dispatched\\\scriptsize from hub};
+  \node[step, right=of disp] (route) {Multi-stop route\\\scriptsize pickups $\to$ deliveries};
+  \node[step, right=of route] (done) {Completed};
+  \draw[fl] (req) -- (conf);
+  \draw[fl] (conf) -- (disp);
+  \draw[fl] (disp) -- (route);
+  \draw[fl] (route) -- (done);
+  \node[cancel, below=9mm of conf] (canc) {Cancelled\\\scriptsize reason recorded};
+  \draw[fl] (conf) -- node[right, font=\scriptsize\itshape, text=black!55]{before completion} (canc);
+\end{tikzpicture}
+\caption{The dedicated-transport request lifecycle, from creation to completion, with the cancellation
+branch available before the trip ends.}
+\label{fig:ch3-transport-flow}
+\end{figure}
+
+Each request carries far more information than a parcel: it records the vehicle and its crew, the
+cargo, the full routing, and a performance outcome (Table~\ref{tab:ch3-transport-anatomy}). These
+attributes are what make the service measurable along the same three views --- operations, cost, and
+performance --- as parcel delivery.
+
+% [VISUAL-IMPLEMENT] anatomy of a dedicated-transport request
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Facet}} & \textcolor{white}{\textbf{Key attributes recorded}} \\
+\hline
+Vehicle & Type, registration, brand and model, payload and volume capacity, the assigned driver and an
+optional second driver. \\
+Cargo & Merchandise type, fragile and hazardous flags, total weight and volume, piece counts by weight
+band, forklift and packaging needs, and the declared value. \\
+Routing & Number of pickup and delivery stops, planned vs.\ real vs.\ extra distance, total duration and
+waiting time, night-shift hours, number of floors, and whether it is a return trip. \\
+Performance & Departure and arrival delays, the on-time flag, and the client rating and feedback. \\
+\hline
+\end{tabularx}
+\caption{What characterises a dedicated-transport request, grouped by facet.}
+\label{tab:ch3-transport-anatomy}
+\end{table}
+
+Unlike a parcel, whose price is read off a grid, the cost of a dedicated trip is built up from several
+components (Table~\ref{tab:ch3-transport-cost}). A fixed base and a distance supplement are combined
+with the operational costs of pickup, delivery, handling and packaging; any applicable surcharges for
+night work, perishable goods, or insurance; and the direct travel costs of fuel and tolls. Comparing
+this built-up cost against the amount invoiced is the basis of the profitability analysis for the axis.
+
+% [VISUAL-IMPLEMENT] dedicated-transport cost structure
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.9cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Cost group}} & \textcolor{white}{\textbf{Components}} \\
+\hline
+Base \& distance & Fixed base cost and an extra-distance supplement. \\
+Operations & Pickup, delivery, handling, and packaging. \\
+Surcharges & Night tariff, perishable-goods handling, and insurance. \\
+Travel & Fuel and tolls. \\
+\hline
+\end{tabularx}
+\caption{The cost structure of a dedicated trip, built up component by component and compared against
+the amount invoiced.}
+\label{tab:ch3-transport-cost}
+\end{table}
 
 % -----------------------------------------------------------------------------
 \subsection{Source Systems}
