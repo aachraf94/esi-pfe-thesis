@@ -132,26 +132,35 @@ directions, a network of call centres, and a large vehicle fleet. Physically, pa
 \end{itemize}
 
 % [VISUAL-IMPLEMENT] three-tier operational network (hub -> regional -> stations, fan-out)
+% colours from the shared figure palette (settings.tex): steel blue -> teal -> blue tint
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[font=\footnotesize, >={Stealth[length=2mm]},
-  hub/.style={rectangle, rounded corners, draw=esiblue, very thick, fill=esiblue, text=white,
-              align=center, text width=3.0cm, minimum height=1cm},
-  reg/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct,
-              align=center, text width=2.5cm, minimum height=0.95cm},
-  sta/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblanal,
-              align=center, text width=2.3cm, minimum height=0.8cm},
-  fl/.style={->, esiblue, thick}]
-  \node[hub] (h)  at (0,0)       {\textbf{National Hubs}\\[-1pt]\scriptsize 4 sites, nationwide};
-  \node[reg] (r1) at (-2.6,-1.8) {\textbf{Regional centre}\\[-1pt]\scriptsize consolidate \& distribute};
-  \node[reg] (r2) at ( 2.6,-1.8) {\textbf{Regional centre}\\[-1pt]\scriptsize consolidate \& distribute};
-  \node[sta] (s1) at (-3.9,-3.6) {Delivery stations};
-  \node[sta] (s2) at (-1.3,-3.6) {Delivery stations};
-  \node[sta] (s3) at ( 1.3,-3.6) {Delivery stations};
-  \node[sta] (s4) at ( 3.9,-3.6) {Delivery stations};
+\begin{tikzpicture}[font=\footnotesize, >={Stealth[length=2.4mm]},
+  tier/.style={rectangle, rounded corners=4pt, align=center, font=\bfseries\scriptsize,
+               text width=2.2cm, minimum height=0.7cm, fill=black!4, text=black!55},
+  hub/.style={rectangle, rounded corners=7pt, draw=figblue, line width=1pt, fill=figblue, text=white,
+              align=center, text width=3.4cm, minimum height=1.15cm},
+  reg/.style={rectangle, rounded corners=7pt, draw=figteal, line width=1pt, fill=figteal, text=white,
+              align=center, text width=2.9cm, minimum height=1.05cm},
+  sta/.style={rectangle, rounded corners=6pt, draw=figblue, line width=0.8pt, fill=figbluetint,
+              text=figblue, align=center, text width=2.5cm, minimum height=0.95cm},
+  fl/.style={-{Stealth[length=2.4mm]}, draw=figslate, line width=1pt}]
+  % tiers (generous vertical spacing)
+  \node[hub] (h)  at (0,0)        {National Hubs\\[1pt]\mdseries\scriptsize 4 sites, nationwide};
+  \node[reg] (r1) at (-3.6,-2.7)  {Regional centre\\[1pt]\mdseries\scriptsize consolidate \& distribute};
+  \node[reg] (r2) at ( 3.6,-2.7)  {Regional centre\\[1pt]\mdseries\scriptsize consolidate \& distribute};
+  \node[sta] (s1) at (-5.4,-5.4)  {Delivery\\stations};
+  \node[sta] (s2) at (-1.8,-5.4)  {Delivery\\stations};
+  \node[sta] (s3) at ( 1.8,-5.4)  {Delivery\\stations};
+  \node[sta] (s4) at ( 5.4,-5.4)  {Delivery\\stations};
+  % flows
   \draw[fl] (h) -- (r1);  \draw[fl] (h) -- (r2);
   \draw[fl] (r1) -- (s1); \draw[fl] (r1) -- (s2);
   \draw[fl] (r2) -- (s3); \draw[fl] (r2) -- (s4);
+  % tier labels down the right side
+  \node[tier] at (7.4, 0)    {Tier 1\\Sorting hubs};
+  \node[tier] at (7.4,-2.7)  {Tier 2\\Regional centres};
+  \node[tier] at (7.4,-5.4)  {Tier 3\\Last mile};
 \end{tikzpicture}
 \caption{Yalidine's three-tier operational network: four national hubs feed the regional sorting
 centres, which in turn distribute parcels to the delivery stations that handle the last mile.}
@@ -228,18 +237,18 @@ parcel's movement between them is precisely what the Operations view measures.
 \textcolor{white}{\textbf{Phase}} & \textcolor{white}{\textbf{Statuses (system labels)}} &
 \textcolor{white}{\textbf{What it captures}} \\
 \hline
-Creation & \emph{En préparation}, \emph{Prêt à expédier} & Parcel registered and prepared by the
+Creation & \emph{En préparation}\newline \emph{Prêt à expédier} & Parcel registered and prepared by the
 merchant. \\
 Outbound & \emph{Expédié} & Picked up and dispatched into the network. \\
-Transit & \emph{Vers Wilaya}, \emph{Transfert}, \emph{Reçu à Wilaya} & Inter-hub and inter-wilaya
+Transit & \emph{Vers Wilaya}\newline \emph{Transfert}\newline \emph{Reçu à Wilaya} & Inter-hub and inter-wilaya
 movement to the destination region. \\
-Delivery preparation & \emph{Centre}, \emph{Prêt pour livreur}, \emph{En attente du client} & At the
+Delivery preparation & \emph{Centre}\newline \emph{Prêt pour livreur}\newline \emph{En attente du client} & At the
 destination station, awaiting assignment to a driver or the customer. \\
-Delivery attempt & \emph{Sorti en livraison}, \emph{En alerte}, \emph{Tentative échouée} & Out with the
+Delivery attempt & \emph{Sorti en livraison}\newline \emph{En alerte}\newline \emph{Tentative échouée} & Out with the
 driver; flagged at risk or a failed attempt. \\
 Delivered & \emph{Livré} & Successfully delivered, COD collected where applicable. \\
-Return & \emph{Échec livraison}, \emph{Retourné au centre}, \emph{Retour vers centre}, \emph{Retour à
-retirer}, \emph{Retourné au vendeur} & Undeliverable parcel routed back to the merchant. \\
+Return & \emph{Échec livraison}\newline \emph{Retourné au centre}\newline \emph{Retour vers centre}\newline \emph{Retour à
+retirer}\newline \emph{Retourné au vendeur} & Undeliverable parcel routed back to the merchant. \\
 \hline
 \end{tabularx}
 \caption{The parcel status set, grouped by lifecycle phase (system labels in French, as recorded).}
@@ -259,13 +268,14 @@ The \textbf{delivery type} records how the parcel reaches the customer:
 \end{itemize}
 
 \paragraph{Pricing.}
-The \textbf{price} of a parcel is not a single figure but a small set of related tariffs
-(Table~\ref{tab:ch3-pricing}). A delivered parcel is billed at one rate and a returned parcel at
-another. In parallel, a \emph{theoretical} tariff read from the published pricing grid is compared
-with a \emph{real} tariff recomputed from the parcel's measured weight and volume; the gap between
-the two is a direct signal of cost and profitability.
+The \textbf{price} of a parcel is not a single figure. It is best read along two dimensions
+(Table~\ref{tab:ch3-pricing}): \emph{which event is billed} --- a delivered parcel is charged at one
+rate and a returned parcel at another --- and \emph{how the amount is set} --- a \emph{theoretical}
+tariff read from the published grid versus a \emph{real} tariff recomputed from the parcel's measured
+weight and volume. The gap between the theoretical and the real tariff is a direct signal of cost and
+profitability.
 
-% [VISUAL-IMPLEMENT] parcel pricing components
+% [VISUAL-IMPLEMENT] parcel pricing components, grouped by dimension
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.35}
@@ -275,21 +285,29 @@ the two is a direct signal of cost and profitability.
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Pricing component}} & \textcolor{white}{\textbf{Basis}} \\
 \hline
+\rowcolor{tblstruct}
+\multicolumn{2}{|l|}{\textbf{Billed event} --- which outcome triggers the charge} \\
 Delivered-parcel tariff & Billed on successful delivery, from the zone-based pricing grid. \\
 Return-parcel tariff & Billed when an undeliverable parcel is returned to the merchant. \\
-Theoretical vs.\ real tariff & Theoretical $=$ grid price; real $=$ recomputed from the parcel's
-measured weight and volume; the gap between them signals cost and profitability. \\
+\rowcolor{tblstruct}
+\multicolumn{2}{|l|}{\textbf{Valuation method} --- how the tariff amount is set} \\
+Theoretical tariff & The grid price, read from the published zone-based pricing grid. \\
+Real tariff & Recomputed from the parcel's measured weight and volume. \\
+Theoretical vs.\ real gap & The difference between the two; a direct signal of cost and
+profitability. \\
 \hline
 \end{tabularx}
-\caption{The tariffs that make up a parcel's price at Yalidine.}
+\caption{The components that make up a parcel's price at Yalidine, along two dimensions: the billed
+event and the valuation method.}
 \label{tab:ch3-pricing}
 \end{table}
 
 \paragraph{Reimbursement.}
-Separately, a sender may insure a parcel against loss or damage. For an optional premium of roughly
-1\% of the declared value, Yalidine operates a reimbursement scheme: a lost parcel is reimbursed in
-full, while a damaged one is reimbursed at 60--80\% of its declared value, depending on the
-condition of its packaging.
+Separately, a sender may insure a parcel against loss or damage through an optional \emph{parcel
+insurance} (\emph{assurance colis}) set at roughly 1\% of the parcel's declared value. When this
+insurance is taken, Yalidine operates a reimbursement scheme: a lost parcel is reimbursed in full,
+while a damaged one is reimbursed at 60--80\% of its declared value, depending on the condition of
+its packaging.
 
 % =============================================================================
 \subsubsection{On-Demand Dedicated Transport (B2B)}
@@ -420,7 +438,7 @@ together they explain why, today, management cannot steer the business on solid 
           can be seen as a whole, so forming any overall picture means piecing fragments together by
           hand.
     \item \textbf{Duplicated and inconsistent records} : the same parcel, client, vehicle, or expense
-          is recorded in several applications at once, with no shared reference between them. The same
+          is recorded in several applications at once. The same
           question can therefore return different answers depending on which application is consulted.
     \item \textbf{Doubtful reliability of the figures} : without one authoritative source, errors,
           gaps, and out-of-date entries pass unnoticed and cannot be reconciled. Confidence in the
@@ -476,7 +494,7 @@ operational applications themselves (Table~\ref{tab:ch3-methods}).
 \hline
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Technique}} & \textcolor{white}{\textbf{Description}} &
-\textcolor{white}{\textbf{Stakeholders involved}} \\
+\textcolor{white}{\textbf{Stakeholders \& sources}} \\
 \hline
 Individual interviews & One-to-one discussions to understand a manager's area in depth --- its daily
 difficulties and what a consolidated view would need to surface. & Returns manager; operations
@@ -529,15 +547,27 @@ the system would actually be adopted.
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \rowcolor{tblheader}
-\textcolor{white}{\textbf{Family of need}} & \textcolor{white}{\textbf{What the business expressed}} \\
+\textcolor{white}{\textbf{Category need}} & \textcolor{white}{\textbf{Business expressed need}} \\
 \hline
-Informational & A single, consolidated, and trustworthy source of information; a reading of each
-activity along its operations, its cost and profitability, and its performance; a clear separation
-between the finances of the two services; and enough history to compare one period with another. \\
-Operational & Early warning when a key indicator drifts; information matched to each decision-maker's
-role; and, above all, decisions grounded in evidence rather than in intuition. \\
-Quality & A system that is reliable and responsive at the scale of Yalidine's national operations, and
-simple enough for non-technical managers to use day to day. \\
+Informational &
+\begin{itemize}[noitemsep, topsep=2pt, leftmargin=*]
+    \item A single, consolidated, and trustworthy source of information.
+    \item A reading of each activity along its operations, its cost and profitability, and its
+          performance.
+    \item A clear separation between the finances of the two services.
+    \item Enough history to compare one period with another.
+\end{itemize} \\
+Operational &
+\begin{itemize}[noitemsep, topsep=2pt, leftmargin=*]
+    \item Early warning when a key indicator drifts.
+    \item Information matched to each decision-maker's role.
+    \item Above all, decisions grounded in evidence rather than in intuition.
+\end{itemize} \\
+Quality &
+\begin{itemize}[noitemsep, topsep=2pt, leftmargin=*]
+    \item Reliable and responsive at the scale of Yalidine's national operations.
+    \item Simple enough for non-technical managers to use day to day.
+\end{itemize} \\
 \hline
 \end{tabularx}
 \caption{Synthesis of the business needs, grouped by family.}

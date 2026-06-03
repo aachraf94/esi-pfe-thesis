@@ -64,6 +64,52 @@ Usage:
 
 ---
 
+## 3a. Colour palette (use named colours, never ad-hoc RGB)
+
+Figures and charts should look like they belong to one document. A shared, professional palette is
+defined **once** in `config/settings.tex` — always use these named colours in `tikz`/`pgfplots`
+instead of writing `\definecolor` inline or forcing `esiblue` everywhere.
+
+> `esiblue` (RGB 0,84,166) is **reserved for logos and the institutional identity** — it is fine in a
+> figure, but it is *not* the default diagram colour. For ordinary diagrams reach for **`figblue`**
+> (steel blue) as the primary, and bring in the other hues only to carry meaning.
+
+**Core hues** (fills, strokes, bars):
+
+| Name | RGB | Use for |
+|---|---|---|
+| `figblue` | 70,130,180 | primary / structure (steel blue) |
+| `figteal` | 38,166,154 | secondary |
+| `figgreen` | 102,187,106 | positive · success · "delivered" |
+| `figamber` | 255,167,38 | attention · highlight |
+| `figorange` | 210,120,20 | warning · cost · "return" |
+| `figslate` | 120,144,156 | neutral · arrows · de-emphasis |
+
+**Pale tints** (light-filled nodes, band backgrounds — pair each with its core hue for text/stroke):
+
+| Name | RGB | Pairs with |
+|---|---|---|
+| `figbluetint` | 225,238,247 | `figblue` |
+| `figgreentint` | 229,245,231 | `figgreen` |
+| `figtealtint` | 234,249,244 | `figteal` |
+| `figambertint` | 255,243,224 | `figamber` / `figorange` |
+| `figlavtint` | 238,232,247 | (lavender accent) |
+| `figbluelight` | 232,240,252 | `figblue` |
+
+**Conventions:**
+- **Assign colour by meaning, not decoration.** Reuse the same hue for the same idea across the whole
+  thesis (e.g. green = success/delivered, orange = cost/return, slate = neutral arrows).
+- **Sequence/tiers:** step through `figblue → figteal → figbluetint` (or core hue → its tint) rather
+  than inventing three new blues.
+- **Contrast:** dark core-hue fill ⇒ white text; pale-tint fill ⇒ the matching core hue as text.
+- **Arrows/connectors:** `figslate` (or `black!40`) so coloured nodes stay dominant.
+- **Accessibility:** don't rely on colour alone — keep labels/shapes distinct so the figure survives
+  greyscale printing. Aim for ≤ 4–5 hues per figure.
+- The existing **table** colours (`tblheader`, `tblrowalt`, `tblstruct`, `tblanal`) are unchanged and
+  remain the rule for tables (§3).
+
+---
+
 ## 3. Figure & table rules (mandatory)
 - Every figure/table needs: a `\caption`, a `\label`, and **at least one in-text reference**
   ("Figure 4.2 shows..."). A floating figure no sentence points to is a defect.
@@ -90,7 +136,8 @@ Usage:
   ```
   For grouped/sectioned tables, shade sections with `tblstruct` / `tblanal` + `\multirow` instead of
   striping (see the C1 table in `To-copy/chapter1.tex`).
-- Diagrams: `tikz` (+ `positioning`, `arrows.meta`); charts: `pgfplots`.
+- Diagrams: `tikz` (+ `positioning`, `arrows.meta`); charts: `pgfplots`. Colour them from the shared
+  palette in §3a (named `fig*` colours) — no inline `\definecolor`, no forced `esiblue`.
 - Caption style: short, descriptive, sentence case. Number by chapter (LaTeX default).
 - Keep each visual near its first reference; use `[H]` (the established convention) and fall back to
   `[htbp]` only if a float breaks the page.
