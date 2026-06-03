@@ -136,24 +136,61 @@
 
 ---
 
-## CHAPTER 4 — Design & Architecture (22–26 pp) — heart of the thesis
+## CHAPTER 4 — Conceptual Design & Architecture (22–26 pp) — heart of the thesis
 
-### Introduction
-### 4.1 Global architecture
-- Layered, service-oriented; **one-directional** data flow; **operational vs analytical** plane split.
-- Component view: sources → integration (ETL) → storage (DW + operational DB) → application (REST API)
-  → presentation (web dashboard); + a **message broker / cache** for background work.
-- `[VISUAL-IMPLEMENT]` **layered architecture** TikZ diagram — *the single most important figure;
-  make it clean and central.*
-- `[VISUAL-IMPLEMENT]` `booktabs` component table (layer → component → role).
+> **This chapter is conceptual only.** Stay technology-agnostic: present *what the system does* and
+> *how it is logically structured*, **not** how it is built. **No technology stack, no framework names,
+> no physical/deployment detail, no code** — all of that lives in Chapter 5. The progression is
+> **functional → conceptual architecture**; Chapter 5 then mirrors it as **technical realisation**.
 
-### 4.2 Two-database principle
-- Operational DB (identity, roles, notifications, alert rules, ETL run history) vs analytical DW (all
-  decision-support queries); the backend **transparently routes** queries; why (isolate heavy
-  analytics, keep each store optimised, standard BI practice).
-- `[VISUAL-IMPLEMENT]` small TikZ figure of the routing decision.
+### Introduction *(unnumbered)*
+- Frame the chapter as the pivot from *problem* (Ch.3) to *solution*. **Name LOGIQ in 1–2 sentences**
+  here so the reader has the name from the first line — e.g. *"This chapter presents LOGIQ
+  (Logistics + IQ), the decision-support system proposed to close the gap diagnosed in Chapter 3."*
+  The full reveal (vision, etymology, principles) comes in 4.3.
 
-### 4.3 Data warehouse design (~8–10 pp — biggest section)
+### 4.1 Functional specification *(technology-agnostic — what the system must do)*
+> Frame as **functional design via use cases**, *not* a formal SRS / FR–NFR list (keep the
+> needs/objectives spirit of Ch.3; avoid the *cahier des charges* feel). Trace every capability back to
+> a Ch.3 specific objective.
+- **Actors & roles** — who interacts with the system (top management, operations manager, returns
+  manager, …, + an administrator); each actor's concern and what they consult.
+  - `[VISUAL-IMPLEMENT]` grid table: actor → concern → what they consult.
+- **Functional capabilities**, grouped into families, each traced to a Ch.3 objective:
+  *data consolidation*; *multi-axis decision consultation* (two axes × Operations / Cost &
+  Profitability / Performance); *proactive monitoring*; *role-appropriate access*; *administration*.
+  - `[VISUAL-IMPLEMENT]` capabilities table (module/family → capabilities → objective served).
+- **Global use-case diagram** — actors × main use cases.
+  - `[VISUAL-IMPLEMENT]` TikZ use-case diagram (or `[VISUAL-PLACEHOLDER]` if drawn in a UML tool).
+- **Quality requirements** — restate the quality goals (reliable, responsive at national scale, simple
+  for non-technical managers) as functional-level expectations, **not** a formal NFR table.
+
+### 4.2 Functional architecture *(the logical decomposition — still tech-agnostic)*
+- The system split into **functional modules** and their relationships, as a logical block diagram —
+  purely conceptual (e.g. *Consolidation → Decision-support/consultation → Monitoring & alerting*,
+  wrapped by *Access & personalisation* and *Administration*). **No technology, no "platform/DB" yet.**
+- A conceptual functional data flow: business activity → consolidated view → analytical consultation,
+  with the alerting branch.
+- `[VISUAL-IMPLEMENT]` TikZ functional-architecture block diagram (modules + relationships).
+
+### 4.3 Solution & Global Architecture
+> The **LOGIQ reveal** + the conceptual layered architecture, in that order: *here is LOGIQ, and here
+> is how it is structured.* Lead with the solution, **then** the architecture.
+- **The proposed solution — LOGIQ.** Name & meaning: **LOGIQ = Logistics + IQ** (logistics
+  intelligence); also reads as *logique* (Fr. "logical") → decisions on logic/evidence, not intuition
+  (callback to the diagnosis). Positioning: a single, consolidated BI decision-support **system**
+  answering the Ch.3 gap. **Guiding principles**: one consolidated source; two axes read along
+  Operations / Cost & Profitability / Performance; **two independent financial perimeters**; proactive
+  monitoring; role-appropriate access.
+  - `[VISUAL-IMPLEMENT]` optional "solution-at-a-glance" figure (problem → LOGIQ → value).
+- **Global architecture** (conceptual): layered, service-oriented; **one-directional** data flow;
+  **operational plane vs analytical plane** split (conceptual — *no database technology named here*).
+  Conceptual layers: sources → integration → storage → application → presentation.
+  - `[VISUAL-IMPLEMENT]` **layered architecture** TikZ diagram — *the single most important figure;
+    make it clean and central.*
+  - `[VISUAL-IMPLEMENT]` `booktabs` component table (layer → role) — conceptual roles, not products.
+
+### 4.4 Data warehouse design (~8–10 pp — biggest section)
 - **Layered design** — staging → dimensions → facts → aggregates (recap §4.1).
   - `[VISUAL-IMPLEMENT]` TikZ four-layer stack (role of each layer labelled).
 - **Schema paradigm** — **constellation (fact-constellation)** schema + **snowflaked** dimensions; the
@@ -171,60 +208,88 @@
 - **Scale** — production-scale dimensioning (hundreds of millions of parcel-status events) justifying
   aggregates + incremental loading (§4.4). Qualitative figures; exact counts `% TODO`.
 
-### 4.4 ETL pipeline design (~4–5 pp)
+### 4.5 ETL pipeline design (~4–5 pp)
+> Conceptual design of the integration process — *no orchestrator/product names* (those go to Ch.5).
 - **Asset-oriented orchestration** & lineage (each warehouse table = a data asset with declared deps).
 - **Five stages** mapped onto the layers: extract → stage → transform/load dimensions → load facts →
   refresh aggregates.
 - **Engineering properties**: incremental extraction; idempotent loads (insert-or-update); resilience
   (retry + exponential backoff); scheduling (nightly full + lighter dimension refresh); observability
-  (lifecycle events to backend); **source decoupling** (depends only on the API contract).
+  (lifecycle events to the platform); **source decoupling** (depends only on the source contract).
 - `[VISUAL-IMPLEMENT]` TikZ **ETL flow** (stages → layers).
 - `[VISUAL-IMPLEMENT]` `booktabs` properties table (property → rationale).
-- `[VISUAL-FETCH]` generic asset-graph illustration **OR** `[VISUAL-PLACEHOLDER]` real Dagster
-  asset-graph screenshot.
+- `[VISUAL-FETCH]` generic asset-graph illustration **OR** `[VISUAL-PLACEHOLDER]` real asset-graph
+  screenshot.
 
-### 4.5 Alerting design
-- Threshold **rules** (metric, operator, threshold, severity, cooldown); scheduled evaluation by a
-  background worker; **multi-channel** delivery (in-app + email, per-user preference); pipeline
+### 4.6 Application Platform Design
+> The application users actually touch, on top of the warehouse — described **functionally**
+> (back-end + front-end as *functions*, **no framework/technology names**). Absorbs the former
+> "Alerting design" and "Security/access" role concerns at the conceptual level.
+- **Decision-support visualisations / dashboards** — organised by the **two axes**, each with
+  **Operations / Cost & Profitability / Performance** (NO pricing) + Overview; KPI cards, charts, maps
+  (conceptually — visualisation *types*, not the toolkit).
+- **Proactive alerting** — threshold **rules** (metric, operator, threshold, severity, cooldown);
+  scheduled evaluation; **multi-channel** delivery (in-app + email, per-user preference); pipeline
   notifications surfaced through the same machinery (closes the loop).
-- `[VISUAL-IMPLEMENT]` TikZ flow: rule → scheduled check → threshold crossed → alert → channel fan-out.
+  - `[VISUAL-IMPLEMENT]` TikZ flow: rule → scheduled check → threshold crossed → alert → channel fan-out.
+- **Role-based access experience** — each role sees the sections suited to it; **role-filtered
+  navigation** (the *functional* view; the security mechanism is 4.7).
+- **User-preference management** — saved filter snapshots (bookmarks), notification-channel
+  preferences, etc.
+- **Operational vs analytical data separation** — the conceptual essence of the two-store design: the
+  platform's own data (users, roles, alert rules, preferences, notifications) is kept **separate** from
+  the analytical data, so heavy analytics never disturbs the application. *(The physical two-database
+  routing is Ch.5.)*
 
-### 4.6 Security & access design
-- Stateless token auth (rotation + revocation on logout); **RBAC** mapping roles → dashboard sections.
+### 4.7 Security & Conformity
+> Renamed from "Security & access design" (NB: idiomatic English is "Security & Compliance" — kept as
+> *Conformity* per the author's choice). Cross-cutting concerns, conceptual level.
+- **Access control** — **RBAC** mapping roles → dashboard sections; authentication & session principles
+  (conceptual — *no token/library specifics here*).
+- **Conformity** — security/data-protection posture aligned with Yalidine's ISO 27001 context;
+  read-only decision-support layer (does not alter operational data); traceability/audit of access.
 - `[VISUAL-IMPLEMENT]` small RBAC table (role → accessible sections).
-
-### 4.7 Technology stack
-- The open-source stack (recap §3) with one-line justification each; emphasise **free / open-source /
-  no licensing cost**.
-- `[VISUAL-IMPLEMENT]` `booktabs` stack table (concern → technology):
-  FastAPI+PostgreSQL (source simulation, test) · Dagster (ETL) · PostgreSQL (DW + operational) ·
-  Django + DRF (backend) · Celery + Redis (background) · Next.js/React/TS (frontend) ·
-  ECharts/D3.js/Leaflet/Tremor (viz) · Docker Compose + Nginx + Let's Encrypt (deploy).
 
 ### Conclusion & transition to Implementation.
 
 ---
 
 ## CHAPTER 5 — Implementation & Deployment (18–22 pp)
-> From *how it was designed* to *how it was built and shipped*. General-aspects level; tiny snippets
-> only if they clarify (≤10 lines, `listings`). No full code.
+> From *how it was designed* (Ch.4, conceptual) to *how it was built and shipped* (the technical
+> realisation). This is where **all technology** lives — the stack, frameworks, products, and physical
+> choices deferred from Ch.4. General-aspects level; tiny snippets only if they clarify (≤10 lines,
+> `listings`). No full code. Each section mirrors a Ch.4 design block.
 
 ### Introduction
-### 5.1 Backend implementation
+### 5.1 Technology stack
+> Moved here from Ch.4 — Ch.4 is conceptual, so the concrete stack is introduced at the start of the
+> realisation chapter and reused by the sections below.
+- The open-source stack with one-line justification each; emphasise **free / open-source / no
+  licensing cost**.
+- `[VISUAL-IMPLEMENT]` `booktabs` stack table (concern → technology):
+  FastAPI+PostgreSQL (source simulation, test) · Dagster (ETL) · PostgreSQL (DW + operational) ·
+  Django + DRF (backend) · Celery + Redis (background) · Next.js/React/TS (frontend) ·
+  ECharts/D3.js/Leaflet/Tremor (viz) · Docker Compose + Nginx + Let's Encrypt (deploy).
+
+### 5.2 Backend implementation
 - REST API responsibilities: auth/session, RBAC authorisation, **read-only** analytics services over
   the **aggregate layer**, administration, alert engine.
-- Transparent operational/analytical routing; **graceful degradation** of analytics endpoints (fall
-  back to representative demo data when the warehouse is unavailable).
+- **Two-database realisation** — the operational DB (identity, roles, notifications, alert rules, ETL
+  run history) vs the analytical DW; the backend **transparently routes** queries to the right store.
+  *(This is the physical counterpart of the conceptual operational/analytical split in §4.6.)*
+- **Graceful degradation** of analytics endpoints (fall back to representative demo data when the
+  warehouse is unavailable).
+- `[VISUAL-IMPLEMENT]` small TikZ figure of the operational/analytical query routing.
 - `[VISUAL-PLACEHOLDER]` (optional) request-flow diagram.
 
-### 5.2 Warehouse & ETL implementation
+### 5.3 Warehouse & ETL implementation
 - How the four layers + asset graph were realised; nightly full refresh + lighter dimension refresh;
   lifecycle events emitted to the backend.
 
-### 5.3 Alerting implementation
+### 5.4 Alerting implementation
 - Background worker evaluating active rules; notification machinery; per-user channel preferences.
 
-### 5.4 Frontend / dashboard implementation
+### 5.5 Frontend / dashboard implementation
 - Single-page dashboard; organised by the **two axes**, each with **Operations / Cost & Profitability /
   Performance** (NO pricing) + Overview + Alerts + Settings + Admin; **role-filtered navigation**.
 - **Visualisation toolkit**: statistical charts (line, area, bar, stacked bar, pie/donut, scatter,
@@ -236,7 +301,7 @@
 - **Interactivity**: a **global filter bar** (period, service type, region, agency) synced across a
   page; saved **filter snapshots (bookmarks)**; real-time in-app notifications.
 
-### 5.5 Deployment & infrastructure
+### 5.6 Deployment & infrastructure
 - Containerisation (one orchestration definition; one-command bring-up); reverse proxy + automatic
   **HTTPS/TLS** (auto-renewed certs); **single modest VPS** topology (cost-effective); **named volumes**
   for persistence; automation (scheduled ETL + self-renewing certs). Only web ports public; internal

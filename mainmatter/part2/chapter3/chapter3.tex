@@ -135,30 +135,30 @@ directions, a network of call centres, and a large vehicle fleet. Physically, pa
 % colours from the shared figure palette (settings.tex): steel blue -> teal -> blue tint
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[font=\footnotesize,
+\begin{tikzpicture}[font=\scriptsize,
   tier/.style={rectangle, rounded corners=4pt, align=center, font=\bfseries\scriptsize,
-               text width=1.9cm, minimum height=0.7cm, fill=black!4, text=black!55},
-  hub/.style={rectangle, rounded corners=7pt, draw=figblue, line width=1pt, fill=figblue, text=white,
-              align=center, text width=2.8cm, minimum height=1.1cm},
-  reg/.style={rectangle, rounded corners=7pt, draw=figteal, line width=1pt, fill=figteal, text=white,
-              align=center, text width=2.5cm, minimum height=1.0cm},
-  sta/.style={rectangle, rounded corners=6pt, draw=figblue, line width=0.8pt, fill=figbluetint,
-              text=figblue, align=center, text width=2.3cm, minimum height=0.9cm},
+               text width=1.6cm, minimum height=0.6cm, fill=black!4, text=black!55},
+  hub/.style={rectangle, rounded corners=6pt, draw=figblue, line width=0.9pt, fill=figblue, text=white,
+              align=center, text width=2.4cm, minimum height=0.95cm},
+  reg/.style={rectangle, rounded corners=6pt, draw=figteal, line width=0.9pt, fill=figteal, text=white,
+              align=center, text width=2.0cm, minimum height=0.85cm},
+  sta/.style={rectangle, rounded corners=5pt, draw=figblue, line width=0.7pt, fill=figbluetint,
+              text=figblue, align=center, text width=1.9cm, minimum height=0.8cm},
   % bidirectional flow
-  fl/.style={{Stealth[length=2.4mm]}-{Stealth[length=2.4mm]}, draw=figslate, line width=1pt}]
+  fl/.style={{Stealth[length=2mm]}-{Stealth[length=2mm]}, draw=figslate, line width=0.9pt}]
   % Tier 1 — two hubs that exchange parcels with each other
-  \node[hub] (hA) at (-2.7,0) {National hub\\[1pt]\mdseries\scriptsize sorting \& transfer};
-  \node[hub] (hB) at ( 2.7,0) {National hub\\[1pt]\mdseries\scriptsize sorting \& transfer};
+  \node[hub] (hA) at (-2.4,0) {National hub\\[1pt]\mdseries\scriptsize sorting \& transfer};
+  \node[hub] (hB) at ( 2.4,0) {National hub\\[1pt]\mdseries\scriptsize sorting \& transfer};
   % Tier 2 — two regional centres under each hub
-  \node[reg] (r1) at (-4.3,-2.6) {Regional\\centre};
-  \node[reg] (r2) at (-1.4,-2.6) {Regional\\centre};
-  \node[reg] (r3) at ( 1.4,-2.6) {Regional\\centre};
-  \node[reg] (r4) at ( 4.3,-2.6) {Regional\\centre};
+  \node[reg] (r1) at (-3.9,-2.3) {Regional\\centre};
+  \node[reg] (r2) at (-1.3,-2.3) {Regional\\centre};
+  \node[reg] (r3) at ( 1.3,-2.3) {Regional\\centre};
+  \node[reg] (r4) at ( 3.9,-2.3) {Regional\\centre};
   % Tier 3 — delivery stations
-  \node[sta] (s1) at (-4.3,-5.0) {Delivery\\stations};
-  \node[sta] (s2) at (-1.4,-5.0) {Delivery\\stations};
-  \node[sta] (s3) at ( 1.4,-5.0) {Delivery\\stations};
-  \node[sta] (s4) at ( 4.3,-5.0) {Delivery\\stations};
+  \node[sta] (s1) at (-3.9,-4.4) {Delivery\\stations};
+  \node[sta] (s2) at (-1.3,-4.4) {Delivery\\stations};
+  \node[sta] (s3) at ( 1.3,-4.4) {Delivery\\stations};
+  \node[sta] (s4) at ( 3.9,-4.4) {Delivery\\stations};
   % inter-hub exchange
   \draw[fl] (hA) -- (hB);
   % hubs <-> regional centres
@@ -168,14 +168,12 @@ directions, a network of call centres, and a large vehicle fleet. Physically, pa
   \draw[fl] (r1) -- (s1); \draw[fl] (r2) -- (s2);
   \draw[fl] (r3) -- (s3); \draw[fl] (r4) -- (s4);
   % tier labels down the right side
-  \node[tier] at (6.4, 0)    {Tier 1\\Sorting hubs};
-  \node[tier] at (6.4,-2.6)  {Tier 2\\Regional centres};
-  \node[tier] at (6.4,-5.0)  {Tier 3\\Last mile};
+  \node[tier] at (5.8, 0)    {Tier 1\\Sorting hubs};
+  \node[tier] at (5.8,-2.3)  {Tier 2\\Regional centres};
+  \node[tier] at (5.8,-4.4)  {Tier 3\\Last mile};
 \end{tikzpicture}
-\caption{Yalidine's three-tier operational network: the national hubs (four nationwide) exchange
-parcels with one another and feed the regional sorting centres, which in turn distribute to the
-delivery stations that handle the last mile. Arrows are two-way: parcels move down the network for
-delivery and back up it for transfer and returns.}
+\caption{Yalidine's three-tier operational network. Arrows are two-way: parcels move down for
+delivery and back up for transfer and returns.}
 \label{fig:ch3-network}
 \end{figure}
 
