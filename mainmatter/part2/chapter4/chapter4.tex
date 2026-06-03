@@ -92,13 +92,13 @@ decision-makers can be onboarded as the organisation evolves, without changing t
 % -----------------------------------------------------------------------------
 \subsection{Functional Specifications}
 
-The capabilities expected of the system group into five families, each answering one or more of the
+The specifications expected of the system group into five families, each answering one or more of the
 specific objectives of Chapter~3 (Table~\ref{tab:ch4-capabilities}). They run from bringing the
 scattered data together, through consulting it along the two axes and three views, to being warned
 proactively when an indicator drifts --- the whole governed by role-appropriate access and supported
 by administration.
 
-% [VISUAL-IMPLEMENT] functional capability families traced to the Ch.3 objectives
+% [VISUAL-IMPLEMENT] functional specification families traced to the Ch.3 objectives
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.35}
@@ -106,37 +106,43 @@ by administration.
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.3cm}|}
 \hline
 \rowcolor{tblheader}
-\textcolor{white}{\textbf{Capability family}} & \textcolor{white}{\textbf{What the system must do}} &
+\textcolor{white}{\textbf{Specification family}} & \textcolor{white}{\textbf{What the system must do}} &
 \textcolor{white}{\textbf{Objective served (Ch.3)}} \\
 \hline
-Data consolidation & Bring the data scattered across the operational applications into a single,
-coherent, continuously refreshed source. & Consolidate the scattered data (Obj.~1). \\
-Multi-axis decision consultation & Consult each business axis --- parcel delivery and dedicated
-transport --- along its three views (Operations, Cost \& Profitability, Performance), plus a
-consolidated overview of both, while keeping the two financial perimeters strictly separate. & Read
-each axis in depth; keep the two perimeters separate (Obj.~2, 3). \\
-Proactive monitoring & Define threshold rules on sensitive indicators and be alerted automatically,
-through the preferred channel, when a metric drifts beyond its acceptable level. & Monitor
-proactively (Obj.~4). \\
-Role-appropriate access & Present each decision-maker only the sections suited to their role, and let
-them save personal filters and notification preferences. & Deliver the right information to the right
-decision-maker (Obj.~5). \\
-Administration & Activate HR-imported users, assign and adjust roles, and supervise the data-refresh
-pipeline and its run history. & Underpin reliable, governed operation; found decisions on reliable
-data (Obj.~1, 6). \\
+Data consolidation &
+Bring the scattered operational data into a single, coherent source \newline
+Refresh it continuously &
+Consolidate the scattered data (Obj.~1). \\
+Multi-axis decision consultation &
+Consult each business axis --- parcel delivery and dedicated transport --- along its three views (Operations, Cost \& Profitability, Performance) \newline
+Show a consolidated overview of both axes &
+Read each axis in depth (Obj.~2, 3). \\
+Proactive monitoring &
+Define threshold rules on sensitive indicators \newline
+Alert automatically, through the preferred channel, when a metric drifts beyond its acceptable level &
+Monitor proactively (Obj.~4). \\
+Role-appropriate access &
+Present each decision-maker only the sections suited to their role \newline
+Let them save personal filters and notification preferences &
+Deliver the right information to the right decision-maker (Obj.~5). \\
+Administration &
+Activate HR-imported users \newline
+Assign and adjust roles \newline
+Supervise the data-refresh pipeline and its run history &
+Underpin reliable, governed operation; found decisions on reliable data (Obj.~1, 6). \\
 \hline
 \end{tabularx}
-\caption{The five functional capability families, each traced to a specific objective of Chapter~3.}
+\caption{The five functional specification families, each traced to a specific objective of Chapter~3.}
 \label{tab:ch4-capabilities}
 \end{table}
 
 % -----------------------------------------------------------------------------
 \subsection{Use-Case Overview}
 
-Figure~\ref{fig:ch4-usecase} draws actors and capabilities together as a use-case overview. The
-business actors interact mainly with the consultation and monitoring use cases, while the
+Figure~\ref{fig:ch4-usecase} draws actors and use cases together as a use-case overview. The
+business user interacts mainly with the consultation and monitoring use cases, while the
 administrator governs users, roles, and the data pipeline. Access to every use case is mediated by
-the user's role, so two managers signing in to the same system may legitimately see different
+the user's role, so two users signing in under different roles may legitimately see different
 sections.
 
 % [VISUAL-IMPLEMENT] global use-case diagram (actors x main use cases, role-mediated)
@@ -171,57 +177,46 @@ sections.
   \node[uc] (uc5) at (0,-3.0)  {Administer\\users \& roles};
   \node[uc] (uc6) at (0,-4.5)  {Supervise the\\data pipeline};
 
-  % ---- actors (left) ---------------------------------------------------------
-  \pic at (-5.4, 3.2)  {actor};
-  \node[alab] at (-5.4, 2.50) {Top\\management};
+  % ---- actor (left): the business user --------------------------------------
   \pic at (-5.4, 1.0)  {actor};
-  \node[alab] at (-5.4, 0.30) {Operations\\manager};
-  \pic at (-5.4,-1.2)  {actor};
-  \node[alab] at (-5.4,-1.90) {Returns\\manager};
-  \pic at (-5.4,-3.4)  {actor};
-  \node[alab] at (-5.4,-4.10) {Financial\\controller};
+  \node[alab] at (-5.4, 0.18) {Business user\\{\itshape (utilisateur métier)}};
 
   % ---- actor (right) ---------------------------------------------------------
   \pic at (5.4,-3.0)  {actor};
   \node[alab] at (5.4,-3.70) {Administrator};
 
-  % ---- associations: business actors -> use cases ----------------------------
-  \draw[rel] (-5.1, 3.2) -- (uc1.west);
-  \draw[rel] (-5.1, 3.2) -- (uc2.west);
-  \draw[rel] (-5.1, 3.2) -- (uc3.west);
+  % ---- associations: business user -> use cases ------------------------------
+  \draw[rel] (-5.1, 1.0) -- (uc1.west);
   \draw[rel] (-5.1, 1.0) -- (uc2.west);
   \draw[rel] (-5.1, 1.0) -- (uc3.west);
   \draw[rel] (-5.1, 1.0) -- (uc4.west);
-  \draw[rel] (-5.1,-1.2) -- (uc2.west);
-  \draw[rel] (-5.1,-1.2) -- (uc3.west);
-  \draw[rel] (-5.1,-3.4) -- (uc2.west);
-  \draw[rel] (-5.1,-3.4) -- (uc3.west);
 
   % ---- associations: administrator -> use cases ------------------------------
   \draw[rel] (5.1,-3.0) -- (uc5.east);
   \draw[rel] (5.1,-3.0) -- (uc6.east);
   \draw[rel] (5.1,-3.0) -- (uc3.east);
 \end{tikzpicture}
-\caption{Global use-case overview of LOGIQ: business actors consult and monitor; the administrator
+\caption{Global use-case overview of LOGIQ: the business user consults and monitors; the administrator
 governs users, roles, and the pipeline. Every association is mediated by the user's role.}
 \label{fig:ch4-usecase}
 \end{figure}
 
 % -----------------------------------------------------------------------------
 \subsection{Quality Expectations}
+\label{subsec:ch4-quality}
 
 Beyond what the system does, Chapter~3 attached three quality conditions without which it would not be
 adopted (Table~\ref{tab:ch3-needs}). They are restated here as functional-level expectations that
 shape the design, rather than as a formal non-functional specification:
 
 \begin{itemize}[noitemsep]
-    \item \textbf{Reliability} --- the figures presented must be trustworthy and consistent across
+    \item \textbf{Reliability} : the figures presented must be trustworthy and consistent across
           views; a decision-support system is only as valuable as the confidence its users place in
           its numbers.
-    \item \textbf{Responsiveness at national scale} --- the system must stay fast over data covering
+    \item \textbf{Responsiveness at national scale} : the system must stay fast over data covering
           Yalidine's whole national activity, so that opening a view or reading a long history returns
           in seconds, not minutes.
-    \item \textbf{Simplicity for non-technical managers} --- the interface must be readable and
+    \item \textbf{Simplicity for non-technical managers} : the interface must be readable and
           navigable by managers who are not data specialists, favouring clear indicators and visual
           reading over raw tables.
 \end{itemize}
@@ -234,11 +229,135 @@ around two axes and three readable views.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Functional Architecture}
-% TODO
+\label{sec:ch4-funcarch}
+
+The functional specification said \emph{what} LOGIQ must do; the functional architecture says \emph{how
+those functions are organised} into a coherent whole --- still at a purely logical level, before any
+technology is chosen. Read left to right, the system is a single, one-directional \emph{value chain}
+that turns raw activity into a decision: data leaves the operational systems, is \textbf{processed},
+\textbf{consolidated} into one reliable base, and finally delivered to the decision-maker as
+\textbf{presentation} and \textbf{alerts}. Figure~\ref{fig:ch4-funcarch} shows this chain and the
+modules that make it up.
+
+% [VISUAL-FETCH] functional-architecture block diagram (designed externally; tech-agnostic value chain)
+\fig[\textwidth]{functional-architecture}{Functional architecture of LOGIQ: a one-directional value
+chain from the heterogeneous operational data sources, through data processing and reliable
+consolidation, to the two decision-ready outputs --- presentation and alerts --- consumed by the
+decision-maker.}{ch4-funcarch}
+
+The chain begins outside LOGIQ, in the \textbf{data sources and operational applications} --- the
+several independent systems that run the business day to day and in which its data lies scattered.
+\textbf{Data Processing} draws from them and brings the data into a consistent form, which
+\textbf{Reliable Data Consolidation} then holds as a single, coherent, continuously refreshed base ---
+the common ground every other module reads, and the point at which the figures become trustworthy.
+From that base the chain forks into the two \emph{decision-ready outputs}: \textbf{Data Presentation},
+which the decision-maker reads on demand as the two axes and their three views, and \textbf{Alerts \&
+Notifications}, which watches the same indicators and pushes a warning the moment one drifts.
+Presentation answers questions when they are asked; alerting answers them before they are asked.
+
+Two further responsibilities do not sit at a single point in the chain but cut across all of it, and
+are left out of Figure~\ref{fig:ch4-funcarch} for clarity: \textbf{Access \& Personalisation}, which
+filters every interaction to the user's role and remembers their saved filters and notification
+preferences, and \textbf{Administration}, which governs the users, the roles, and the processing
+pipeline that keeps the base trustworthy. Table~\ref{tab:ch4-funcmodules} ties every module --- those
+in the figure and these two cross-cutting concerns --- back to the specification family it realises.
+
+% [VISUAL-IMPLEMENT] functional modules mapped to the specification families of S4.1
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Functional module}} & \textcolor{white}{\textbf{Realises}} &
+\textcolor{white}{\textbf{Conceptual role}} \\
+\hline
+Data Processing & Data consolidation & Draw data from the heterogeneous operational sources and bring
+it into a consistent form. \\
+Reliable Data Consolidation & Data consolidation & Hold the processed data as one coherent,
+continuously refreshed and trustworthy analytical base. \\
+Data Presentation & Multi-axis decision consultation & Expose the two business axes along Operations /
+Cost \& Profitability / Performance, plus the consolidated overview of both. \\
+Alerts \& Notifications & Proactive monitoring & Watch sensitive indicators and push an alert through
+each user's preferred channel when one drifts. \\
+Access \& Personalisation \newline \emph{(cross-cutting)} & Role-appropriate access & Mediate every
+interaction by role, and hold each user's saved filters and notification preferences. \\
+Administration \newline \emph{(cross-cutting)} & Administration & Activate HR-imported users, manage
+roles, and supervise the processing pipeline and its run history. \\
+\hline
+\end{tabularx}
+\caption{The functional modules of LOGIQ, each realising one specification family of
+\S\ref{sec:ch4-functional}; the last two cut across the chain and are not shown in
+Figure~\ref{fig:ch4-funcarch}.}
+\label{tab:ch4-funcmodules}
+\end{table}
+
+This decomposition is the bridge between the specification and the concrete solution: each module is a
+\emph{responsibility}, not yet a component. The next section introduces LOGIQ and shows how these
+responsibilities are projected onto a layered, service-oriented architecture.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Technical Specifications}
-% TODO
+\label{sec:ch4-techspec}
+
+The quality expectations of \S\ref{subsec:ch4-quality} stated, in the decision-maker's own terms, the
+conditions under which LOGIQ would be trusted and adopted. This section turns them --- together with
+the engineering constraints they imply at national scale --- into a structured \emph{technical
+specification}: the non-functional properties the design must guarantee, and against which its
+realisation in Chapter~5 can be judged. To keep the specification systematic, it is organised along
+the product-quality characteristics of the ISO/IEC~25010 model~\cite{iso25010}; and, like the rest of
+this chapter, each requirement is stated independently of any particular technology.
+Table~\ref{tab:ch4-techspec} collects them.
+
+% [VISUAL-IMPLEMENT] technical (non-functional) specification, organised by ISO/IEC 25010 attributes
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{2.8cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Quality attribute}} & \textcolor{white}{\textbf{Technical specification}} &
+\textcolor{white}{\textbf{Driven by}} \\
+\hline
+Performance efficiency & Analytical views and KPI queries return within a few seconds --- not minutes
+--- over the full national history; response time and resource use stay bounded as the data grows, by
+reading from a pre-computed aggregate layer and isolating analytical from operational workloads. &
+Responsiveness \\
+Capacity \& scalability & Sized for production-scale volumes (a parcel history on the order of hundreds
+of millions of status events over a multi-year horizon), refreshed incrementally rather than reloaded
+in full, leaving headroom to grow with the activity. & National scale \\
+Reliability & Figures are consistent across every view; the data refresh is idempotent and
+recoverable, so a failed or repeated run never corrupts or duplicates data; the system degrades
+gracefully when the analytical store is briefly unavailable. & Reliability \\
+Security & Every view is gated by role-based access control; users are provisioned only by an
+administrator; the two financial perimeters are kept strictly separate; sessions use stateless
+authentication and all transport is encrypted. & Role-appropriate access \\
+Usability & Readable and navigable by managers who are not data specialists --- visual-first, clear
+indicators over raw tables --- and consistent across the two axes and their three views. &
+Simplicity \\
+Maintainability & Built as the loosely coupled functional modules of \S\ref{sec:ch4-funcarch} on open,
+non-proprietary foundations, with a clean separation of operational and analytical concerns, so each
+part can evolve independently. & Sustainable evolution \\
+Compatibility \& portability & Source integration depends only on each system's API contract --- so the
+real production systems connect unchanged --- and the design accommodates the deferred Route Analysis
+axis without restructuring; the whole is reproducibly deployable on modest infrastructure. &
+Integration \& future work \\
+\hline
+\end{tabularx}
+\caption{Technical specification of LOGIQ, organised along the product-quality characteristics of
+ISO/IEC~25010 and traced to the quality expectations of \S\ref{subsec:ch4-quality}.}
+\label{tab:ch4-techspec}
+\end{table}
+
+Three of these characteristics dominate the design and recur as drivers in the sections that follow:
+\textbf{performance and capacity} justify the pre-computed aggregate layer and the analytical/operational
+split of the warehouse; \textbf{reliability} justifies its layered, quality-gated construction and an
+idempotent refresh; and \textbf{security} justifies role-based access and the strict separation of the
+two financial perimeters. The remaining characteristics --- usability, maintainability, and
+portability --- shape, respectively, the dashboard, the modular decomposition just presented, and the
+deployment, and are revisited where each is realised.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Solution and Global Architecture}
