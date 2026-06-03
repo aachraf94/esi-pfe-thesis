@@ -22,7 +22,7 @@
 ### 0.1 Language & tone
 - **English**, clear and simple academic register. Short sentences. One idea per sentence.
 - **No complicated vocabulary, no flowery prose.** Prefer "uses" over "leverages", "build" over
-  "architect", "shows" over "elucidates". A second-year student should understand every sentence.
+  "architect", "shows" over "elucidates".
 - Define every acronym on first use: *Business Intelligence (BI)*, then "BI" thereafter.
 - Neutral third-person voice ("the platform", "the solution", "this work"). Avoid "I". "We" is fine
   sparingly for design decisions.

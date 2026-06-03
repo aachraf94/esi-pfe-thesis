@@ -1,29 +1,253 @@
 % ── Chapter 4: Design & Architecture ─────────────────────────────────────────
 \chapter{Design and Architecture}
 
-\section{Introduction}
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+Chapter~3 closed on a clear diagnosis: the information needed to steer the business exists, but it
+lies scattered across isolated operational applications, inconsistent and hard to exploit, leaving
+management to decide on intuition rather than on a reliable, consolidated reading of the activity.
+This chapter is the pivot from that problem to its solution. It presents LOGIQ,
+the Business Intelligence decision-support system proposed to close the analytical gap, and sets out
+\emph{what} the system must do and \emph{how} it is logically structured to do it.
+
+The chapter is deliberately \emph{conceptual}. It stays at the level of functions and logical
+structure --- the actors and capabilities the system supports, the modules it decomposes into, the
+layered architecture that organises it, the way the analytical data is modelled, the integration
+process that feeds it, and the application through which decision-makers consult it. Concerns that
+belong to construction --- the technology stack, the frameworks, the physical deployment --- are
+deliberately deferred to Chapter~5, which mirrors this design as its technical realisation. The aim
+here is a faithful blueprint, independent of any particular implementation.
+
+The presentation follows a single thread, from the abstract to the concrete. It begins with the
+\emph{functional specification} (what the system must do, traced back to the objectives of
+Chapter~3), then derives the \emph{functional architecture} (how those functions are decomposed and
+related). From there it introduces LOGIQ and its \emph{global architecture}, before zooming in on
+the three pillars that give the system its value: the \emph{data warehouse} at its core, the
+\emph{ETL pipeline} that populates it, and the \emph{application platform} through which it is used.
+The chapter closes on the cross-cutting concerns of \emph{security and conformity}, and on a
+transition towards implementation.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Functional Specification}
+\label{sec:ch4-functional}
+
+Before describing how LOGIQ is structured, this section sets out \emph{what} it must do. In keeping
+with the spirit of Chapter~3, the specification is expressed not as a formal requirements list but as
+a \emph{functional design}: the actors that interact with the system, the capabilities it offers
+them, and the use cases through which those capabilities are exercised. Every capability is traced
+back to one of the specific objectives derived in Chapter~3 (\S\ref{sec:ch3-objectives}), so that the
+design answers the diagnosed needs rather than adding features for their own sake.
+
+% -----------------------------------------------------------------------------
+\subsection{Actors and Roles}
+
+LOGIQ is used not by the public but by Yalidine's own decision-makers, each consulting the system
+from the angle of their responsibility. Users are not self-registered: they are imported from the
+company's HR system and activated by an administrator, who assigns each one a \textbf{role}. The role
+then governs which parts of the system the user may consult --- the foundation of the
+role-appropriate access objective. Table~\ref{tab:ch4-actors} lists the principal actors, the
+decision each is concerned with, and what they typically consult.
+
+% [VISUAL-IMPLEMENT] actors of the system, their concern, and what they consult
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Actor}} & \textcolor{white}{\textbf{Decision concern}} &
+\textcolor{white}{\textbf{What they consult}} \\
+\hline
+Top management \newline (general \& regional direction) & Strategic steering of the business as a
+whole. & The consolidated overview of both axes and, on demand, every analytical view. \\
+Operations manager & Day-to-day steering of the delivery activity. & The Operations and Performance
+views of both axes. \\
+Returns manager & Control of reverse logistics. & The parcel-delivery views, with attention to
+returns and failed deliveries. \\
+Financial controller \newline (management control) & Cost and margin control on each perimeter. & The
+Cost \& Profitability views of both axes, read on their separate perimeters. \\
+Administrator \newline (super-administrator) & Governance of the system itself. & User activation,
+role assignment, and the data-pipeline run history. \\
+\hline
+\end{tabularx}
+\caption{The principal actors of LOGIQ, their decision concern, and what each one consults.}
+\label{tab:ch4-actors}
+\end{table}
+
+The roles in Table~\ref{tab:ch4-actors} are representative rather than fixed: because access is
+governed by configurable roles, the set can be extended or refined without changing the system, so
+that new decision-makers can be onboarded as the organisation evolves.
+
+% -----------------------------------------------------------------------------
+\subsection{Functional Capabilities}
+
+The capabilities expected of the system group into five families, each answering one or more of the
+specific objectives of Chapter~3 (Table~\ref{tab:ch4-capabilities}). They run from bringing the
+scattered data together, through consulting it along the two axes and three views, to being warned
+proactively when an indicator drifts --- the whole governed by role-appropriate access and supported
+by administration.
+
+% [VISUAL-IMPLEMENT] functional capability families traced to the Ch.3 objectives
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.3cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Capability family}} & \textcolor{white}{\textbf{What the system must do}} &
+\textcolor{white}{\textbf{Objective served (Ch.3)}} \\
+\hline
+Data consolidation & Bring the data scattered across the operational applications into a single,
+coherent, continuously refreshed source. & Consolidate the scattered data (Obj.~1). \\
+Multi-axis decision consultation & Consult each business axis --- parcel delivery and dedicated
+transport --- along its three views (Operations, Cost \& Profitability, Performance), plus a
+consolidated overview of both, while keeping the two financial perimeters strictly separate. & Read
+each axis in depth; keep the two perimeters separate (Obj.~2, 3). \\
+Proactive monitoring & Define threshold rules on sensitive indicators and be alerted automatically,
+through the preferred channel, when a metric drifts beyond its acceptable level. & Monitor
+proactively (Obj.~4). \\
+Role-appropriate access & Present each decision-maker only the sections suited to their role, and let
+them save personal filters and notification preferences. & Deliver the right information to the right
+decision-maker (Obj.~5). \\
+Administration & Activate HR-imported users, assign and adjust roles, and supervise the data-refresh
+pipeline and its run history. & Underpin reliable, governed operation; found decisions on reliable
+data (Obj.~1, 6). \\
+\hline
+\end{tabularx}
+\caption{The five functional capability families, each traced to a specific objective of Chapter~3.}
+\label{tab:ch4-capabilities}
+\end{table}
+
+% -----------------------------------------------------------------------------
+\subsection{Use-Case Overview}
+
+Figure~\ref{fig:ch4-usecase} draws actors and capabilities together as a use-case overview. The
+business actors interact mainly with the consultation and monitoring use cases, while the
+administrator governs users, roles, and the data pipeline. Access to every use case is mediated by
+the user's role, so two managers signing in to the same system may legitimately see different
+sections.
+
+% [VISUAL-IMPLEMENT] global use-case diagram (actors x main use cases, role-mediated)
+% Stick-figure actors + ellipse use cases inside a LOGIQ system boundary; palette from settings.tex.
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  >={Stealth[length=2.4mm]},
+  uc/.style={draw=figblue, fill=figbluetint, ellipse, align=center, text=black!75,
+             minimum width=3.5cm, minimum height=1.0cm, inner sep=1pt, font=\scriptsize},
+  rel/.style={draw=figslate, line width=0.6pt},
+  alab/.style={font=\scriptsize\bfseries, align=center, text=black!70},
+  % reusable stick-figure actor
+  actor/.pic={
+    \draw[line width=0.7pt, figslate] (0,0.55) circle (0.16);
+    \draw[line width=0.7pt, figslate] (0,0.39) -- (0,-0.10);
+    \draw[line width=0.7pt, figslate] (-0.22,0.20) -- (0.22,0.20);
+    \draw[line width=0.7pt, figslate] (0,-0.10) -- (-0.18,-0.42);
+    \draw[line width=0.7pt, figslate] (0,-0.10) -- (0.18,-0.42);
+  }]
+
+  % ---- system boundary -------------------------------------------------------
+  \node[draw=figslate, line width=0.8pt, rounded corners=4pt, fill=black!2,
+        minimum width=4.8cm, minimum height=9.6cm,
+        label={[font=\bfseries, text=figblue]above:LOGIQ}] (sys) at (0,-0.4) {};
+
+  % ---- use cases (centre column) ---------------------------------------------
+  \node[uc] (uc1) at (0, 3.5)  {Consult consolidated\\overview};
+  \node[uc] (uc2) at (0, 1.9)  {Analyse an axis\\{\itshape Operations · Cost \&}\\{\itshape Profitability · Performance}};
+  \node[uc] (uc3) at (0, 0.2)  {Manage \& receive\\proactive alerts};
+  \node[uc] (uc4) at (0,-1.4)  {Manage filters\\\& preferences};
+  \node[uc] (uc5) at (0,-3.0)  {Administer\\users \& roles};
+  \node[uc] (uc6) at (0,-4.5)  {Supervise the\\data pipeline};
+
+  % ---- actors (left) ---------------------------------------------------------
+  \pic at (-5.4, 3.2)  {actor};
+  \node[alab] at (-5.4, 2.50) {Top\\management};
+  \pic at (-5.4, 1.0)  {actor};
+  \node[alab] at (-5.4, 0.30) {Operations\\manager};
+  \pic at (-5.4,-1.2)  {actor};
+  \node[alab] at (-5.4,-1.90) {Returns\\manager};
+  \pic at (-5.4,-3.4)  {actor};
+  \node[alab] at (-5.4,-4.10) {Financial\\controller};
+
+  % ---- actor (right) ---------------------------------------------------------
+  \pic at (5.4,-3.0)  {actor};
+  \node[alab] at (5.4,-3.70) {Administrator};
+
+  % ---- associations: business actors -> use cases ----------------------------
+  \draw[rel] (-5.1, 3.2) -- (uc1.west);
+  \draw[rel] (-5.1, 3.2) -- (uc2.west);
+  \draw[rel] (-5.1, 3.2) -- (uc3.west);
+  \draw[rel] (-5.1, 1.0) -- (uc2.west);
+  \draw[rel] (-5.1, 1.0) -- (uc3.west);
+  \draw[rel] (-5.1, 1.0) -- (uc4.west);
+  \draw[rel] (-5.1,-1.2) -- (uc2.west);
+  \draw[rel] (-5.1,-1.2) -- (uc3.west);
+  \draw[rel] (-5.1,-3.4) -- (uc2.west);
+  \draw[rel] (-5.1,-3.4) -- (uc3.west);
+
+  % ---- associations: administrator -> use cases ------------------------------
+  \draw[rel] (5.1,-3.0) -- (uc5.east);
+  \draw[rel] (5.1,-3.0) -- (uc6.east);
+  \draw[rel] (5.1,-3.0) -- (uc3.east);
+\end{tikzpicture}
+\caption{Global use-case overview of LOGIQ: business actors consult and monitor; the administrator
+governs users, roles, and the pipeline. Every association is mediated by the user's role.}
+\label{fig:ch4-usecase}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+\subsection{Quality Expectations}
+
+Beyond what the system does, Chapter~3 attached three quality conditions without which it would not be
+adopted (Table~\ref{tab:ch3-needs}). They are restated here as functional-level expectations that
+shape the design, rather than as a formal non-functional specification:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Reliability} --- the figures presented must be trustworthy and consistent across
+          views; a decision-support system is only as valuable as the confidence its users place in
+          its numbers.
+    \item \textbf{Responsiveness at national scale} --- the system must stay fast over data covering
+          Yalidine's whole national activity, so that opening a view or reading a long history returns
+          in seconds, not minutes.
+    \item \textbf{Simplicity for non-technical managers} --- the interface must be readable and
+          navigable by managers who are not data specialists, favouring clear indicators and visual
+          reading over raw tables.
+\end{itemize}
+
+These three expectations recur as design drivers throughout the chapter: reliability motivates the
+layered, quality-gated warehouse; responsiveness motivates the pre-computed aggregate layer and the
+separation of analytical from operational data; and simplicity motivates the dashboard organisation
+around two axes and three readable views.
+
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Functional Architecture}
 % TODO
 
-\section{Global Architecture}
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Solution and Global Architecture}
 % TODO
 
+% ═════════════════════════════════════════════════════════════════════════════
 \section{Data Warehouse Design}
 % TODO
 
-\subsection{Conceptual Model}
-% TODO
-
-\subsection{Dimensional Model (Star / Snowflake Schema)}
-% TODO
-
+% ═════════════════════════════════════════════════════════════════════════════
 \section{ETL Pipeline Design}
 % TODO
 
-\section{Analytical Dashboards Design}
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Application Platform Design}
 % TODO
 
-\section{Alert Mechanism Design}
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Security and Conformity}
 % TODO
 
-\section{Summary}
+% ═════════════════════════════════════════════════════════════════════════════
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
 % TODO
