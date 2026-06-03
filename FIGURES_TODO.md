@@ -12,6 +12,8 @@ Status legend: ☐ to do · ◐ in progress · ☑ done.
 |----|---------|------|---------------|----------------|--------|
 | C3-P3 | Ch.3 §3.2 | FETCH | Parcel lifecycle (`fig:ch3-parcel-lifecycle`) — six-stage forward flow Pickup → … → Delivery + reverse-return branch | Author-provided diagram embedded as `Parcel Lifecycle 1.png` | ☑ |
 | C4-F1 | Ch.4 §4.2 | FETCH | Functional architecture (`fig:ch4-funcarch`) — one-directional value chain: sources → processing → consolidation → {presentation, alerts} → decision-maker | Author-provided diagram embedded as `functional-architecture.png` | ☑ |
+| C4-P3 | Ch.4 §4.4 | IMPLEMENT/asset | LOGIQ brand logo (`fig:ch4-logiq-logo`) — light/primary + dark/reverse variants | Author-provided, embedded as `logos.png` | ☑ |
+| C4-F2 | Ch.4 §4.4.2 | FETCH/asset | Global architecture — end-to-end data flow (operational stores → source platforms → APIs → ETL/Dagster → stores → services → dashboard); full landscape page | Author-provided diagram embedded as `global-architecture.png` | ☑ |
 
 ## Planned (from `guide/02_contribution_guide.md` / `guide/03_visuals_guide.md` — not yet in the `.tex`)
 

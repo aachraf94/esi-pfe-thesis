@@ -1,5 +1,5 @@
 % ── Chapter 4: Design & Architecture ─────────────────────────────────────────
-\chapter{Design and Architecture}
+\chapter{Conceptual Design and Architecture}
 
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
@@ -367,22 +367,94 @@ deployment, and are revisited where each is realised.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Solution and Global Architecture}
-% TODO
+\label{sec:ch4-solution}
+
+The previous sections specified, in purely logical terms, \emph{what} LOGIQ must do, how its functions
+are organised, and the technical properties its realisation must guarantee. This section makes the
+system concrete. It first introduces \textbf{LOGIQ} as the proposed solution --- what it is and the
+building blocks it brings together --- and then sets out the \emph{global architecture} that arranges
+those blocks into a single, coherent whole. The presentation stays at the level of the solution as a
+system: each building block is named here, but examined in depth in its own section further on.
+
+% -----------------------------------------------------------------------------
+\subsection{The Proposed Solution --- LOGIQ}
+\label{subsec:ch4-logiq}
+
+The answer to the diagnosis of Chapter~3 is \textbf{LOGIQ}, a Business Intelligence decision-support
+platform that consolidates the data scattered across the company's operational systems and turns it
+into a reliable, navigable reading of logistics operations and costs. The name carries the intent of
+the system twice over: \textbf{LOGIQ = Logistics + IQ} --- \emph{logistics intelligence} --- and it
+reads as the French \emph{logique}, the promise that decisions rest on logic and evidence rather than
+on intuition, exactly the shortcoming the diagnosis exposed. Its visual identity carries the same idea
+--- a rising chart riding a delivery cart (Figure~\ref{fig:ch4-logiq-logo}).
+
+% [VISUAL-IMPLEMENT] LOGIQ brand logo, light/primary and dark/reverse variants
+\fig[0.85\textwidth]{logos}{The LOGIQ logo, shown in its primary (light) and reverse (dark) variants ---
+a chart riding a delivery cart, joining \emph{logistics} and analytical \emph{intelligence}.}{ch4-logiq-logo}
+
+LOGIQ is delivered as a single, full-stack platform that assembles five building blocks, each
+realising one of the functional modules of \S\ref{sec:ch4-funcarch} and each detailed in its own
+section below:
+
+\begin{itemize}[noitemsep]
+    \item a \textbf{data warehouse} --- the consolidated analytical core that holds the whole of the
+          company's activity as one coherent, query-optimised source of truth
+          (\S\ref{sec:ch4-dw});
+    \item an \textbf{automated ETL pipeline} that feeds and refreshes that core on a schedule, drawing
+          from each operational system and requiring no manual intervention (\S\ref{sec:ch4-etl});
+    \item \textbf{analytical dashboards} that present the activity as the two business axes and their
+          three views, through significant KPI charts and indicators (\S\ref{sec:ch4-app});
+    \item \textbf{dynamic alerting} --- threshold rules that decision-makers define and \emph{subscribe}
+          to, raising a notification through their preferred channel the moment a sensitive indicator
+          drifts beyond its acceptable level (\S\ref{sec:ch4-app});
+    \item \textbf{role and account management}, where users are not self-registered but \textbf{kept in
+          step with the company's HR system} and granted a role that governs which views they may
+          consult (\S\ref{sec:ch4-security}).
+\end{itemize}
+
+Two traits set the tone for the architecture that follows. First, LOGIQ is \emph{data-centred}: the
+warehouse is the gravitational centre, the automated pipeline keeps it current, and everything the
+decision-maker sees --- dashboards and alerts alike --- reads from it. Second, LOGIQ is a
+\emph{governed} system rather than an open one: its user base is mirrored from the company's HR system,
+so onboarding and off-boarding follow the organisation itself, and every interaction is filtered by the
+role each user holds. How these traits translate into layers and planes is the subject of the global
+architecture, next (Figure~\ref{fig:ch4-globalarch}).
+
+% -----------------------------------------------------------------------------
+% [VISUAL-IMPLEMENT] full-page landscape: LOGIQ end-to-end platform architecture
+\begin{landscape}
+\thispagestyle{empty}
+\subsection{Global Architecture}
+\label{subsec:ch4-globalarch}
+\vspace*{\fill}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth, height=0.82\textheight, keepaspectratio]{global-architecture}
+\caption{LOGIQ global architecture --- the one-directional, end-to-end data flow from the operational
+source systems, through ETL orchestration and the analytical/operational stores, to the dashboard.}
+\label{fig:ch4-globalarch}
+\end{figure}
+\vspace*{\fill}
+\end{landscape}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Data Warehouse Design}
+\label{sec:ch4-dw}
 % TODO
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{ETL Pipeline Design}
+\label{sec:ch4-etl}
 % TODO
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Application Platform Design}
+\label{sec:ch4-app}
 % TODO
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Security and Conformity}
+\label{sec:ch4-security}
 % TODO
 
 % ═════════════════════════════════════════════════════════════════════════════
