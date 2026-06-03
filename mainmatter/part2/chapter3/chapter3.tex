@@ -135,35 +135,47 @@ directions, a network of call centres, and a large vehicle fleet. Physically, pa
 % colours from the shared figure palette (settings.tex): steel blue -> teal -> blue tint
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[font=\footnotesize, >={Stealth[length=2.4mm]},
+\begin{tikzpicture}[font=\footnotesize,
   tier/.style={rectangle, rounded corners=4pt, align=center, font=\bfseries\scriptsize,
-               text width=2.2cm, minimum height=0.7cm, fill=black!4, text=black!55},
+               text width=1.9cm, minimum height=0.7cm, fill=black!4, text=black!55},
   hub/.style={rectangle, rounded corners=7pt, draw=figblue, line width=1pt, fill=figblue, text=white,
-              align=center, text width=3.4cm, minimum height=1.15cm},
+              align=center, text width=2.8cm, minimum height=1.1cm},
   reg/.style={rectangle, rounded corners=7pt, draw=figteal, line width=1pt, fill=figteal, text=white,
-              align=center, text width=2.9cm, minimum height=1.05cm},
+              align=center, text width=2.5cm, minimum height=1.0cm},
   sta/.style={rectangle, rounded corners=6pt, draw=figblue, line width=0.8pt, fill=figbluetint,
-              text=figblue, align=center, text width=2.5cm, minimum height=0.95cm},
-  fl/.style={-{Stealth[length=2.4mm]}, draw=figslate, line width=1pt}]
-  % tiers (generous vertical spacing)
-  \node[hub] (h)  at (0,0)        {National Hubs\\[1pt]\mdseries\scriptsize 4 sites, nationwide};
-  \node[reg] (r1) at (-3.6,-2.7)  {Regional centre\\[1pt]\mdseries\scriptsize consolidate \& distribute};
-  \node[reg] (r2) at ( 3.6,-2.7)  {Regional centre\\[1pt]\mdseries\scriptsize consolidate \& distribute};
-  \node[sta] (s1) at (-5.4,-5.4)  {Delivery\\stations};
-  \node[sta] (s2) at (-1.8,-5.4)  {Delivery\\stations};
-  \node[sta] (s3) at ( 1.8,-5.4)  {Delivery\\stations};
-  \node[sta] (s4) at ( 5.4,-5.4)  {Delivery\\stations};
-  % flows
-  \draw[fl] (h) -- (r1);  \draw[fl] (h) -- (r2);
-  \draw[fl] (r1) -- (s1); \draw[fl] (r1) -- (s2);
-  \draw[fl] (r2) -- (s3); \draw[fl] (r2) -- (s4);
+              text=figblue, align=center, text width=2.3cm, minimum height=0.9cm},
+  % bidirectional flow
+  fl/.style={{Stealth[length=2.4mm]}-{Stealth[length=2.4mm]}, draw=figslate, line width=1pt}]
+  % Tier 1 — two hubs that exchange parcels with each other
+  \node[hub] (hA) at (-2.7,0) {National hub\\[1pt]\mdseries\scriptsize sorting \& transfer};
+  \node[hub] (hB) at ( 2.7,0) {National hub\\[1pt]\mdseries\scriptsize sorting \& transfer};
+  % Tier 2 — two regional centres under each hub
+  \node[reg] (r1) at (-4.3,-2.6) {Regional\\centre};
+  \node[reg] (r2) at (-1.4,-2.6) {Regional\\centre};
+  \node[reg] (r3) at ( 1.4,-2.6) {Regional\\centre};
+  \node[reg] (r4) at ( 4.3,-2.6) {Regional\\centre};
+  % Tier 3 — delivery stations
+  \node[sta] (s1) at (-4.3,-5.0) {Delivery\\stations};
+  \node[sta] (s2) at (-1.4,-5.0) {Delivery\\stations};
+  \node[sta] (s3) at ( 1.4,-5.0) {Delivery\\stations};
+  \node[sta] (s4) at ( 4.3,-5.0) {Delivery\\stations};
+  % inter-hub exchange
+  \draw[fl] (hA) -- (hB);
+  % hubs <-> regional centres
+  \draw[fl] (hA) -- (r1); \draw[fl] (hA) -- (r2);
+  \draw[fl] (hB) -- (r3); \draw[fl] (hB) -- (r4);
+  % regional centres <-> stations
+  \draw[fl] (r1) -- (s1); \draw[fl] (r2) -- (s2);
+  \draw[fl] (r3) -- (s3); \draw[fl] (r4) -- (s4);
   % tier labels down the right side
-  \node[tier] at (7.4, 0)    {Tier 1\\Sorting hubs};
-  \node[tier] at (7.4,-2.7)  {Tier 2\\Regional centres};
-  \node[tier] at (7.4,-5.4)  {Tier 3\\Last mile};
+  \node[tier] at (6.4, 0)    {Tier 1\\Sorting hubs};
+  \node[tier] at (6.4,-2.6)  {Tier 2\\Regional centres};
+  \node[tier] at (6.4,-5.0)  {Tier 3\\Last mile};
 \end{tikzpicture}
-\caption{Yalidine's three-tier operational network: four national hubs feed the regional sorting
-centres, which in turn distribute parcels to the delivery stations that handle the last mile.}
+\caption{Yalidine's three-tier operational network: the national hubs (four nationwide) exchange
+parcels with one another and feed the regional sorting centres, which in turn distribute to the
+delivery stations that handle the last mile. Arrows are two-way: parcels move down the network for
+delivery and back up it for transfer and returns.}
 \label{fig:ch3-network}
 \end{figure}
 
@@ -268,14 +280,14 @@ The \textbf{delivery type} records how the parcel reaches the customer:
 \end{itemize}
 
 \paragraph{Pricing.}
-The \textbf{price} of a parcel is not a single figure. It is best read along two dimensions
-(Table~\ref{tab:ch3-pricing}): \emph{which event is billed} --- a delivered parcel is charged at one
-rate and a returned parcel at another --- and \emph{how the amount is set} --- a \emph{theoretical}
-tariff read from the published grid versus a \emph{real} tariff recomputed from the parcel's measured
-weight and volume. The gap between the theoretical and the real tariff is a direct signal of cost and
-profitability.
+The \textbf{price} of a parcel is not a single figure. It is best read along two dimensions: \emph{which
+event is billed} --- a delivered parcel is charged at one rate and a returned parcel at another
+(Table~\ref{tab:ch3-pricing-event}) --- and \emph{how the amount is set} --- a \emph{theoretical} tariff
+read from the published grid versus a \emph{real} tariff recomputed from the parcel's measured weight and
+volume (Table~\ref{tab:ch3-pricing-valuation}). The gap between the theoretical and the real tariff is a
+direct signal of cost and profitability.
 
-% [VISUAL-IMPLEMENT] parcel pricing components, grouped by dimension
+% [VISUAL-IMPLEMENT] parcel pricing — billed event
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.35}
@@ -283,23 +295,34 @@ profitability.
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \rowcolor{tblheader}
-\textcolor{white}{\textbf{Pricing component}} & \textcolor{white}{\textbf{Basis}} \\
+\textcolor{white}{\textbf{Billed event}} & \textcolor{white}{\textbf{Basis}} \\
 \hline
-\rowcolor{tblstruct}
-\multicolumn{2}{|l|}{\textbf{Billed event} --- which outcome triggers the charge} \\
 Delivered-parcel tariff & Billed on successful delivery, from the zone-based pricing grid. \\
 Return-parcel tariff & Billed when an undeliverable parcel is returned to the merchant. \\
-\rowcolor{tblstruct}
-\multicolumn{2}{|l|}{\textbf{Valuation method} --- how the tariff amount is set} \\
+\hline
+\end{tabularx}
+\caption{A parcel's price by billed event: which outcome triggers the charge.}
+\label{tab:ch3-pricing-event}
+\end{table}
+
+% [VISUAL-IMPLEMENT] parcel pricing — valuation method
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Valuation method}} & \textcolor{white}{\textbf{Basis}} \\
+\hline
 Theoretical tariff & The grid price, read from the published zone-based pricing grid. \\
 Real tariff & Recomputed from the parcel's measured weight and volume. \\
 Theoretical vs.\ real gap & The difference between the two; a direct signal of cost and
 profitability. \\
 \hline
 \end{tabularx}
-\caption{The components that make up a parcel's price at Yalidine, along two dimensions: the billed
-event and the valuation method.}
-\label{tab:ch3-pricing}
+\caption{A parcel's price by valuation method: how the tariff amount is set.}
+\label{tab:ch3-pricing-valuation}
 \end{table}
 
 \paragraph{Reimbursement.}
@@ -657,6 +680,8 @@ perimeters} identified in the diagnosis.
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Development Methodology and Planning}
 \label{sec:ch3-methodology}
+
+\todo{Section 3.7 — review and complete: confirm the methodology framing (iterative/incremental), the four project phases and the Gantt dates against the PFE planning form, and the tools paragraph; tighten the prose once verified.}
 
 \subsection{Development Approach}
 
