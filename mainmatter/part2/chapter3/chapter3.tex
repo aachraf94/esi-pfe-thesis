@@ -24,18 +24,19 @@ precisely where the analytical gap lies.
 
 The chapter therefore proceeds as a structured analysis. It introduces the organisations behind the
 project, studies the systems and processes already in place, and from that diagnosis derives the
-requirements, the prioritised business scope, and the methodology that guide the remainder of the
-contribution:
+objectives of the target system, the prioritised business scope, and the methodology that guide the
+remainder of the contribution:
 
 \begin{itemize}[noitemsep]
     \item \textbf{Host and client organisations} (\S\ref{sec:ch3-orgs}) --- Ourquilane, the software
           company carrying the project, and Yalidine, the logistics operator that is its final client,
           together with its national network.
     \item \textbf{Study of the existing systems} (\S\ref{sec:ch3-existing}) --- the services and
-          business processes in operation, the source systems that record them, and the analytical gap
-          they leave behind.
-    \item \textbf{Requirements specification} (\S\ref{sec:ch3-requirements}) --- the functional and
-          non-functional requirements derived from that gap.
+          business processes in operation and the operational applications that record them.
+    \item \textbf{Diagnosis of the existing situation} (\S\ref{sec:ch3-diagnosis}) --- the weaknesses
+          of the current setup and the analytical gap it leaves behind.
+    \item \textbf{Objectives of the target system} (\S\ref{sec:ch3-objectives}) --- the business
+          outcomes the system must achieve, derived from that diagnosis.
     \item \textbf{Business scope and prioritisation} (\S\ref{sec:ch3-scope}) --- the two business axes,
           ranked with the MoSCoW method.
     \item \textbf{Development methodology and planning} (\S\ref{sec:ch3-methodology}) --- the iterative
@@ -389,53 +390,104 @@ Each application performs its own role well; the difficulty, examined next, is t
 disconnected from one another --- the same parcel, vehicle, or expense is recorded in several systems
 that do not communicate to each other.
 
-% -----------------------------------------------------------------------------
-\subsection{Identified Weaknesses and the Analytical Gap}
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Diagnosis of the Existing Situation}
+\label{sec:ch3-diagnosis}
 
-Each of the applications described above does its own job well, but they were never meant to work
-together. The business is therefore run from a set of disconnected islands of information: the same
-parcel, vehicle, client, or expense is recorded separately in several places, with no single
-consolidated view of the activity. This fragmentation undermines the very qualities a decision needs
-from its data. \textbf{Coherence} suffers, because the same fact is counted differently from one
-application to the next; \textbf{integrity} suffers, because there is no shared reference to reconcile
-those versions against; and \textbf{availability} suffers, because obtaining a simple cross-cutting
-figure --- the cost of an axis, the performance of a region, the profitability of a service ---
-demands slow, manual extraction and reconciliation across systems that do not communicate. By the time
-a consolidated picture is assembled, it is often partial and already out of date.
+The previous section showed that each of Yalidine's applications does its own job well, yet the set
+was never designed to work as a whole. Seen from the standpoint of a decision-maker --- rather than
+that of any single application --- the existing situation reveals a recurring pattern: the information
+needed to steer the business does exist, but it is dispersed, inconsistent, and hard to turn into a
+clear picture. This section gathers that observation into a structured diagnosis.
 
-The consequence is a clear analytical gap: top management cannot read the business as a whole, along
-its operations, its cost and profitability, and its performance, from a single trustworthy source.
-Decisions that should rest on evidence end up resting on intuition, on fragments, or on figures whose
-reliability cannot be guaranteed. Closing this gap calls for a reliable, consolidated system that
-brings the scattered data together into one coherent and readily available basis --- one that gives the
-organisation's decision-makers a faithful, timely view of their activity, so that strategic choices
-can genuinely be made on data rather than on impression.
+The aim is not to fault any one application, each of which serves its own purpose correctly. It is to
+show what is missing \emph{between} them: a system that brings the activity together into one
+reliable, decision-oriented view. The weaknesses set out below all stem from that single absence, and
+together they explain why, today, management cannot steer the business on solid figures.
+
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{Fragmented information} : the activity is spread across disconnected applications,
+          each holding only its own slice of the business. There is no single place where the company
+          can be seen as a whole, so forming any overall picture means piecing fragments together by
+          hand.
+    \item \textbf{Duplicated and inconsistent records} : the same parcel, client, vehicle, or expense
+          is recorded in several applications at once, with no shared reference between them. The same
+          question can therefore return different answers depending on which application is consulted.
+    \item \textbf{Doubtful reliability of the figures} : without one authoritative source, errors,
+          gaps, and out-of-date entries pass unnoticed and cannot be reconciled. Confidence in the
+          numbers erodes, and time is lost arguing over which version is correct instead of acting
+          on it.
+    \item \textbf{Poor availability of information} : obtaining a simple cross-cutting figure --- the
+          cost of an axis, the performance of a region, the profitability of a service --- calls for
+          slow manual extraction and reconciliation. By the time the answer is ready, it is often
+          already out of date.
+    \item \textbf{Manual, time-consuming reporting} : reports are assembled by hand, typically in
+          spreadsheets. This monopolises staff time, is easy to get wrong, and must be redone from
+          scratch each time the question changes.
+    \item \textbf{Reactive rather than proactive management} : problems --- a rise in returns, a cost
+          overrun, a drop in on-time delivery --- come to light only after the fact, once they appear
+          in a periodic report, rather than while they can still be corrected.
+    \item \textbf{No consolidated reading of each activity} : management cannot follow either business
+          axis along the three angles that matter to it --- its operations, its cost and
+          profitability, and its performance --- from one coherent source.
+    \item \textbf{Blurred financial perimeters} : the costs and revenues of the two services are not
+          cleanly separated, which makes the true profitability of each activity hard to establish.
+    \item \textbf{Limited historical perspective} : the applications are built to run the business day
+          to day, not to study it over time. Comparing one period with another, or spotting seasonal
+          trends, is consequently difficult.
+    \item \textbf{Dependence on individual knowledge} : because much of the overall picture lives in
+          people's heads and personal files, insight is lost whenever a key person is unavailable, and
+          it is hard to share consistently across the organisation.
+    \item \textbf{Decisions taken on intuition} : taken together, these weaknesses force management to
+          decide on partial, late, or unreliable information --- that is, on experience and intuition
+          rather than on evidence.
+\end{enumerate}
+
+This diagnosis defines precisely what the existing situation lacks and what a future system must put
+right. It leads directly to the objectives set out in the next section.
 
 
 % ═════════════════════════════════════════════════════════════════════════════
-\section{Requirements Specification}
-\label{sec:ch3-requirements}
+\section{Objectives of the Target System}
+\label{sec:ch3-objectives}
+
+The analysis of the existing situation exposed a clear gap between the data Yalidine produces and the
+decisions its management needs to take. From that diagnosis follow the objectives of the target
+system. They are stated here in business terms --- as the outcomes expected of the system --- rather
+than as a technical specification.
 
 % -----------------------------------------------------------------------------
-\subsection{Functional Requirements}
-% NOTES FOR REDACTION (short, numbered list derived from the gap):
-%   - TWO axis pages, each with THREE sub-treatments:
-%       Operations / Cost & Profitability / Performance     (NO "Pricing" page)
-%   - Plus: Overview page, Alerts page, Administration page.
-%   - RBAC user model: users IMPORTED from HR Force, ACTIVATED by a super-admin,
-%     each assigned a role that controls dashboard access.
-%   - Proactive alerting system, tied to the KPIs (threshold rules -> notifications).
-%   - [VISUAL-IMPLEMENT] use-case diagram (TikZ)  OR  [VISUAL-PLACEHOLDER] drawn UML.
+\subsection{General Objective}
+
+The general objective is to provide Yalidine's management with a single, reliable, and consolidated
+decision-support system: one that gathers the data currently scattered across the operational
+applications into a faithful and timely view of the business, so that strategic and operational
+choices can be made on evidence rather than on intuition.
 
 % -----------------------------------------------------------------------------
-\subsection{Non-Functional Requirements}
-% NOTES FOR REDACTION (qualities the platform must meet):
-%   - Performance (responsive analytics over large volumes — aggregate layer).
-%   - Scalability (production-scale data: hundreds of millions of parcel events).
-%   - Security (stateless token auth, RBAC).
-%   - Usability (clear decision-oriented dashboards, KPI cards).
-%   - Maintainability / evolvability (modular, layered architecture).
-%   - Cost: open-source stack, no licensing cost.
+\subsection{Specific Objectives}
+
+This general aim breaks down into a set of concrete objectives:
+
+\begin{enumerate}[noitemsep, label=\textbf{\arabic*.}]
+    \item \textbf{Consolidate the scattered data} : bring the activity dispersed across the
+          operational applications together into one coherent and continuously available source.
+    \item \textbf{Read each business axis in depth} : present both axes, parcel delivery and
+          dedicated transport, along the three complementary views that matter to management:
+          \emph{Operations}, \emph{Cost \& Profitability}, and \emph{Performance}.
+    \item \textbf{Keep the two financial perimeters separate} : never mix the costs and revenues of
+          the two axes, so that each is read on its own perimeter.
+    \item \textbf{Monitor proactively} : signal early, and without manual checking, when a key
+          indicator drifts beyond an acceptable level, so that problems are caught before they grow.
+    \item \textbf{Deliver the right information to the right decision-maker} : give each manager a
+          view suited to their role and responsibility.
+    \item \textbf{Found decisions on reliable data} : equip top and operational management with
+          clear, decision-oriented indicators that support both day-to-day and strategic choices.
+\end{enumerate}
+
+To serve these objectives in practice, the system must also remain \textbf{reliable} and
+\textbf{responsive} at the scale of Yalidine's national operations, and stay \textbf{simple enough}
+for non-technical managers to use in their daily work.
 
 
 % ═════════════════════════════════════════════════════════════════════════════

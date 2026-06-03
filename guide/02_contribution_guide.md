@@ -31,63 +31,103 @@
 > the **plan**; the `.tex` holds the **content to redact**.
 
 ### Introduction *(unnumbered)*
-- Purpose of the chapter: present the host + client organisations, study the existing systems and
-  processes, expose the analytical gap, then derive the requirements, scope, and methodology.
+- Purpose of the chapter: present the host + client organisations; study the existing systems and
+  processes; **diagnose** the existing situation (the gap); then, through a **needs-driven** path,
+  gather and synthesise the needs into the **objectives** of the target system, prioritise the scope,
+  and set out the methodology. (Deliberately **no "requirements specification" wording** — frame it as
+  *needs* and *objectives*; see 3.3–3.5.)
 
-### 3.1 Host and Final Client Organisations
+### 3.1 Host and Client Organisations
 - **Ourquilane** (Hydra, Algiers) — the project carrier: software startup; products HR Force, FLEET GO,
-  ITOP, CASH Box, Route Planner, CS Care.
+  CASH Box, Route Planner, CS Care.
 - **Yalidine El Djazair Services** — the final client: Algeria's express-delivery leader; ISO 9001 /
   14001 / 27001 certified; two principal services that become the **two business axes**:
   - **Express parcel delivery (B2C e-commerce)** — last-mile delivery.
   - **On-demand dedicated transport (B2B)** — moving goods/parcels for companies.
-- **The logistics network**: general + regional directions, call centres, vehicle fleet, and the
-  **three-tier operational structure** — Hubs (4) → regional sorting centres → stations (182 over 55
-  wilayas); delivery **zones** (0–3) and **types** (SD stop-desk / HD home-delivery). Stats: confirm
-  before printing (mark `% TODO`).
-- `[VISUAL-PLACEHOLDER]` company-context / network-position figure → *Produce:* Claude Design /
-  PowerPoint. `[VISUAL-IMPLEMENT]` optional TikZ of the Hub → Regional → Station hierarchy.
+- **The logistics network**: general + 3 regional directions, call centres, vehicle fleet, and the
+  **three-tier operational structure** — Hubs (4: Oued Smar / Relizane / Constantine / Ghardaïa) →
+  regional sorting centres → delivery stations; delivery **types** (SD stop-desk / HD home-delivery).
+  Scale figures (≈182 stations, fleet, headcount): confirm before printing (mark `% TODO`).
+- `[VISUAL-IMPLEMENT]` TikZ Hub → Regional → Station hierarchy (**done**). Org-chart / network-position
+  figure still `[VISUAL-PLACEHOLDER]` (Claude Design / PowerPoint).
 
 ### 3.2 Study of the Existing Systems
-*(Order: business processes → source systems → analytical gap.)*
-- **Business processes** first (this is where the parcel lifecycle lives — *one process subsection,
-  organised per service*, not a separate section each):
-  - *Parcel delivery*: parcel **lifecycle**, parcel **statuses**, and **pricing** (delivered tariff,
-    return tariff, theoretical vs real tariff by volume+weight, COD reimbursement).
-  - *Dedicated transport*: request → pricing agreement → assigned trip → pickup → delivery → completion.
-  - `[VISUAL-IMPLEMENT]` TikZ parcel-lifecycle / status flow.
-- **Source systems** at a **functional** level (*what each provides*, not internals) — describe them as
-  the **real** source systems (simulation appears only in Ch.6). The **five internal systems** the
-  warehouse consumes:
-  - Core logistics system (**Yalidine App**) → geography, delivery centres, pricing grid, full
-    parcel-event history.
-  - HR system (**HR Force**) → companies, agencies, employees, org hierarchy.
-  - Cash-box system (**CashBox**) → operating expenses, freelance-driver payments, reimbursements,
-    transfers.
-  - Payroll system (**PC Paie**) → monthly payslips.
-  - Transport system → dedicated B2B transport requests and their stops.
-  - (**Returly** — returns management — noted but outside the consumed set.)
-  - `[VISUAL-IMPLEMENT]` `booktabs`/grid table: source system → domain it provides.
-- **Identified weaknesses & the analytical gap**: scattered systems; what decision-makers cannot do
-  today (consolidated, timely view across operations, cost & profitability, performance).
+*(Order: business processes → operational applications. The analytical gap is now its own section, 3.3.)*
+- **Business processes** first, *organised per service* (one subsection each):
+  - *Express parcel delivery*: the parcel **lifecycle** (six stages — Pickup → Shipping → Transport →
+    Reception → Delivery, + **Return** / reverse logistics, shown as a numbered list); the finer
+    **status** set grouped by phase (table); the **delivery types** (HD / SD); **pricing** (delivered
+    tariff, return tariff, theoretical-vs-real tariff by weight+volume) and — **separately** —
+    **reimbursement** (insurance: ~1 % of declared value; 100 % if lost, 60–80 % if damaged).
+    - `[VISUAL-FETCH]` author-provided parcel-lifecycle diagram (`Parcel Lifecycle 1.png`, **done**).
+    - `[VISUAL-IMPLEMENT]` status table; pricing table.
+  - *On-demand dedicated transport*: a **simplified four-step** request lifecycle —
+    **Transport request → Agreement → Pickup → Delivery** (one client, one dedicated vehicle); a brief
+    note on what a request records (vehicle & crew, cargo, routing & performance); the **cost**
+    build-up (base + distance + operational + surcharges + fuel/tolls) vs the amount invoiced.
+    - `[VISUAL-IMPLEMENT]` colour TikZ four-step flow (**done**).
+- **Operational applications** (renamed from "source systems" — the BI solution is **not introduced
+  yet**, so "source of what?" is premature) at a **functional** level — *what each one manages*.
+  Present **all** the in-house applications in one styled grid table: Yalidine App, FleetGo, HR Force,
+  Retour App, iTop, CS Care, QApp, Cash Box, PC Paie, Transport. **Mark** (note row) that user accounts
+  for *all* applications are created and managed centrally through **HR Force**.
+  - `[VISUAL-IMPLEMENT]` grid table (application → what it manages) + the HR-Force account note row.
 
-### 3.3 Requirements Specification
-- **Functional requirements** — derived from the gap (short, numbered list): the **two axis pages**,
-  each with **three sub-treatments** (Operations / Cost & Profitability / Performance), plus
-  **Overview**, **Alerts**, **Administration**; **RBAC** (users imported from HR Force, activated by a
-  super-admin, role-based dashboard access); proactive **alerting** tied to KPIs.
-- **Non-functional requirements** — performance, scalability, security, usability, maintainability,
-  open-source/cost.
-- `[VISUAL-IMPLEMENT]` use-case diagram (TikZ) **OR** `[VISUAL-PLACEHOLDER]` drawn UML.
 
-### 3.4 Business Scope and Prioritisation (MoSCoW)
+### 3.3 Diagnosis of the Existing Situation
+> **Redacted** in `chapter3.tex` (promoted from a 3.2 sub-bullet to its **own section**). Business /
+> process framing — **no technology talk**; refer to the future solution as a **system**, not a
+> "platform".
+- **Two opening paragraphs**, then a **long numbered analysis** (≈10–11 items): each application does
+  its job in isolation, but the set was never built to work as one, so the information needed to steer
+  the business is dispersed, inconsistent, and hard to exploit.
+- Weakness list (business outcomes, not technical faults): fragmented information; duplicated /
+  inconsistent records; doubtful reliability of the figures; poor availability of information; manual,
+  time-consuming reporting; reactive (not proactive) management; no consolidated three-view reading of
+  each axis; blurred financial perimeters; limited historical perspective; dependence on individual
+  knowledge; decisions taken on intuition.
+- Close on the **need for a reliable, consolidated system** → leads into the needs / objectives below.
+
+### 3.4 Needs-Gathering Methods *(Méthodes de recueil des besoins)*
+- A few sentences: how the understanding of the business and its needs was built — direct contact with
+  Yalidine / Ourquilane plus study of the existing material — then a table.
+- `[VISUAL-IMPLEMENT]` grid table — columns: **Technique | Description | Stakeholders involved**:
+  - **Individual interview** → with the **returns manager** (*responsable retour*).
+  - **Individual interview** → with the **operations manager** (*responsable des opérations*).
+  - **Meeting** → sat in on a project progress-review meeting for Yalidine's projects, held at
+    Ourquilane, attended by several Yalidine department heads (customer-relations manager,
+    information-systems department, returns manager, the manager's advisor); covered delivered and
+    in-progress projects, their constraints and status.
+  - **Document analysis** → the company's internal documents (business processes, parcel statuses,
+    operational applications) and prior PFE theses produced at Ourquilane for Yalidine projects.
+  - **Process observation** → an on-site visit (*visite de terrain*) to the Hussein Dey sorting centre,
+    Algiers: first-hand observation of the process from pickup through delivery to return, with
+    explanations from the **returns manager**.
+  - **Application exploration** → hands-on use of the operational apps (Yalidine App, Returly, QApp, …).
+
+### 3.5 Needs Analysis and Synthesis *(Analyse et synthèse des besoins)*
+> **Absorbs the earlier "Objectives of the Target System" draft** — move that content here as the
+> *output* of the synthesis. Still **no "Requirements Specification" / FR–NFR spec list** (avoids the
+> client *cahier des charges* feel).
+- Turn the gathered material into a **synthesised set of needs**, then state the **objectives of the
+  target system** as the outcome of that synthesis:
+  - **General objective** — one paragraph: a single, reliable, consolidated decision-support **system**
+    giving management a faithful, timely view of the business, so decisions rest on data not intuition.
+  - **Specific objectives** — short numbered list of business outcomes: *consolidate* the scattered
+    data; *read each axis* along **Operations / Cost & Profitability / Performance**; *keep the two
+    financial perimeters separate*; *monitor proactively*; *deliver the right information to the right
+    decision-maker* (role-appropriate access); *found decisions on reliable data*. Fold the quality
+    goals in lightly (reliable, responsive at national scale, simple for non-technical managers).
+- `[VISUAL-IMPLEMENT]` optional needs / objectives summary figure or table (general → specific).
+
+### 3.6 Business Scope and Prioritisation of the Needs (MoSCoW)
 - **Must have — On-Demand Dedicated Transport** (B2B; Dedicated Trip / Courier / Handling).
 - **Should have — Parcel Delivery** (classic e-commerce express).
 - **Could have — Route Analysis** → one neutral line: future work, data not available in scope (§0.4).
 - State the **two-independent-financial-perimeters** principle (costs/revenues never mixed).
 - `[VISUAL-IMPLEMENT]` MoSCoW table (priority → axis → what it delivers).
 
-### 3.5 Development Methodology and Planning
+### 3.7 Development Methodology and Planning
 - Development approach (iterative); project timeline (from `thesis.md` schedule); tools.
 - `[VISUAL-IMPLEMENT]` Gantt-style timeline (`pgfgantt`) — *optional, decide initial vs final Gantt*;
   fall back to a milestone table if a Gantt is not kept.
