@@ -172,14 +172,11 @@ consolidate.
 % -----------------------------------------------------------------------------
 \subsection{Business Processes}
 
-Yalidine runs two distinct business processes, each with its own lifecycle, actors, and cost
-structure: high-volume \textbf{express parcel delivery} for e-commerce, and \textbf{on-demand dedicated
-transport} commissioned trip by trip. Reading them as processes --- rather than as static services ---
-exposes the events and attributes that the analytical platform must later measure, and shows why the
-two are kept on separate financial perimeters throughout this work.
+Yalidine runs two distinct business services, each with its own process, lifecycle, and cost
+structure: 
 
 % =============================================================================
-\subsubsection{Express Parcel Delivery (B2C)}
+\subsubsection{Express Parcel Delivery}
 
 This is Yalidine's principal activity. Every parcel follows a well-defined lifecycle, from the moment a
 merchant hands it over to its final delivery (Figure~\ref{fig:ch3-parcel-lifecycle}). After
@@ -364,26 +361,7 @@ with the operational costs of pickup, delivery, handling and packaging; any appl
 night work, perishable goods, or insurance; and the direct travel costs of fuel and tolls. Comparing
 this built-up cost against the amount invoiced is the basis of the profitability analysis for the axis.
 
-% [VISUAL-IMPLEMENT] dedicated-transport cost structure
-\begin{table}[H]
-\centering
-\renewcommand{\arraystretch}{1.35}
-\rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.9cm}|>{\raggedright\arraybackslash}X|}
-\hline
-\rowcolor{tblheader}
-\textcolor{white}{\textbf{Cost group}} & \textcolor{white}{\textbf{Components}} \\
-\hline
-Base \& distance & Fixed base cost and an extra-distance supplement. \\
-Operations & Pickup, delivery, handling, and packaging. \\
-Surcharges & Night tariff, perishable-goods handling, and insurance. \\
-Travel & Fuel and tolls. \\
-\hline
-\end{tabularx}
-\caption{The cost structure of a dedicated trip, built up component by component and compared against
-the amount invoiced.}
-\label{tab:ch3-transport-cost}
-\end{table}
+
 
 % -----------------------------------------------------------------------------
 \subsection{Source Systems}
