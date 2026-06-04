@@ -1272,4 +1272,29 @@ trustworthy. What remains is to show how this blueprint was \emph{built}, the su
 % ═════════════════════════════════════════════════════════════════════════════
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
-% TODO
+
+This chapter was the pivot from the problem diagnosed in Chapter~3 to its solution. Starting from the
+diagnosis --- information scattered across isolated applications, leaving management to decide on
+intuition --- it built, step by step, a conceptual blueprint of \textbf{LOGIQ}, the Business
+Intelligence decision-support system proposed to close that gap.
+
+The construction followed a single thread, from the abstract to the concrete. It began with the
+\emph{functional specification} --- the actors, capabilities, and use cases traced back to the
+objectives of Chapter~3 --- and derived from it a \emph{functional architecture}: a one-directional
+value chain turning raw activity into decisions. The \emph{technical specifications} then framed, along
+the ISO/IEC~25010 quality characteristics, the non-functional properties the realisation must guarantee.
+From there the chapter introduced LOGIQ and its \emph{global architecture}, before designing in depth
+the three pillars that give the system its value --- the \emph{data warehouse} at its core, the
+\emph{ETL pipeline} that populates it, and the \emph{application platform} through which it is consulted
+--- and closed on the cross-cutting guarantees of \emph{security and conformity}.
+
+Two principles run through the whole design. LOGIQ is \textbf{data-centred}: the layered dimensional
+warehouse is its gravitational centre, the automated pipeline keeps it current, and every dashboard and
+alert reads from it. And it is \textbf{governed}: its user base is mirrored from the company's HR system
+and every interaction is filtered by role, so the system serves many decision-makers through one,
+trustworthy interface. Throughout, the design was kept deliberately \emph{technology-independent} --- a
+faithful blueprint, valid before any particular framework is chosen.
+
+That choice now sets up what follows. With \emph{what} LOGIQ is and \emph{how} it is logically
+structured established, Chapter~5 turns to \emph{how it was built}: the technology stack, the realisation
+of each design block, and the deployment that brings the platform into operation.

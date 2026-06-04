@@ -1,29 +1,105 @@
-% ── Chapter 5: Implementation & Results ──────────────────────────────────────
-\chapter{Implementation and Results}
+% ── Chapter 5: Implementation & Deployment ───────────────────────────────────
+\chapter{Implementation and Deployment}
 
-\section{Introduction}
-% TODO
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
 
+Chapter~4 set out \emph{what} LOGIQ is and \emph{how} it is logically structured, deliberately
+independent of any particular technology. This chapter is its counterpart: it shows how that blueprint
+was \textbf{built and brought into operation}. Each section mirrors a design block of Chapter~4 ---
+the backend, the warehouse and its pipeline, the alerting, the dashboard, and the deployment --- now
+expressed in concrete technical terms, naming the frameworks and products that were deliberately
+deferred from the conceptual design.
+
+The account stays at the level of \emph{general technical aspects}: it explains the significant
+implementation choices and how each part of the design was realised, rather than giving an exhaustive
+walkthrough of the code; short snippets appear only where they clarify a point. The chapter opens with
+the \textbf{technology stack}, which every later section reuses, and then follows the architecture in
+turn --- backend, warehouse and ETL, alerting, frontend and dashboard --- before closing on the
+\textbf{deployment} that packages the whole and serves it in production.
+
+The \emph{validation} of the platform --- the faithful test environment built to exercise it end to end,
+and the results it produced --- is the subject of Chapter~6, and is intentionally kept out of this
+chapter, which concerns construction and delivery.
+
+% ═════════════════════════════════════════════════════════════════════════════
 \section{Technology Stack}
+\label{sec:ch5-stack}
+
+LOGIQ is built \textbf{entirely on open-source, free software}. This is a deliberate engineering
+choice, consistent with the thesis goal of a pragmatic and scalable solution: the whole platform ---
+from the database to the dashboard --- carries \emph{no proprietary licensing cost}, can be inspected
+and adapted, and runs on commodity infrastructure. Table~\ref{tab:ch5-stack} lists each technical
+concern and the technology chosen to realise it, with the reason for the choice.
+
+% [VISUAL-IMPLEMENT] technology-stack table (concern -> technology -> rationale)
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Concern}} & \textcolor{white}{\textbf{Technology}} &
+\textcolor{white}{\textbf{Why it was chosen}} \\
+\hline
+Data warehouse \& operational store & PostgreSQL & A single, robust open-source RDBMS serving both the
+analytical warehouse and the operational database. \\
+ETL orchestration & Dagster & Asset-oriented orchestration with built-in lineage and safe, selective
+re-runs --- the direct realisation of the pipeline of \S\ref{sec:ch4-etl}. \\
+Backend REST API & Django + Django REST Framework (DRF) & A mature, batteries-included framework for
+authentication, role-based access control, and the read-only analytics services. \\
+Background processing & Celery + Redis & Runs scheduled alert evaluation and notification fan-out off
+the request path, so heavy work never blocks the interface. \\
+Frontend & Next.js (React, TypeScript) & A single-page dashboard with a type-safe, component-based UI. \\
+Data visualisation & ECharts, D3.js, Leaflet, Tremor & Statistical charts (ECharts), bespoke
+data-driven diagrams (D3.js), interactive maps (Leaflet), and KPI cards (Tremor). \\
+Packaging \& deployment & Docker Compose, Nginx, Let's Encrypt & Reproducible containers behind a
+reverse proxy with automatically renewed HTTPS certificates. \\
+Source-system simulation \emph{(test apparatus)} & FastAPI + PostgreSQL & A faithful mock of the five
+source APIs used to test the chain end to end; belongs to the test environment of Chapter~6, not to the
+production stack. \\
+\hline
+\end{tabularx}
+\caption{The LOGIQ technology stack: each technical concern and the open-source technology that
+realises it. The last row is the test apparatus and is detailed in Chapter~6.}
+\label{tab:ch5-stack}
+\end{table}
+
+Two points are worth underlining. First, \textbf{PostgreSQL alone} backs \emph{both} stores --- the
+analytical warehouse and the operational database --- so the operational/analytical separation designed
+in Chapter~4 is realised by two databases on one proven engine, not by two different products. Second,
+the \textbf{source-system simulation} (FastAPI) is \emph{not} part of the delivered platform: it
+reproduces the source APIs only so the rest of the stack can be exercised under realistic conditions,
+and it is therefore presented with the test environment in Chapter~6. The sections that follow take each
+production component of Table~\ref{tab:ch5-stack} in turn and describe how it was implemented.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Backend Implementation}
+\label{sec:ch5-backend}
 % TODO
 
-\section{Environment Setup}
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Warehouse and ETL Implementation}
+\label{sec:ch5-data}
 % TODO
 
-\section{ETL Implementation}
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Alerting Implementation}
+\label{sec:ch5-alerting}
 % TODO
 
-\section{Data Warehouse Implementation}
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Frontend and Dashboard Implementation}
+\label{sec:ch5-frontend}
 % TODO
 
-\section{Dashboard Implementation}
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Deployment and Infrastructure}
+\label{sec:ch5-deploy}
 % TODO
 
-\section{Testing and Validation}
-% TODO
-
-\section{Results and Discussion}
-% TODO
-
-\section{Summary}
+% ═════════════════════════════════════════════════════════════════════════════
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
 % TODO
