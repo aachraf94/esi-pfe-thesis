@@ -1,4 +1,586 @@
 % ── Annexe A ─────────────────────────────────────────────────────────────────
-\chapter{Annexe A — \todo{Title}}
+\chapter{Data Warehouse Reference}
+\label{anx:dw}
 
-% TODO: add content
+This annexe complements the conceptual design of \S\ref{sec:ch4-dw} with the warehouse's reference
+detail: the complete table inventory, the field-level data dictionary of the fact tables and the core
+dimensions, and the full constellation ERD. Field types are given generically (the physical
+realisation is in Chapter~5).
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Complete Table Inventory}
+\label{anx:dw-inventory}
+
+The warehouse holds 18 staging tables, 55 dimensions, and 7 fact tables.
+% TODO(achraf): confirm dimension total (SQL files = 55; redesign-doc summary states 49)
+Row-count orders of magnitude are indicative.
+% TODO(achraf): confirm row counts against docs/dw-doc.md
+
+{\footnotesize
+\renewcommand{\arraystretch}{1.25}
+\rowcolors{2}{white}{tblrowalt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{4.6cm}|>{\raggedright\arraybackslash}p{1.9cm}|>{\raggedright\arraybackslash}p{7.4cm}|}
+\caption{Complete inventory of the LOGIQ warehouse: staging tables, dimensions (by domain), and fact
+tables, with indicative row counts.}\label{tab:anx-dw-inventory}\\
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Table}} & \textcolor{white}{\textbf{Rows ($\approx$)}} &
+\textcolor{white}{\textbf{Description}} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Table}} & \textcolor{white}{\textbf{Rows ($\approx$)}} &
+\textcolor{white}{\textbf{Description}} \\
+\hline
+\endhead
+% ---- STAGING ----
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Staging layer --- 18 tables (faithful copy of each source endpoint)}} \\
+stg\_yalidine\_wilayas       & 58      & The 58 Algerian wilayas. \\
+stg\_yalidine\_communes      & 1\,500  & Communes with postal code and stop-desk flag. \\
+stg\_yalidine\_centers       & 253     & Operational delivery centres / hubs. \\
+stg\_yalidine\_pricing       & 290     & Delivery tariff grid per service type and wilaya. \\
+stg\_yalidine\_parcel\_history & 220\,M & Every parcel status event --- the largest table. \\
+stg\_hrforce\_companies      & 10      & Group companies. \\
+stg\_hrforce\_agencies       & 284     & Agencies (with type and location). \\
+stg\_hrforce\_occupations    & --      & Department / service / occupation hierarchy. \\
+stg\_hrforce\_users          & 3\,000  & Employees, roles, status. \\
+stg\_cashbox\_natures        & 13      & Expense nature classification. \\
+stg\_cashbox\_rubriques      & 35      & Expense sub-categories. \\
+stg\_cashbox\_depenses       & 500\,K  & Cash-box expense records. \\
+stg\_cashbox\_paiements\_livreurs & 34\,K & Freelance-driver payment periods. \\
+stg\_cashbox\_remboursements & 10\,K   & Parcel reimbursements (claims). \\
+stg\_cashbox\_transferts     & --      & Internal cash movements (staging only --- not modelled). \\
+stg\_paie\_bulletins         & 108\,K  & Payslips (one per employee per month). \\
+stg\_transport\_requests     & --      & Dedicated B2B transport requests. \\
+stg\_transport\_stops        & --      & Intermediate stops of each request. \\
+\hline
+% ---- DIMENSIONS: geographic ----
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- Geographic (6)}} \\
+dim\_region        & 3      & Nord / Hauts Plateaux / Sud (seeded). \\
+dim\_wilaya        & 58     & Wilayas, natural key 1--58. \\
+dim\_commune       & 1\,500 & Communes; FK to wilaya. \\
+dim\_agency\_type   & 9      & Hub, Agence, Centre de tri, Corner\dots (seeded). \\
+dim\_agence        & 284    & Agencies --- \textbf{SCD2} (surrogate + validity window). \\
+dim\_center        & 253    & Operational centres; FK to current agency. \\
+% ---- HR & organisational ----
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- HR \& organisational (9)}} \\
+dim\_company           & 10     & Group companies. \\
+dim\_department        & 8      & Departments; FK to company. \\
+dim\_service           & 18     & Services; FK to department. \\
+dim\_occupation        & 30     & Occupations; FK to service. \\
+dim\_role              & 3      & Employé / Manager / Admin (seeded). \\
+dim\_employee\_status   & 2      & Actif / Inactif (seeded). \\
+dim\_employee          & 3\,000 & Employees --- \textbf{SCD2}. \\
+dim\_livreur\_vehicule\_type & 3 & Freelance vehicle types (seeded). \\
+dim\_livreur\_freelance & 1\,400 & Freelance drivers (distinct namespace from employees). \\
+% ---- time ----
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- Time (1)}} \\
+dim\_date & 1\,827 & Calendar spine 2022--2026 with Algerian calendar flags. \\
+% ---- parcel ----
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- Parcel / express (7)}} \\
+dim\_parcels\_status      & 21    & Parcel status set, terminal flag (seeded). \\
+dim\_parcel\_type         & 2     & ecommerce / internal (seeded). \\
+dim\_delivery\_type       & 2     & HD / SD (seeded). \\
+dim\_zone                & 5     & Pricing zones 0--4 (seeded). \\
+dim\_pricing\_service\_type & 5   & livraison / pickup / echange\dots (seeded). \\
+dim\_pricing             & 290   & Tariff grid; reloaded each run. \\
+dim\_parcel              & 27\,M & One row per tracking number (collapsed history). \\
+% ---- salary ----
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- Salary, PC~Paie (4)}} \\
+dim\_contract\_type   & 3      & CDI / CDD / Intérimaire (seeded). \\
+dim\_contract\_regime & 2      & Temps plein / partiel (seeded). \\
+dim\_contract        & 108\,K & Contract configurations. \\
+dim\_bulletin        & 108\,K & Payslips (employee $\times$ month). \\
+% ---- cashbox ----
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- Cash~Box (8)}} \\
+dim\_nature\_category & 8      & Top expense classification (seeded). \\
+dim\_nature          & 13     & Expense natures; FK to category. \\
+dim\_rubriques       & 35     & Expense sub-categories; FK to nature. \\
+dim\_depense\_status  & 3      & en\_attente / validée / rejetée (seeded). \\
+dim\_sinistre\_type   & 3      & perdu / endommagé / vol (seeded). \\
+dim\_paiement\_livreurs & 34\,K & Freelance-driver payment periods. \\
+dim\_remboursement   & 10\,K  & Parcel reimbursement records. \\
+dim\_depense         & 500\,K & Cash-box expense records. \\
+% ---- transport ----
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- On-demand transport (20)}} \\
+dim\_transport\_client\_company & -- & Client companies. \\
+dim\_client\_type              & 2  & conventionné / divers (seeded). \\
+dim\_transport\_client         & -- & Clients; FK to client type / company. \\
+dim\_transport\_status         & 5  & Request status, terminal flag. \\
+dim\_transport\_service\_type   & 3  & course\_dediee / courrier / manutention. \\
+dim\_transport\_sub\_service\_type & 3 & livraison / pickup / echange. \\
+dim\_transport\_payment\_status & 3  & Payment status, terminal flag. \\
+dim\_transport\_merchandise\_type & -- & Merchandise categories. \\
+dim\_transport\_cargo          & -- & \textbf{Junk} --- cargo flags (fragile, hazardous\dots). \\
+dim\_distance\_category        & 3  & local / regional / national (seeded). \\
+dim\_complexity\_category      & 2  & direct / multi-stop (seeded). \\
+dim\_transport\_routing        & -- & \textbf{Junk} --- route profile (night, return, distance, complexity). \\
+dim\_location\_type            & 4  & client\_depot / magasin / yalidine\_center / autre (seeded). \\
+dim\_transport\_departure      & -- & Departure location --- \textbf{role-playing} geography. \\
+dim\_transport\_arrival        & -- & Arrival location --- \textbf{role-playing} geography. \\
+dim\_transport\_vehicle\_type   & 5  & moto / citadine / break / camionnette / camion (seeded). \\
+dim\_transport\_vehicle        & -- & Vehicles with capacity attributes. \\
+dim\_stop\_type                & 2  & pickup / delivery (seeded). \\
+dim\_transport\_stops          & -- & Intermediate stops; FK to transport. \\
+dim\_transport                & -- & Central transport-request entity (all categorical FKs). \\
+\hline
+% ---- FACTS ----
+\rowcolor{tblanal}\multicolumn{3}{|l|}{\textbf{Fact tables --- 7 (two financial perimeters)}} \\
+fact\_parcel\_revenue      & 27\,M  & Revenue per resolved parcel (Express). \\
+fact\_parcel\_performance  & 27\,M  & Performance per resolved parcel (Express). \\
+fact\_cost\_salaire        & 108\,K & Salary cost per payslip (Express). \\
+fact\_charges             & 500\,K & Operating cost per expense (Express). \\
+fact\_transport\_cost      & --     & Cost build-up per request (Transport). \\
+fact\_transport\_billing   & --     & Billing \& margin per request (Transport). \\
+fact\_transport\_performance & --   & Operational metrics per request (Transport). \\
+\hline
+\end{longtable}
+}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Fact-Table Data Dictionary}
+\label{anx:dw-facts}
+
+All amounts are in Algerian dinar (DZD). Each fact is 1:1 with its anchor dimension at the declared
+grain.
+
+{\footnotesize
+\renewcommand{\arraystretch}{1.25}
+\rowcolors{2}{white}{tblrowalt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{4.4cm}|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{6.9cm}|}
+\caption{Field-level dictionary of the seven fact tables.}\label{tab:anx-dw-facts}\\
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Field}} & \textcolor{white}{\textbf{Type}} &
+\textcolor{white}{\textbf{Description}} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Field}} & \textcolor{white}{\textbf{Type}} &
+\textcolor{white}{\textbf{Description}} \\
+\hline
+\endhead
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{fact\_parcel\_revenue} --- grain: one resolved parcel} \\
+parcel\_key      & BIGINT PK/FK & The resolved parcel (FK to dim\_parcel). \\
+delivery\_fee    & DECIMAL(10,2) & Applied logistics fee. \\
+tarif\_theorique & DECIMAL(10,2) & Reference tariff at destination wilaya. \\
+ecart\_tarif     & DECIMAL(10,2) & delivery\_fee $-$ tarif\_theorique. \\
+\hline
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{fact\_parcel\_performance} --- grain: one resolved parcel} \\
+parcel\_key               & BIGINT PK/FK & The resolved parcel. \\
+nbr\_evenements           & SMALLINT & Total status-event count. \\
+duree\_totale\_minutes     & INTEGER  & First event $\rightarrow$ last event. \\
+nbr\_tentatives\_livraison & SMALLINT & Failed-delivery attempts. \\
+\hline
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{fact\_cost\_salaire} --- grain: one payslip} \\
+bulletin\_id              & VARCHAR PK/FK & The payslip (FK to dim\_bulletin). \\
+date\_id                  & DATE FK & Payment date. \\
+total\_brut               & DECIMAL(12,2) & Gross salary. \\
+total\_deductions         & DECIMAL(12,2) & Employee deductions. \\
+total\_charges\_patronales & DECIMAL(12,2) & Employer charges ($\approx$25\%). Full cost = brut + charges. \\
+\hline
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{fact\_charges} --- grain: one validated expense} \\
+depense\_id & VARCHAR PK/FK & The expense (FK to dim\_depense). \\
+date\_id    & DATE FK & Expense date. \\
+montant     & DECIMAL(15,2) & Expense amount (only \emph{validée} counted in profitability). \\
+\hline
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{fact\_transport\_cost} --- grain: one transport request} \\
+transport\_key      & INTEGER PK/FK & The request (FK to dim\_transport). \\
+date\_id            & DATE FK & Request date. \\
+cout\_base          & DECIMAL(12,2) & Base cost. \\
+cout\_distance\_supp & DECIMAL(12,2) & Extra-distance cost. \\
+cout\_ramassage / livraison / manutention & DECIMAL(12,2) & Pickup / delivery / handling costs. \\
+cout\_emballage / tarif\_nuit / prod\_frais & DECIMAL(12,2) & Packaging / night / perishable surcharges. \\
+cout\_assurance     & DECIMAL(12,2) & Insurance ($\geq$ 5\,000). \\
+cout\_carburant / cout\_peage & DECIMAL(12,2) & Fuel / toll. \\
+total\_cost         & DECIMAL(12,2) & Exact sum of all cost components. \\
+\hline
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{fact\_transport\_billing} --- grain: one transport request} \\
+transport\_key   & INTEGER PK/FK & The request. \\
+date\_invoiced\_id / date\_paid\_id & DATE FK & Invoice / payment dates (nullable). \\
+invoice\_ref     & VARCHAR & Invoice reference (degenerate). \\
+amount\_invoiced & DECIMAL(12,2) & Invoiced amount ($\geq$ total\_cost). \\
+amount\_paid     & DECIMAL(12,2) & Paid amount (nullable). \\
+marge\_brute\_dzd / marge\_brute\_pct & DECIMAL & Gross margin, value and percent. \\
+\hline
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{fact\_transport\_performance} --- grain: one transport request} \\
+transport\_key        & INTEGER PK/FK & The request. \\
+date\_completion\_id   & DATE FK & Completion date (nullable). \\
+distance\_unit/real/extra\_km & DECIMAL(8,2) & Flat-rate, actual, and extra distance. \\
+total\_vehicle\_km     & DECIMAL(8,2) & Full km including depot legs. \\
+total\_duration\_minutes / total\_waiting\_time\_minutes & INTEGER & Trip and waiting durations. \\
+nbr\_stops\_pickup/delivery/total & SMALLINT & Stop counts. \\
+nbr\_floors           & SMALLINT & Floors handled. \\
+night\_shift\_hours    & SMALLINT & Night-shift hours (nullable). \\
+departure/arrival\_delay\_minutes & INTEGER & Delays. \\
+on\_time              & BOOLEAN & On-time flag (nullable). \\
+client\_rating        & SMALLINT & Client rating 1--5 (nullable). \\
+\hline
+\end{longtable}
+}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Core Dimension Data Dictionary}
+\label{anx:dw-dims}
+
+The most analytically central dimensions are detailed below. The two SCD2 dimensions
+(\texttt{dim\_agence}, \texttt{dim\_employee}) carry a surrogate key, a stable business key, and a
+validity window (\texttt{valid\_from} / \texttt{valid\_to} / \texttt{is\_current}).
+
+{\footnotesize
+\renewcommand{\arraystretch}{1.25}
+\rowcolors{2}{white}{tblrowalt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{7.3cm}|}
+\caption{Field-level dictionary of the core dimensions, including the two SCD2 dimensions.}\label{tab:anx-dw-dims}\\
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Field}} & \textcolor{white}{\textbf{Type}} &
+\textcolor{white}{\textbf{Description}} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Field}} & \textcolor{white}{\textbf{Type}} &
+\textcolor{white}{\textbf{Description}} \\
+\hline
+\endhead
+% dim_date
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{dim\_date} --- conformed time spine} \\
+date\_id            & DATE PK & The date itself. \\
+year / semester / quarter / month\_num & SMALLINT & Calendar parts. \\
+month\_name\_fr / year\_month & VARCHAR & ``mars'' / ``2024-03''. \\
+week\_num / day\_of\_week / day\_name\_fr & --- & ISO week and weekday. \\
+is\_weekend / is\_friday / is\_saturday & BOOLEAN & Algerian weekend (Fri full off; Sat reduced). \\
+is\_ramadan / is\_eid / is\_black\_friday\_week & BOOLEAN & Seasonality flags. \\
+volume\_multiplier  & DECIMAL(4,2) & Expected-volume multiplier. \\
+\hline
+% dim_parcel
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{dim\_parcel} --- one row per tracking number} \\
+parcel\_key          & BIGSERIAL PK & Surrogate. \\
+tracking            & VARCHAR UNIQUE & yal-XXXXXX / sac-XXXXXX. \\
+current\_status\_id   & SMALLINT FK & Final resolved status. \\
+delivery\_type\_id    & SMALLINT FK & HD / SD. \\
+zone\_id             & SMALLINT FK & Pricing zone (null before routing). \\
+parcel\_type\_id      & SMALLINT FK & ecommerce / internal. \\
+date\_creation\_id    & DATE FK & First status event. \\
+date\_terminal\_id    & DATE FK & Terminal event (null if in progress). \\
+center\_depart\_key   & INTEGER FK & Origin centre. \\
+center\_destination\_key & INTEGER FK & Destination centre. \\
+\hline
+% dim_agence
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{dim\_agence} --- SCD2} \\
+agence\_key   & SERIAL PK & Surrogate (one per version). \\
+agency\_id    & INTEGER & HR~Force business key (stable across versions). \\
+name / code / address & VARCHAR & Agency identity. \\
+agency\_type\_id & SMALLINT FK & Hub / Agence / Centre de tri\dots \\
+commune\_id   & INTEGER FK & Location (snowflake to geography). \\
+company\_id   & INTEGER FK & Owning company. \\
+valid\_from / valid\_to & DATE & Version validity window. \\
+is\_current   & BOOLEAN & True for the current version. \\
+\hline
+% dim_employee
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{dim\_employee} --- SCD2} \\
+employee\_key & SERIAL PK & Surrogate (one per version). \\
+employee\_id  & INTEGER & HR~Force user ID (= \texttt{whois} in parcel history). \\
+full\_name / email & VARCHAR & Identity. \\
+role\_id / employee\_status\_id & SMALLINT FK & Role; Actif / Inactif. \\
+agence\_key   & INTEGER FK & Assigned agency version. \\
+company\_id   & INTEGER FK & Company (controlled denormalisation). \\
+occupation\_id & INTEGER FK & Occupation. \\
+contract\_key & INTEGER FK & Current contract version. \\
+hire\_date\_id & DATE FK & Original hire date (controlled denormalisation). \\
+valid\_from / valid\_to / is\_current & --- & Version validity window. \\
+\hline
+% dim_bulletin
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{dim\_bulletin} --- one payslip} \\
+bulletin\_id   & VARCHAR PK & PAY-YYYY-MM-\{employee\}. \\
+period\_month / period\_year & SMALLINT & Pay period. \\
+payment\_date\_id & DATE FK & Payment date. \\
+seniority\_months & SMALLINT & Seniority at this payslip. \\
+employee\_key  & INTEGER FK & Employee version at payment date. \\
+contract\_key  & INTEGER FK & Contract. \\
+\hline
+% dim_depense
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{dim\_depense} --- one expense} \\
+depense\_id        & VARCHAR PK & DEP-YYYY-MM-NNNNNN. \\
+date\_depense\_id   & DATE FK & Expense date. \\
+depense\_status\_id & SMALLINT FK & en\_attente / validée / rejetée. \\
+rubrique\_id / nature\_id & INTEGER FK & Category chain (mutually exclusive). \\
+agence\_key        & INTEGER FK & Agency version at expense date. \\
+paiement\_livreur\_id / remboursement\_id & VARCHAR FK & Dual-tracked back-reference (nullable). \\
+\hline
+% dim_transport
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{dim\_transport} --- central request entity} \\
+transport\_key   & SERIAL PK & Surrogate. \\
+request\_id      & VARCHAR UNIQUE & DT-YYYY-NNNNN. \\
+created\_date\_id & DATE FK & Request date. \\
+client\_id       & INTEGER FK & Client. \\
+dispatched\_from\_hub\_id / \_wilaya\_id & FK & Dispatch origin. \\
+service\_type\_id / sub\_service\_id & SMALLINT FK & Service classification. \\
+status\_id / payment\_status\_id & SMALLINT FK & Request and payment status. \\
+vehicle\_id      & VARCHAR FK & Vehicle. \\
+driver\_key / second\_driver\_key & INTEGER FK & Drivers (employee versions). \\
+departure\_key / arrival\_key & INTEGER FK & Role-playing geography. \\
+cargo\_key / routing\_profile\_key & SMALLINT FK & Junk dimensions. \\
+\hline
+\end{longtable}
+}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Full Constellation ERD}
+\label{anx:dw-erd}
+
+Figure~\ref{fig:anx-dw-erd} gives the complete fact-constellation model on a single rotated page: all 7
+fact tables (crimson) and the 55 dimensions, colour-coded by subject area and grouped into the two
+financial perimeters around the conformed dimensions. To stay legible at this scale the boxes carry
+table names only --- the fields are in the data dictionaries above. Foreign keys are shown as arrows
+(child~$\rightarrow$~parent); dashed grey arrows mark cross-zone links to conformed dimensions. A
+superscript~\textsuperscript{H} marks an SCD2 (historised) dimension and~\textsuperscript{J} a junk
+dimension.
+
+% [VISUAL-IMPLEMENT] full DW constellation ERD — landscape, colour-coded by subject area (C4-P1)
+\begin{landscape}
+\thispagestyle{empty}
+\begin{figure}[p]
+\centering
+\noindent\makebox[\linewidth][c]{\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\scriptsize,
+  % ---- colours ----
+  every node/.style={inner sep=2pt},
+  zonelbl/.style={font=\bfseries\small, text=black!75, anchor=north west},
+  tbl/.style={rounded corners=2pt, draw, line width=0.5pt, align=center,
+              minimum width=2.0cm, minimum height=0.62cm, font=\scriptsize},
+  geo/.style ={tbl, draw=cGeoS,  fill=cGeoF},
+  hr/.style  ={tbl, draw=cHrS,   fill=cHrF},
+  time/.style={tbl, draw=cTimeS, fill=cTimeF},
+  par/.style ={tbl, draw=cParS,  fill=cParF},
+  sal/.style ={tbl, draw=cSalS,  fill=cSalF},
+  cash/.style={tbl, draw=cCashS, fill=cCashF},
+  tr/.style  ={tbl, draw=cTrS,   fill=cTrF},
+  fct/.style ={tbl, draw=cFactS, fill=cFactF, line width=1pt, font=\scriptsize\bfseries},
+  % ---- edges ----
+  hier/.style={-{Stealth[length=1.5mm]}, draw=figslate, line width=0.4pt},
+  conf/.style={-{Stealth[length=1.5mm]}, draw=figslate!80, line width=0.4pt, densely dashed},
+  flink/.style={-{Stealth[length=1.5mm]}, draw=cFactS!70, line width=0.6pt}]
+
+  % ================= colour definitions =================
+  \definecolor{cGeoS}{HTML}{3F77A6}\definecolor{cGeoF}{HTML}{DCEAF6}
+  \definecolor{cHrS}{HTML}{7E57C2}\definecolor{cHrF}{HTML}{ECE4F6}
+  \definecolor{cTimeS}{HTML}{E0922B}\definecolor{cTimeF}{HTML}{FBEBCF}
+  \definecolor{cParS}{HTML}{43A047}\definecolor{cParF}{HTML}{DDF1DE}
+  \definecolor{cSalS}{HTML}{D81B60}\definecolor{cSalF}{HTML}{FAE0EA}
+  \definecolor{cCashS}{HTML}{C0772B}\definecolor{cCashF}{HTML}{F6E6D3}
+  \definecolor{cTrS}{HTML}{1E9E92}\definecolor{cTrF}{HTML}{D9F1ED}
+  \definecolor{cFactS}{HTML}{C62828}\definecolor{cFactF}{HTML}{F8DBDB}
+
+  % ================= zone panels (background) =================
+  \begin{scope}[on background layer]
+    \fill[cGeoF!35,  rounded corners=4pt] (0.2,12.5)  rectangle (7.3,18.9);
+    \fill[cHrF!40,   rounded corners=4pt] (0.2,5.2)   rectangle (7.3,12.2);
+    \fill[cParF!45,  rounded corners=4pt] (7.6,12.5)  rectangle (14.6,18.9);
+    \fill[cSalF!45,  rounded corners=4pt] (7.6,8.2)   rectangle (14.6,12.2);
+    \fill[cCashF!45, rounded corners=4pt] (7.6,0.3)   rectangle (14.6,7.9);
+    \fill[cTimeF!55, rounded corners=4pt] (14.9,8.9)  rectangle (16.7,10.8);
+    \fill[cTrF!40,   rounded corners=4pt] (17.0,0.3)  rectangle (31.9,18.9);
+    \fill[black!4,   rounded corners=4pt] (0.2,0.3)   rectangle (7.3,5.0);
+  \end{scope}
+
+  % ---- zone titles ----
+  \node[zonelbl] at (0.35,18.8) {Geography};
+  \node[zonelbl] at (0.35,12.1) {HR \& Organisation};
+  \node[zonelbl] at (7.75,18.8) {Parcel (Express)};
+  \node[zonelbl] at (7.75,12.1) {Salary (PC~Paie)};
+  \node[zonelbl] at (7.75,7.8)  {Cash Box};
+  \node[zonelbl] at (17.15,18.8) {On-Demand Transport};
+  \node[font=\bfseries\scriptsize, text=cTimeS, align=center] at (15.8,10.5) {Time};
+
+  % ================= GEOGRAPHY =================
+  \node[geo] (region)  at (1.7,17.9) {region};
+  \node[geo] (wilaya)  at (1.7,16.9) {wilaya};
+  \node[geo] (commune) at (1.7,15.9) {commune};
+  \node[geo] (agence)  at (1.7,14.6) {agence\textsuperscript{H}};
+  \node[geo] (center)  at (1.7,13.5) {center};
+  \node[geo] (agtype)  at (4.9,17.9) {agency\_type};
+
+  % ================= HR & ORG =================
+  \node[hr] (company)  at (1.7,11.4) {company};
+  \node[hr] (dept)     at (1.7,10.5) {department};
+  \node[hr] (service)  at (1.7,9.6)  {service};
+  \node[hr] (occup)    at (1.7,8.7)  {occupation};
+  \node[hr] (employee) at (1.7,7.3)  {employee\textsuperscript{H}};
+  \node[hr] (role)     at (4.9,11.4) {role};
+  \node[hr] (empstat)  at (4.9,10.5) {employee\_status};
+  \node[hr] (livtype)  at (4.9,7.6)  {livreur\_veh\_type};
+  \node[hr] (livreur)  at (4.9,6.5)  {livreur\_freelance};
+
+  % ================= TIME =================
+  \node[time] (date) at (15.8,9.7) {date};
+
+  % ================= PARCEL =================
+  \node[par] (pstatus)  at (8.9,18.1) {parcels\_status};
+  \node[par] (ptype)    at (8.9,17.2) {parcel\_type};
+  \node[par] (dtype)    at (11.1,18.1) {delivery\_type};
+  \node[par] (zone)     at (11.1,17.2) {zone};
+  \node[par] (pstype)   at (13.3,18.1) {pricing\_svc\_type};
+  \node[par] (pricing)  at (13.3,17.2) {pricing};
+  \node[par] (parcel)   at (11.1,15.4) {parcel};
+  \node[fct] (frev)     at (9.7,13.5)  {parcel\_revenue};
+  \node[fct] (fperf)    at (12.6,13.5) {parcel\_perf.};
+
+  % ================= SALARY =================
+  \node[sal] (ctype)    at (8.9,11.4) {contract\_type};
+  \node[sal] (cregime)  at (8.9,10.5) {contract\_regime};
+  \node[sal] (contract) at (11.2,11.4) {contract};
+  \node[sal] (bulletin) at (11.2,10.0) {bulletin};
+  \node[fct] (fsal)     at (13.4,10.0) {cost\_salaire};
+
+  % ================= CASH BOX =================
+  \node[cash] (ncat)    at (8.9,7.2) {nature\_category};
+  \node[cash] (nature)  at (8.9,6.3) {nature};
+  \node[cash] (rubr)    at (8.9,5.4) {rubriques};
+  \node[cash] (dstatus) at (13.2,7.2) {depense\_status};
+  \node[cash] (sintype) at (13.2,6.3) {sinistre\_type};
+  \node[cash] (pailiv)  at (13.2,4.6) {paiement\_livreurs};
+  \node[cash] (rembour) at (13.2,3.6) {remboursement};
+  \node[cash] (depense) at (10.5,4.2) {depense};
+  \node[fct]  (fcharg)  at (10.5,2.5) {charges};
+
+  % ================= TRANSPORT =================
+  \node[tr, minimum width=2.3cm, minimum height=0.8cm, line width=0.9pt]
+        (transport) at (24.2,10.0) {transport};
+  \node[tr] (tclico)   at (18.6,17.9) {client\_company};
+  \node[tr] (tcltype)  at (20.9,17.9) {client\_type};
+  \node[tr] (tclient)  at (19.7,16.8) {client};
+  \node[tr] (tstatus)  at (18.6,15.0) {status};
+  \node[tr] (tstype)   at (18.6,14.0) {service\_type};
+  \node[tr] (tsubtype) at (20.9,14.0) {sub\_service\_type};
+  \node[tr] (tpaystat) at (18.6,13.0) {payment\_status};
+  \node[tr] (tstoptype)at (18.6,4.2)  {stop\_type};
+  \node[tr] (tstops)   at (20.2,5.3)  {stops};
+  \node[tr] (tdepart)  at (21.8,2.9)  {departure};
+  \node[tr] (tloctype) at (24.2,2.9)  {location\_type};
+  \node[tr] (tarrival) at (26.6,2.9)  {arrival};
+  \node[tr] (tvehtype) at (30.5,12.3) {vehicle\_type};
+  \node[tr] (tvehicle) at (28.9,12.3) {vehicle};
+  \node[tr] (tmerch)   at (30.2,17.5) {merchandise\_type};
+  \node[tr] (tcargo)   at (28.7,16.6) {cargo\textsuperscript{J}};
+  \node[tr] (tdist)    at (30.7,7.6)  {distance\_cat};
+  \node[tr] (tcompl)   at (30.7,6.6)  {complexity\_cat};
+  \node[tr] (trouting) at (28.9,7.1)  {routing\textsuperscript{J}};
+  \node[fct] (ftcost)  at (21.3,8.0)  {transport\_cost};
+  \node[fct] (ftbill)  at (24.2,7.4)  {transport\_billing};
+  \node[fct] (ftperf)  at (27.1,8.0)  {transport\_perf.};
+
+  % ================= EDGES =================
+  % geography snowflake (child -> parent)
+  \draw[hier] (wilaya)  -- (region);
+  \draw[hier] (commune) -- (wilaya);
+  \draw[hier] (agence)  -- (commune);
+  \draw[hier] (center)  -- (agence);
+  \draw[hier] (agence)  -- (agtype);
+  % HR chain
+  \draw[hier] (dept)     -- (company);
+  \draw[hier] (service)  -- (dept);
+  \draw[hier] (occup)    -- (service);
+  \draw[hier] (employee) -- (occup);
+  \draw[hier] (employee) -- (role);
+  \draw[hier] (employee) -- (empstat);
+  \draw[hier] (employee) to[bend left=10] (agence);
+  \draw[hier] (livreur)  -- (livtype);
+  \draw[hier] (livreur)  -- (agence);
+  % parcel
+  \draw[hier] (parcel) -- (pstatus);
+  \draw[hier] (parcel) -- (ptype);
+  \draw[hier] (parcel) -- (dtype);
+  \draw[hier] (parcel) -- (zone);
+  \draw[hier] (pricing) -- (pstype);
+  \draw[conf] (pricing) to[bend right=8] (wilaya);
+  \draw[conf] (parcel)  to[bend left=6] (center);
+  % parcel facts
+  \draw[flink] (frev)  -- (parcel);
+  \draw[flink] (fperf) -- (parcel);
+  \draw[conf]  (frev)  to[bend right=10] (date);
+  % salary
+  \draw[hier] (contract) -- (ctype);
+  \draw[hier] (contract) -- (cregime);
+  \draw[hier] (bulletin) -- (contract);
+  \draw[conf] (bulletin) to[bend left=6] (employee);
+  \draw[flink] (fsal) -- (bulletin);
+  \draw[conf]  (fsal) to[bend right=8] (date);
+  % cashbox
+  \draw[hier] (nature) -- (ncat);
+  \draw[hier] (rubr)   -- (nature);
+  \draw[hier] (depense) -- (rubr);
+  \draw[hier] (depense) -- (dstatus);
+  \draw[hier] (pailiv)  -- (depense);
+  \draw[hier] (rembour) -- (depense);
+  \draw[hier] (rembour) -- (sintype);
+  \draw[hier] (pailiv) to[bend right=8] (livreur);
+  \draw[conf] (depense) to[bend left=6] (agence);
+  \draw[flink] (fcharg) -- (depense);
+  \draw[conf]  (fcharg) to[bend left=8] (date);
+  % transport central
+  \draw[hier] (transport) -- (tclient);
+  \draw[hier] (transport) -- (tstatus);
+  \draw[hier] (transport) -- (tstype);
+  \draw[hier] (transport) -- (tsubtype);
+  \draw[hier] (transport) -- (tpaystat);
+  \draw[hier] (transport) -- (tvehicle);
+  \draw[hier] (transport) -- (tcargo);
+  \draw[hier] (transport) -- (trouting);
+  \draw[hier] (transport) -- (tdepart);
+  \draw[hier] (transport) -- (tarrival);
+  \draw[hier] (tclient) -- (tcltype);
+  \draw[hier] (tclient) -- (tclico);
+  \draw[hier] (tstype)  -- (tsubtype);
+  \draw[hier] (tcargo)  -- (tmerch);
+  \draw[hier] (tvehicle)-- (tvehtype);
+  \draw[hier] (trouting)-- (tdist);
+  \draw[hier] (trouting)-- (tcompl);
+  \draw[hier] (tstops)  -- (transport);
+  \draw[hier] (tstops)  -- (tstoptype);
+  \draw[hier] (tstops)  -- (tloctype);
+  \draw[hier] (tdepart) -- (tloctype);
+  \draw[hier] (tarrival)-- (tloctype);
+  \draw[conf] (transport) to[bend right=6] (employee);
+  \draw[conf] (transport) to[bend left=6] (center);
+  % transport facts
+  \draw[flink] (ftcost) -- (transport);
+  \draw[flink] (ftbill) -- (transport);
+  \draw[flink] (ftperf) -- (transport);
+  \draw[conf]  (ftbill) to[bend left=6] (date);
+
+  % ================= LEGEND =================
+  \node[zonelbl] at (0.35,4.9) {Legend};
+  \node[geo,  minimum width=1.1cm, minimum height=0.4cm] (lg) at (1.2,4.2) {};
+  \node[anchor=west, font=\scriptsize] at (1.85,4.2) {Geography};
+  \node[hr,   minimum width=1.1cm, minimum height=0.4cm] (lh) at (1.2,3.6) {};
+  \node[anchor=west, font=\scriptsize] at (1.85,3.6) {HR \& org.};
+  \node[par,  minimum width=1.1cm, minimum height=0.4cm] (lp) at (1.2,3.0) {};
+  \node[anchor=west, font=\scriptsize] at (1.85,3.0) {Parcel};
+  \node[cash, minimum width=1.1cm, minimum height=0.4cm] (lc) at (1.2,2.4) {};
+  \node[anchor=west, font=\scriptsize] at (1.85,2.4) {Cash Box};
+  \node[sal,  minimum width=1.1cm, minimum height=0.4cm] (ls) at (4.4,4.2) {};
+  \node[anchor=west, font=\scriptsize] at (5.05,4.2) {Salary};
+  \node[tr,   minimum width=1.1cm, minimum height=0.4cm] (lt) at (4.4,3.6) {};
+  \node[anchor=west, font=\scriptsize] at (5.05,3.6) {Transport};
+  \node[time, minimum width=1.1cm, minimum height=0.4cm] (lti) at (4.4,3.0) {};
+  \node[anchor=west, font=\scriptsize] at (5.05,3.0) {Time};
+  \node[fct,  minimum width=1.1cm, minimum height=0.4cm] (lf) at (4.4,2.4) {};
+  \node[anchor=west, font=\scriptsize] at (5.05,2.4) {Fact};
+  \node[anchor=west, font=\scriptsize] at (0.55,1.6)
+        {\textsuperscript{H} SCD2 (historised) \quad \textsuperscript{J} junk dimension};
+  \draw[hier] (0.6,1.0) -- (1.4,1.0);
+  \node[anchor=west, font=\scriptsize] at (1.5,1.0) {FK};
+  \draw[conf] (3.0,1.0) -- (3.8,1.0);
+  \node[anchor=west, font=\scriptsize] at (3.9,1.0) {conformed};
+\end{tikzpicture}}}
+\caption{The complete LOGIQ data-warehouse constellation ERD: 7 fact tables (crimson) and 55
+dimensions, colour-coded by subject area, organised into the two financial perimeters around the
+conformed dimensions (\texttt{date}, geography, organisation, employee).}
+\label{fig:anx-dw-erd}
+\end{figure}
+\end{landscape}

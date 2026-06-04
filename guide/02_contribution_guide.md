@@ -191,6 +191,25 @@
   - `[VISUAL-IMPLEMENT]` `booktabs` component table (layer → role) — conceptual roles, not products.
 
 ### 4.4 Data warehouse design (~8–10 pp — biggest section)
+> **Logical spine:** *design approach* frames the method → *source scoping & data understanding* shows
+> the raw material and sorts it into facts vs dimensions (the hinge) → *layered design → schema paradigm
+> → modelling techniques* build the model from that sorting → *scale* justifies why it is built big.
+- **Design approach** — one short paragraph: the model is driven **top-down** by the analytical
+  questions (2 axes × 3 views, §4.1) and **bottom-up** by the source data; frame it as the **Kimball
+  dimensional-modelling lifecycle** (select business process → declare grain → choose dimensions →
+  identify facts), with a citation. Conceptual only — *no database technology named.*
+- **Source Scoping and Data Understanding** — the bridge from sources to model. Of the ~10 operational
+  applications in Ch.3, **only ~5 actually feed the warehouse** for the two delivered axes; the rest are
+  out of scope this version. State sources at **contract level only** — *no REST/API extraction
+  mechanics here* (those belong to §4.5 ETL). Present against the **real** source applications, **not**
+  the simulated/mock sources (the simulation is Ch.6 Testing). Default app→source mapping (confirm with
+  author): Yalidine App → core logistics (geography, delivery centres, pricing, parcel-event history);
+  HR Force → HR (companies, agencies, employees, org hierarchy); Cash Box → cash-box (operating
+  expenses, freelance-driver pay, reimbursements, transfers); PC Paie → payroll (payslips); Transport →
+  dedicated B2B requests + stops. **Excluded:** FleetGo, Retour App, iTop, CS Care, QApp.
+  - `[VISUAL-IMPLEMENT]` **one merged grid table**: operational app → data it provides → axis/process
+    served → becomes a **fact** or a **dimension**. (Does scoping *and* the fact/dimension sorting at
+    once — the hinge into the layered design below.)
 - **Layered design** — staging → dimensions → facts → aggregates (recap §4.1).
   - `[VISUAL-IMPLEMENT]` TikZ four-layer stack (role of each layer labelled).
 - **Schema paradigm** — **constellation (fact-constellation)** schema + **snowflaked** dimensions; the

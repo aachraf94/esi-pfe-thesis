@@ -429,7 +429,8 @@ architecture, next (Figure~\ref{fig:ch4-globalarch}).
 \vspace*{\fill}
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth, height=0.82\textheight, keepaspectratio]{global-architecture}
+\noindent\makebox[\linewidth][c]{%
+  \includegraphics[width=1.12\linewidth, height=0.9\textheight, keepaspectratio]{global-architecture}}
 \caption{LOGIQ global architecture --- the one-directional, end-to-end data flow from the operational
 source systems, through ETL orchestration and the analytical/operational stores, to the dashboard.}
 \label{fig:ch4-globalarch}
@@ -440,17 +441,718 @@ source systems, through ETL orchestration and the analytical/operational stores,
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Data Warehouse Design}
 \label{sec:ch4-dw}
-% TODO
+
+The data warehouse is the analytical core of LOGIQ: the single consolidated base from which every
+dashboard and alert reads. This section designs it conceptually --- the approach, the sources, the
+layers, the table inventory, the schema, the modelling techniques, and the scale --- without naming any
+database technology, which is deferred to Chapter~5. The full field-level data dictionary is given in
+Annexe~A.
+
+% -----------------------------------------------------------------------------
+\subsection{Design Approach}
+\label{subsec:ch4-dw-approach}
+
+The warehouse uses \textbf{dimensional modelling}, built with the Kimball
+lifecycle~\cite{kimball2013}: the model is organised around the business questions to answer, not
+around the source systems. For each business process, four steps are applied in order:
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Select the business process} --- parcel delivery, transport request, salary run,
+          expense record.
+    \item \textbf{Declare the grain} --- the exact meaning of one fact row, fixed before any column.
+    \item \textbf{Choose the dimensions} --- the descriptive context (who, what, where, when).
+    \item \textbf{Identify the facts} --- the numeric measures recorded at that grain.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+\subsection{Source Scoping}
+\label{subsec:ch4-dw-sources}
+
+Of the ten operational applications inventoried in Chapter~3, only \textbf{five feed the warehouse} for
+the two delivered axes; the rest are out of scope this version. Each source is described at the level of
+the data it provides --- the extraction mechanics belong to the ETL design (\S\ref{sec:ch4-etl}) ---
+and sorted, the central act of dimensional modelling, into \textbf{facts} (measurable events) and
+\textbf{dimensions} (descriptive context). Table~\ref{tab:ch4-dw-sources} carries both.
+
+% [VISUAL-IMPLEMENT] source scoping + fact/dimension sorting grid
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.1cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{2.9cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Source}} & \textcolor{white}{\textbf{Data it provides}} &
+\textcolor{white}{\textbf{Feeds (facts / dimensions)}} \\
+\hline
+Yalidine App & Geography (wilayas, communes), delivery-centre network, pricing grid, parcel
+status-event history & Geography, pricing \& parcel dims; the 2 parcel facts \\
+HR~Force & Companies, agencies, organisational hierarchy, employees, roles & Organisational \& HR dims
+(incl.\ SCD2 agencies, employees) \\
+Cash~Box & Operating expenses, freelance-driver payments, parcel reimbursements & Expense dims; the
+charges fact \\
+PC~Paie & Payslips and employment contracts & Contract \& payslip dims; the salary-cost fact \\
+Transport & Dedicated B2B requests and their stops & Transport dims; the 3 transport facts \\
+\hline
+\rowcolor{tblstruct}
+\multicolumn{3}{|l|}{\textbf{Out of scope this version:} FleetGo, Retour App, iTop, CS~Care, QApp.} \\
+\hline
+\end{tabularx}
+\caption{The five operational applications that feed the warehouse, the data each provides, and whether
+it becomes facts or dimensions.}
+\label{tab:ch4-dw-sources}
+\end{table}
+
+Two points drive the rest of the design: the \textbf{parcel status-event history is by far the largest
+input} and the only one recorded at a fine, repeated grain (many events per parcel); and
+\textbf{HR~Force is shared by both axes}, which is exactly what conformed dimensions
+(\S\ref{subsec:ch4-dw-techniques}) exploit.
+
+% -----------------------------------------------------------------------------
+\subsection{Layered Design}
+\label{subsec:ch4-dw-layers}
+
+The warehouse is organised as four stacked layers (Figure~\ref{fig:ch4-dw-layers}), each refining the
+one below it. The separation lets each concern evolve independently and keeps the heavy work of
+summarising off the path of a dashboard query.
+
+% [VISUAL-IMPLEMENT] four-layer warehouse stack (staging -> dimensions -> facts -> aggregates)
+\begin{figure}[H]
+\centering
+\newcommand{\layerrole}[1]{\\[1pt]{\scriptsize\color{black!70}#1}}
+\begin{tikzpicture}[
+  layer/.style={rounded corners=4pt, draw, line width=0.9pt, text width=11.4cm,
+                align=left, inner sep=8pt, font=\small},
+  >={Stealth[length=2.6mm]}]
+
+  % bands, bottom (source-facing) to top (consumption-facing)
+  \node[layer, fill=black!4,      draw=figslate]  (stg) at (0,0)    {%
+      \textbf{Staging layer}\layerrole{Faithful, untransformed copy of each source extract --- one
+      staging table per source endpoint; no business logic; the landing zone for the ETL.}};
+  \node[layer, fill=figbluetint,  draw=figblue]   (dim) at (0,2.05) {%
+      \textbf{Dimension layer}\layerrole{Conformed descriptive context --- \emph{who, what, where,
+      when}; snowflaked hierarchies, historised where needed (SCD2).}};
+  \node[layer, fill=figambertint, draw=figorange] (fct) at (0,4.05) {%
+      \textbf{Fact layer}\layerrole{Measurable business events --- 7 fact tables across the two
+      financial perimeters, each at a declared grain.}};
+  \node[layer, fill=figgreentint, draw=figgreen]  (agg) at (0,6.05) {%
+      \textbf{Aggregate layer}\layerrole{Pre-computed summaries by period, axis, geography and
+      organisation --- what the dashboards read, returning in seconds.}};
+
+  % upward refinement arrow
+  \draw[->, line width=1.2pt, figslate] ([xshift=-16pt]stg.south west) -- ([xshift=-16pt]agg.north west)
+      node[midway, rotate=90, anchor=south, font=\scriptsize\itshape, text=black!65]
+      {raw $\longrightarrow$ decision-ready};
+\end{tikzpicture}
+\caption{The four layers of the LOGIQ warehouse. Each layer refines the one below it, from a raw copy
+of the sources (staging) up to the pre-computed summaries the dashboards consume (aggregates).}
+\label{fig:ch4-dw-layers}
+\end{figure}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Staging} --- a faithful, untransformed copy of each source extract (one table per
+          source endpoint); the ETL's stable landing zone, making a load re-runnable.
+    \item \textbf{Dimensions} --- the descriptive context; hierarchies normalised (snowflaked),
+          history kept where it matters (SCD2, \S\ref{subsec:ch4-dw-techniques}).
+    \item \textbf{Facts} --- the measurable events, each at a declared grain, surrounded by foreign
+          keys to its dimensions.
+    \item \textbf{Aggregates} --- pre-computed summaries by period, geography, organisation and
+          service; the dashboards read \emph{this} layer, not the raw facts, which is what keeps a view
+          responsive at national scale (TS02). Built in a later phase, once the facts are validated.
+\end{itemize}
+
+% -----------------------------------------------------------------------------
+\subsection{Table Inventory}
+\label{subsec:ch4-dw-inventory}
+
+The model materialises into \textbf{18 staging tables}, \textbf{55 dimensions}, and \textbf{7 facts}.
+% TODO(achraf): confirm dimension total (SQL files = 55; redesign-doc summary states 49 = 26 seeded + 23 loaded)
+Tables~\ref{tab:ch4-dw-staging} and~\ref{tab:ch4-dw-dims} list the staging and dimension tables by
+domain; the facts are declared in Table~\ref{tab:ch4-dw-facts}. The complete field-level dictionary of
+every table is in Annexe~A.
+
+% [VISUAL-IMPLEMENT] staging-table inventory by source
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.3cm}|>{\centering\arraybackslash}p{0.8cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Source}} & \textcolor{white}{\textbf{\#}} &
+\textcolor{white}{\textbf{Staging tables}} \\
+\hline
+Yalidine App & 5 & wilayas, communes, centers, pricing, parcel\_history \\
+HR~Force & 4 & companies, agencies, occupations, users \\
+Cash~Box & 6 & natures, rubriques, depenses, paiements\_livreurs, remboursements, transferts \\
+PC~Paie & 1 & bulletins \\
+Transport & 2 & requests, stops \\
+\hline
+\end{tabularx}
+\caption{The 18 staging tables, one per source endpoint, grouped by source application.}
+\label{tab:ch4-dw-staging}
+\end{table}
+
+% [VISUAL-IMPLEMENT] dimension inventory by domain
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.3cm}|>{\centering\arraybackslash}p{0.8cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Domain}} & \textcolor{white}{\textbf{\#}} &
+\textcolor{white}{\textbf{Principal dimensions}} \\
+\hline
+Geographic & 6 & region $\rightarrow$ wilaya $\rightarrow$ commune $\rightarrow$ agence (SCD2)
+$\rightarrow$ center; agency type \\
+HR \& organisational & 9 & company $\rightarrow$ department $\rightarrow$ service $\rightarrow$
+occupation; employee (SCD2); freelance driver; role; status \\
+Time & 1 & date (calendar spine, 2022--2026) \\
+Parcel (express) & 7 & parcel; pricing; status; zone; delivery \& parcel type \\
+Salary (PC~Paie) & 4 & contract; bulletin (payslip); contract type \& regime \\
+Cash~Box & 8 & depense; nature hierarchy; reimbursement; driver payment; status; sinistre type \\
+Transport & 20 & transport (central); departure / arrival (role-playing); cargo \& routing (junk);
+vehicle; client; stops; status; service type \\
+\hline
+\end{tabularx}
+\caption{The dimension tables grouped by business domain, with the principal members of each. SCD2 =
+historised; junk = combined low-cardinality flags.}
+\label{tab:ch4-dw-dims}
+\end{table}
+
+% -----------------------------------------------------------------------------
+\subsection{Schema Paradigm}
+\label{subsec:ch4-dw-schema}
+
+LOGIQ adopts a \textbf{fact-constellation} (galaxy) schema with \textbf{snowflaked} dimensions:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Constellation} --- the seven facts are not forced into a single star but
+          \emph{share} a common set of dimensions. Sharing makes figures reconcile (a cost and a
+          revenue reported for the same agency and month refer to the same agency and month), and it
+          keeps the \textbf{two financial perimeters} apart: no fact mixes a parcel measure with a
+          transport measure (TS10).
+    \item \textbf{Snowflake} --- every dimension hierarchy is normalised into one table per level, so
+          each attribute lives in exactly one place. The rule is \emph{no redundant data}: a value
+          stored once cannot disagree with itself. The only exceptions are a few \emph{controlled
+          denormalisations} (\S\ref{subsec:ch4-dw-techniques}), each justified by a nullable or
+          SCD2-unstable join path.
+\end{itemize}
+
+Table~\ref{tab:ch4-dw-facts} declares the grain and measures of the seven facts;
+Figure~\ref{fig:ch4-dw-constellation} shows a fragment of the constellation. The complete model is
+reproduced in Annexe~A.
+
+% [VISUAL-IMPLEMENT] grain + measures of the 7 fact tables, grouped by financial perimeter
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\rowcolors{4}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Fact table}} & \textcolor{white}{\textbf{Grain (one row per\dots)}} &
+\textcolor{white}{\textbf{Principal measures}} \\
+\hline
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Express parcel-delivery perimeter}} \\
+\hline
+Parcel revenue & resolved parcel & Delivery fee; theoretical tariff; tariff gap \\
+Parcel performance & resolved parcel & Event count; total transit duration; failed-attempt count \\
+Salary cost & payslip (employee $\times$ month) & Gross salary; deductions; employer charges \\
+Operating charges & validated expense record & Expense amount \\
+\hline
+\rowcolor{tblanal}\multicolumn{3}{|l|}{\textbf{On-demand transport perimeter}} \\
+\hline
+Transport cost & transport request & Cost build-up (base, distance, handling, insurance, fuel) and
+total cost \\
+Transport billing & transport request & Amount invoiced; amount paid; gross margin (value and \%) \\
+Transport performance & transport request & Distances; durations; stop counts; delays; on-time flag;
+client rating \\
+\hline
+\end{tabularx}
+\caption{The seven fact tables, grouped by financial perimeter, with their declared grain and principal
+measures. The two perimeters never share a fact table.}
+\label{tab:ch4-dw-facts}
+\end{table}
+
+% [VISUAL-IMPLEMENT] constellation fragment: 2 facts sharing conformed dims + a snowflaked hierarchy
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  >={Stealth[length=2.2mm]},
+  fact/.style={draw=figorange, fill=figambertint, line width=1pt, rounded corners=3pt,
+               align=center, font=\scriptsize\bfseries, minimum width=3.0cm, minimum height=1.0cm},
+  dimc/.style={draw=figblue, fill=figbluetint, line width=0.9pt, align=center,
+               font=\scriptsize, minimum width=2.5cm, minimum height=0.85cm},
+  snow/.style={draw=figslate, fill=black!3, line width=0.7pt, align=center,
+               font=\scriptsize, minimum width=2.4cm, minimum height=0.7cm},
+  link/.style={draw=figslate, line width=0.7pt},
+  fk/.style={->, draw=figslate, line width=0.7pt}]
+
+  % shared conformed dimensions (centre column)
+  \node[dimc] (date)  at (0, 2.7) {\textbf{dim\_date}\\{\scriptsize(conformed time)}};
+  \node[dimc] (agence) at (0, 0.6) {\textbf{dim\_agence}\\{\scriptsize SCD2 · conformed}};
+
+  % the two facts, one per perimeter
+  \node[fact] (frev) at (-4.6, 1.6) {fact\\parcel\_revenue\\{\scriptsize(Express)}};
+  \node[fact] (fcost) at (4.6, 1.6) {fact\\transport\_cost\\{\scriptsize(Transport)}};
+
+  % snowflaked geographic hierarchy below the shared agency
+  \node[snow] (commune) at (0,-0.9) {dim\_commune};
+  \node[snow] (wilaya)  at (0,-2.0) {dim\_wilaya};
+  \node[snow] (region)  at (0,-3.1) {dim\_region};
+
+  % facts share the conformed dimensions
+  \draw[link] (frev) -- (date);
+  \draw[link] (frev) -- (agence);
+  \draw[link] (fcost) -- (date);
+  \draw[link] (fcost) -- (agence);
+
+  % snowflake chain (normalised, one level per table)
+  \draw[fk] (agence) -- (commune) node[midway, right, font=\tiny, text=black!60] {FK};
+  \draw[fk] (commune) -- (wilaya)  node[midway, right, font=\tiny, text=black!60] {FK};
+  \draw[fk] (wilaya)  -- (region)  node[midway, right, font=\tiny, text=black!60] {FK};
+
+  % perimeter labels
+  \node[font=\scriptsize\itshape, text=figorange] at (-4.6, 0.35) {Express perimeter};
+  \node[font=\scriptsize\itshape, text=figorange] at (4.6, 0.35) {Transport perimeter};
+  \node[font=\scriptsize\itshape, text=figslate, align=center] at (3.0,-2.0)
+      {snowflaked\\hierarchy};
+\end{tikzpicture}
+\caption{A fragment of the constellation schema: two fact tables from the two financial perimeters
+share the conformed \texttt{dim\_date} and \texttt{dim\_agence} dimensions, while the geographic
+hierarchy below \texttt{dim\_agence} is snowflaked into one normalised table per level.}
+\label{fig:ch4-dw-constellation}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+\subsection{Advanced Modelling Techniques}
+\label{subsec:ch4-dw-techniques}
+
+On top of the constellation, the model applies a set of standard dimensional-modelling
+techniques~\cite{kimball2013}, each chosen to answer a concrete need of the LOGIQ data.
+Table~\ref{tab:ch4-dw-techniques} summarises where and why each is used.
+
+% [VISUAL-IMPLEMENT] dimensional-modelling techniques mapped to where/why they are used
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Technique}} & \textcolor{white}{\textbf{Where applied}} &
+\textcolor{white}{\textbf{Why}} \\
+\hline
+Conformed dimensions & Time, geography, organisation and employee, shared across all 7 facts &
+One agreed definition per dimension, so figures reconcile across views and axes. \\
+Snowflaked hierarchies & Geographic and organisational chains & Each attribute stored once
+(\emph{no redundant data}); a single source of truth. \\
+SCD Type~2 & Agencies and employees & Preserve history: a fact stays attributed to the agency or
+employee \emph{as it was} at event time, not as it is today. \\
+Junk dimensions & Transport cargo and routing flags & Collapse many low-cardinality boolean/category
+flags into one row, keeping the transport facts narrow. \\
+Role-playing dimensions & Geography as departure \emph{vs} arrival; the calendar as creation /
+completion / payment dates & One physical table reused in several distinct roles. \\
+Natural \emph{vs} surrogate keys & Natural keys where the source code is stable (wilaya, commune,
+date\dots); surrogates for SCD2 and composite keys & Stability where it exists; generated keys only
+where history or composition demands them. \\
+Controlled denormalisation & Hire date and company copied onto the employee dimension &
+Avoid join paths that are nullable or SCD2-unstable (outrigger avoidance). \\
+Two financial perimeters & Express facts \emph{vs} transport facts & The costs and revenues of the two
+axes are never mixed in a single fact (TS10). \\
+\hline
+\end{tabularx}
+\caption{The dimensional-modelling techniques used in LOGIQ, with where each is applied and the need it
+answers.}
+\label{tab:ch4-dw-techniques}
+\end{table}
+
+One technique deserves a closer look. Agencies and employees change over time --- an agency is
+relocated or reclassified, an employee reassigned --- and the warehouse must remember \emph{what was
+true when an event happened}. These two dimensions therefore use a \textbf{Slowly Changing Dimension of
+Type~2 (SCD2)}: a change does not overwrite the row but closes the old version and opens a new one, each
+with its own surrogate key and validity window (Figure~\ref{fig:ch4-dw-scd2}). A fact references the
+version current at its event date, so history is preserved exactly. All other dimensions are Type~1
+(overwrite).
+
+% [VISUAL-IMPLEMENT] SCD Type 2 illustration: old (closed) version + new (current) version of one agency
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  >={Stealth[length=2.6mm]},
+  rec/.style={draw, line width=0.9pt, rounded corners=3pt, align=left, font=\scriptsize,
+              minimum width=6.0cm, inner sep=7pt},
+  old/.style={rec, draw=figslate, fill=black!4},
+  new/.style={rec, draw=figgreen, fill=figgreentint}]
+
+  \node[old] (o) at (0,0)
+    {{\bfseries Old version} \emph{(historical)}\\[2pt]
+     \texttt{agence\_key = 1042} \quad\textemdash\quad surrogate\\
+     \texttt{agency\_id = 57} \quad\textemdash\quad business key\\
+     commune = Oran-Centre \quad type = Agence\\
+     \texttt{valid\_from = 2022-01-01}\\
+     \texttt{valid\_to\phantom{m} = 2024-03-14}\\
+     \texttt{is\_current = false}};
+
+  \node[new] (n) at (8.2,0)
+    {{\bfseries New version} \emph{(current)}\\[2pt]
+     \texttt{agence\_key = 2317} \quad\textemdash\quad new surrogate\\
+     \texttt{agency\_id = 57} \quad\textemdash\quad \emph{same} business key\\
+     commune = Es-S\'enia \quad type = Hub\\
+     \texttt{valid\_from = 2024-03-15}\\
+     \texttt{valid\_to\phantom{m} = NULL}\\
+     \texttt{is\_current = true}};
+
+  \draw[->, line width=1.1pt, figorange] (o.east) -- (n.west)
+    node[midway, above, font=\scriptsize\bfseries, text=figorange, align=center] {agency}
+    node[midway, below, font=\scriptsize\bfseries, text=figorange, align=center] {relocated};
+\end{tikzpicture}
+\caption{Slowly Changing Dimension of Type~2 on \texttt{dim\_agence}: a change does not overwrite the
+row but closes the old version (\texttt{valid\_to} set, \texttt{is\_current = false}) and opens a new
+one with a fresh surrogate key. The business key is unchanged; facts reference whichever version was
+current at their event date.}
+\label{fig:ch4-dw-scd2}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+\subsection{Scale and Volumetry}
+\label{subsec:ch4-dw-scale}
+
+The warehouse is dimensioned for \textbf{production-scale volumes}. The parcel status-event history
+dominates --- of the order of \emph{hundreds of millions of rows}, collapsing to tens of millions of
+parcels --- while the cost side (payslips, expenses) is smaller and the transport facts are modest.%
+% TODO(achraf): confirm exact counts — parcel events (~220M staging), parcels (~27M) from docs/dw-doc.md
+\ This scale is precisely why the design takes the shape it does:
+
+\begin{itemize}[noitemsep]
+    \item the \textbf{aggregate layer} lets a dashboard read a small summary instead of scanning the
+          full fact tables (TS01, TS02);
+    \item the refresh is \textbf{incremental} --- only new and changed rows each run, never a full
+          reload --- leaving headroom to grow (TS05);
+    \item the \textbf{analytical store is kept separate from the operational one} (TS03, TS16), so the
+          analytical load never disturbs the application.
+\end{itemize}
+
+These three traits are the bridge to the pipeline that populates the warehouse, designed next.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{ETL Pipeline Design}
 \label{sec:ch4-etl}
-% TODO
+
+The warehouse of \S\ref{sec:ch4-dw} defines the \emph{destination} --- a layered, dimensional base
+ready for analysis --- but nothing reaches it by hand. Bridging the operational systems and that base
+is the \textbf{integration process}: an \emph{Extract, Transform, Load} (ETL) pipeline that draws data
+from each source, brings it into the warehouse's shape, and keeps it current without manual
+intervention. This answers the objective of a \emph{reliable, automated refresh} from Chapter~3 and the
+capacity and reliability requirements of \S\ref{sec:ch4-techspec} (TS05, TS07, TS17). As elsewhere in
+this chapter, the pipeline is described \emph{conceptually}; the orchestration technology and its
+configuration are deferred to Chapter~5.
+
+The pipeline's shape is dictated by the warehouse it feeds. Because the warehouse is built in four
+successive layers (staging $\rightarrow$ dimensions $\rightarrow$ facts $\rightarrow$ aggregates), the
+pipeline advances the data through those same tiers in order, each stage preparing the ground for the
+next. Two ideas organise the design: \emph{how} the work is structured and sequenced --- an
+asset-oriented orchestration --- and \emph{which} properties make it dependable at national scale.
+
+% -----------------------------------------------------------------------------
+\subsection{Orchestration Philosophy --- an Asset-Oriented Pipeline}
+
+The pipeline is designed not as a linear script of imperative steps (``run this, then that''), but
+around the \textbf{data assets} it produces. Each table in the warehouse is modelled as an
+\emph{asset} that \emph{declares the assets it derives from}: a fact declares the dimensions it needs,
+an aggregate declares the facts it summarises, and so on. From these declarations the orchestrator
+reconstructs the \textbf{lineage} of the entire warehouse --- what depends on what, end to end.
+
+This asset-oriented view yields design advantages a plain script could not:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Correct ordering by construction} --- assets are materialised in dependency order
+          automatically; the sequence is never hand-wired.
+    \item \textbf{Safe partial re-runs} --- any single asset (or sub-graph) can be rebuilt on its own,
+          without reprocessing the whole warehouse --- essential for recovery and for refreshing only
+          what has changed.
+    \item \textbf{Transparency and lineage} --- the dependency graph is itself a readable map of the
+          warehouse, making the pipeline auditable and far easier to reason about and debug.
+\end{itemize}
+
+% [VISUAL-PLACEHOLDER] asset/lineage dependency graph of the warehouse pipeline
+\begin{figure}[H]
+\centering
+\visualplaceholder{The asset (lineage) dependency graph of the pipeline --- each warehouse table as a
+node, with edges to the assets it derives from, materialised in dependency order.}{Export a generic
+asset-graph illustration into \texttt{figures/}, or screenshot the dependency graph of the running
+orchestrator.}{The warehouse asset-dependency (lineage) graph: every table is an asset that declares its
+upstream dependencies, letting the pipeline build in the correct order and re-run any subset safely.}
+\label{fig:ch4-etl-lineage}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+\subsection{The Five Stages}
+
+The pipeline advances data through \textbf{five stages}, each mapped onto a warehouse layer, so that the
+integration process and the data model share one structure (Figure~\ref{fig:ch4-etl-flow}).
+
+% [VISUAL-IMPLEMENT] ETL five-stage flow mapped onto the warehouse layers
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  >={Stealth[length=2.6mm]},
+  stage/.style={draw, rounded corners=3pt, align=center, minimum width=2.45cm,
+                minimum height=1.35cm, font=\small\bfseries, text=black!80},
+  layer/.style={font=\scriptsize\itshape, text=figslate, align=center},
+  flow/.style={->, draw=figslate, line width=1pt}]
+
+  \node[stage, draw=figslate, fill=black!4] (src) {Source\\systems\\[1pt]{\scriptsize\mdseries(REST APIs)}};
+  \node[stage, draw=figblue,  fill=figbluetint,  right=0.85cm of src] (ext) {Extract};
+  \node[stage, draw=figblue,  fill=figbluetint,  right=0.85cm of ext] (stg) {Stage};
+  \node[stage, draw=figteal,  fill=figtealtint,  right=0.85cm of stg] (dim) {Load\\dimensions};
+  \node[stage, draw=figteal,  fill=figtealtint,  right=0.85cm of dim] (fct) {Load\\facts};
+  \node[stage, draw=figgreen, fill=figgreentint, right=0.85cm of fct] (agg) {Refresh\\aggregates};
+
+  \draw[flow] (src) -- (ext);
+  \draw[flow] (ext) -- (stg);
+  \draw[flow] (stg) -- (dim);
+  \draw[flow] (dim) -- (fct);
+  \draw[flow] (fct) -- (agg);
+
+  \node[layer, below=0.4cm of stg] {Staging\\layer};
+  \node[layer, below=0.4cm of dim] {Dimension\\layer};
+  \node[layer, below=0.4cm of fct] {Fact\\layer};
+  \node[layer, below=0.4cm of agg] {Aggregate\\layer};
+\end{tikzpicture}%
+}
+\caption{The five stages of the ETL pipeline, each mapped onto a warehouse layer: data is extracted from
+the source systems, landed in staging, conformed into dimensions, resolved into facts, and finally
+summarised into the aggregates that feed the dashboards.}
+\label{fig:ch4-etl-flow}
+\end{figure}
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Extract} --- pull data from each source through its API, handling pagination and
+          transient failures. Extraction depends only on the published interface of each source, never
+          on its internal database.
+    \item \textbf{Stage} --- land the raw extracted data, untransformed, into the staging layer (one
+          staging table per source endpoint). This decouples extraction from modelling: the rest of the
+          pipeline reads from staging, not from the live sources.
+    \item \textbf{Load dimensions} --- conform and normalise the descriptive data into the dimension
+          layer, applying Slowly Changing Dimension logic where an entity's attributes change over time.
+    \item \textbf{Load facts} --- resolve each business event against its dimension keys and compute its
+          measures, writing the result into the fact layer.
+    \item \textbf{Refresh aggregates} --- rebuild the pre-computed summary views of the aggregate layer,
+          so the dashboards read decision-ready figures directly.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+\subsection{Engineering Properties}
+
+What makes the pipeline \emph{dependable} --- rather than merely functional --- is a small set of
+engineering properties, each answering a concrete demand of operating at national scale
+(Table~\ref{tab:ch4-etl-properties}).
+
+% [VISUAL-IMPLEMENT] ETL engineering properties mapped to their rationale
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Property}} & \textcolor{white}{\textbf{Why it matters}} \\
+\hline
+Incremental extraction & The very large parcel-history feed is loaded from where the last run stopped,
+not reloaded in full --- the only tractable option at a scale of hundreds of millions of events. \\
+Idempotent loads & Loads follow an \emph{insert-or-update} strategy, so re-running a stage never
+duplicates data; the pipeline is always safe to retry. \\
+Resilience & Failed source calls are retried with exponential backoff, so the pipeline tolerates a
+source system being briefly unavailable rather than aborting the whole run. \\
+Scheduling & A full refresh runs automatically on a nightly schedule, with a lighter, more frequent
+dimension refresh --- no manual intervention is needed to keep the warehouse current. \\
+Observability & Every run emits lifecycle events (start, success, failure, cancellation) to the
+platform, which records each run and notifies users when fresh data is available or a refresh fails
+(\S\ref{sec:ch4-app}). \\
+Source decoupling & Because extraction depends only on each source's API contract --- not its internal
+schema --- the same pipeline connects to the real production systems unchanged (TS17). \\
+\hline
+\end{tabularx}
+\caption{The engineering properties that make the ETL pipeline dependable at national scale, each traced
+to the requirement it answers.}
+\label{tab:ch4-etl-properties}
+\end{table}
+
+Together these properties close the integration loop: the pipeline fills the warehouse reliably and
+automatically, recovers cleanly from failure, and signals its own state to the decision-makers who
+depend on its output. Its \emph{source decoupling} in particular makes the design portable --- validated
+against faithful simulations of the source systems (Chapter~6), it would connect to the live systems
+without modification. With the warehouse defined and the process that feeds it in place, the chapter
+turns to the application through which decision-makers finally consult that data.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Application Platform Design}
 \label{sec:ch4-app}
-% TODO
+
+The warehouse holds the consolidated data and the pipeline keeps it fresh, but that value is realised
+only when a decision-maker can actually \emph{read} it. The \textbf{application platform} is the layer
+they touch: it turns the warehouse into the two decision-ready outputs of the functional architecture
+(\S\ref{sec:ch4-funcarch}) --- \emph{presentation} and \emph{alerts} --- and carries the cross-cutting
+\emph{access} and \emph{administration} concerns. Functionally it is a pair: a \textbf{back-end} of
+services that reads the warehouse and serves shaped results, and a \textbf{front-end} interface that
+presents them. As with the rest of the chapter, both are described as \emph{functions}; the frameworks
+that realise them are deferred to Chapter~5.
+
+% -----------------------------------------------------------------------------
+\subsection{Two Logical Planes --- Application and Analytics}
+
+A structuring choice precedes everything the platform does: the data it manages is split across
+\textbf{two logical planes}. The \emph{analytical} plane is the warehouse of \S\ref{sec:ch4-dw}, read
+only to answer decision-support queries. The \emph{operational} plane is the platform's \emph{own}
+data --- user accounts, roles, alert rules, saved preferences, notifications, and pipeline-run history.
+The back-end routes every analytical query to the warehouse and everything else to the operational
+store, so that heavy analytics never disturbs the running application and each store stays optimised for
+its purpose (TS03, TS16). The conceptual separation is what matters here; its physical realisation as
+two databases is a Chapter~5 concern.
+
+% -----------------------------------------------------------------------------
+\subsection{Decision-Support Dashboards}
+
+The front-end is organised exactly as the business reasons --- around the \textbf{two axes}, each read
+through the \textbf{three views} of Chapter~3, plus a consolidated overview and the supporting areas.
+Navigation is \emph{filtered by role}, so each decision-maker is shown only the sections suited to them
+(Table~\ref{tab:ch4-app-nav}).
+
+% [VISUAL-IMPLEMENT] dashboard navigation map (area -> what it presents)
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Area}} & \textcolor{white}{\textbf{What it presents}} \\
+\hline
+Overview & A consolidated reading of \emph{both} axes side by side --- the headline indicators of the
+whole activity in one view. \\
+Parcel Delivery & The parcel axis along its three views --- Operations, Cost \& Profitability,
+Performance. \\
+Dedicated Transport & The transport axis along the same three views, kept on a strictly separate
+financial perimeter. \\
+Alerts & The alerts the user has raised or subscribed to, with their status and history. \\
+Settings & Personal preferences --- saved filters, notification channels, theme, and language. \\
+Administration & User activation, role assignment, and supervision of the data-refresh pipeline
+(restricted to the administrator). \\
+\hline
+\end{tabularx}
+\caption{The dashboard areas of LOGIQ; the analytical pages follow the two axes $\times$ three views of
+Chapter~3, and every area is shown only where the user's role permits.}
+\label{tab:ch4-app-nav}
+\end{table}
+
+Within each view, the figures are presented \emph{visual-first} (TS12), so that managers who are not
+data specialists read indicators rather than raw tables. The interface draws on a purpose-matched
+vocabulary of visualisations:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{KPI cards} --- a headline figure with its period-over-period change and a severity
+          colour, for at-a-glance monitoring;
+    \item \textbf{statistical charts} --- lines and areas for trends, bars and stacked bars for
+          comparison, pies and donuts for composition, plus scatter, heatmaps, gauges, radars, and
+          Sankey flows for distributions and cost breakdowns;
+    \item \textbf{interactive maps} --- for the geographic dimension of the logistics flows;
+    \item \textbf{custom diagrams} --- bespoke cost-flow and network visualisations where a standard
+          chart will not do.
+\end{itemize}
+
+Every KPI is backed, on demand, by a data-table view of the same underlying figures, for users who want
+the exact numbers (TS13). Reading is made interactive by a \textbf{global filter bar} --- period,
+service type, region, agency --- shared across a page so that all of its visualisations stay in sync;
+users can save a configured filter set as a named \textbf{snapshot (bookmark)} to return to a recurring
+analysis in one click.
+
+% -----------------------------------------------------------------------------
+\subsection{Proactive Alerting}
+
+Presentation answers questions when they are asked; \textbf{alerting} answers them before they are
+asked, turning the platform from descriptive into \emph{proactive}. A decision-maker defines a
+\textbf{rule} on a sensitive indicator by choosing a metric, a comparison operator, a threshold, a
+severity, and a \emph{cooldown} (the minimum quiet interval between repeat alerts). A background worker
+evaluates the active rules on a schedule; when a metric crosses its threshold and the cooldown has
+elapsed, an \textbf{alert} is raised and \emph{fanned out} to the channels the user has enabled ---
+\emph{in-app} in real time, \emph{email}, or both (Figure~\ref{fig:ch4-alert-flow}).
+
+% [VISUAL-IMPLEMENT] alerting flow: rule -> scheduled check -> threshold crossed -> alert -> channel fan-out
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  >={Stealth[length=2.6mm]},
+  box/.style={draw, rounded corners=3pt, align=center, minimum width=2.6cm,
+              minimum height=1.2cm, font=\small, text=black!80},
+  dec/.style={draw=figorange, fill=figambertint, diamond, aspect=1.7, align=center,
+              font=\scriptsize, text=black!80, inner sep=1pt},
+  chan/.style={draw=figgreen, fill=figgreentint, rounded corners=3pt, align=center,
+               minimum width=2.2cm, minimum height=0.9cm, font=\small, text=black!80},
+  flow/.style={->, draw=figslate, line width=1pt},
+  lbl/.style={font=\scriptsize\itshape, text=figslate}]
+
+  \node[box, draw=figblue, fill=figbluetint] (rule) {Define rule\\[1pt]{\scriptsize metric · operator · threshold\\severity · cooldown}};
+  \node[box, draw=figblue, fill=figbluetint, right=1.0cm of rule] (eval) {Scheduled\\evaluation};
+  \node[dec, right=1.0cm of eval] (chk) {Threshold\\crossed?};
+  \node[box, draw=figorange, fill=figambertint, right=1.1cm of chk] (alert) {Raise\\alert};
+  \node[chan, above right=0.15cm and 1.0cm of alert] (inapp) {In-app};
+  \node[chan, below right=0.15cm and 1.0cm of alert] (email) {Email};
+  \node[box, draw=figslate, fill=black!4, below=1.2cm of alert] (pipe) {ETL run\\events};
+
+  \draw[flow] (rule) -- (eval);
+  \draw[flow] (eval) -- (chk);
+  \draw[flow] (chk) -- node[lbl, above]{yes} (alert);
+  \draw[flow] (alert.east) -- (inapp.west);
+  \draw[flow] (alert.east) -- (email.west);
+  \draw[flow] (pipe) -- (alert);
+  \draw[flow] (chk.south) |- ([yshift=-0.6cm]chk.south -| eval) -- node[lbl, left, pos=0.25]{no} (eval.south);
+\end{tikzpicture}%
+}
+\caption{The alerting flow: a rule is evaluated on a schedule; when its metric crosses the threshold and
+the cooldown has elapsed, an alert is raised and fanned out to the user's enabled channels. Pipeline-run
+notifications reuse the same delivery machinery.}
+\label{fig:ch4-alert-flow}
+\end{figure}
+
+Crucially, the outcome of every ETL run is surfaced through this \emph{same} notification machinery, so
+users are told when fresh data is available or when a refresh has failed (\S\ref{sec:ch4-etl}). Alerting
+therefore closes the loop between the pipeline, the indicators, and the decision-makers --- the data's
+freshness and the business's drift are both reported through one channel the user controls.
+
+% -----------------------------------------------------------------------------
+\subsection{Role-Filtered Experience, Personalisation, and Administration}
+
+Three further functions complete the platform. First, the \textbf{role-filtered experience}: every area
+of Table~\ref{tab:ch4-app-nav} is offered only where the user's role allows it, so two users signing in
+under different roles legitimately see different interfaces. This subsection describes the
+\emph{experience}; the access-control mechanism that enforces it is the subject of
+\S\ref{sec:ch4-security}.
+
+Second, \textbf{personalisation}: beyond saved filter snapshots, each user controls the channels through
+which alerts reach them, switches the interface between dark and light themes, and switches its language
+between Arabic, French, and English --- preferences held on the operational plane and applied across the
+session. Third, \textbf{administration}: the administrator activates users imported from the company's
+HR system, assigns and adjusts their roles, and supervises the data-refresh pipeline and its run
+history --- the point at which the pipeline's observability (\S\ref{sec:ch4-etl}) becomes a governance
+function.
+
+% -----------------------------------------------------------------------------
+\subsection{Resilience --- Graceful Degradation}
+
+Finally, the platform is designed to \textbf{fail safe}. Because the analytical and operational planes
+are separate, a brief unavailability of the warehouse need not break the experience: the analytical
+services degrade gracefully, letting the interface fall back to representative demonstration figures
+rather than showing an error (TS08). The application stays usable --- for genuine operation and for
+demonstration alike --- even when its analytical source is momentarily out of reach.
+
+With the data presented and made proactive, one cross-cutting question remains: guaranteeing that each
+user sees only what their role permits, and that the platform as a whole is secure and conformant ---
+the subject of the final design section.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Security and Conformity}
