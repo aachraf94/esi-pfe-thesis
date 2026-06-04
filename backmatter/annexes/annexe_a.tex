@@ -57,10 +57,10 @@ stg\_transport\_stops        & --      & Intermediate stops of each request. \\
 \hline
 % ---- DIMENSIONS: geographic ----
 \rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- Geographic (6)}} \\
-dim\_region        & 3      & Nord / Hauts Plateaux / Sud (seeded). \\
+dim\_region        & 3      & Nord / Hauts Plateaux / Sud. \\
 dim\_wilaya        & 58     & Wilayas, natural key 1--58. \\
 dim\_commune       & 1\,500 & Communes; FK to wilaya. \\
-dim\_agency\_type   & 9      & Hub, Agence, Centre de tri, Corner\dots (seeded). \\
+dim\_agency\_type   & 9      & Hub, Agence, Centre de tri, Corner\dots. \\
 dim\_agence        & 284    & Agencies --- \textbf{SCD2} (surrogate + validity window). \\
 dim\_center        & 253    & Operational centres; FK to current agency. \\
 % ---- HR & organisational ----
@@ -69,43 +69,43 @@ dim\_company           & 10     & Group companies. \\
 dim\_department        & 8      & Departments; FK to company. \\
 dim\_service           & 18     & Services; FK to department. \\
 dim\_occupation        & 30     & Occupations; FK to service. \\
-dim\_role              & 3      & Employé / Manager / Admin (seeded). \\
-dim\_employee\_status   & 2      & Actif / Inactif (seeded). \\
+dim\_role              & 3      & Employé / Manager / Admin. \\
+dim\_employee\_status   & 2      & Actif / Inactif. \\
 dim\_employee          & 3\,000 & Employees --- \textbf{SCD2}. \\
-dim\_livreur\_vehicule\_type & 3 & Freelance vehicle types (seeded). \\
+dim\_livreur\_vehicule\_type & 3 & Freelance vehicle types. \\
 dim\_livreur\_freelance & 1\,400 & Freelance drivers (distinct namespace from employees). \\
 % ---- time ----
 \rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- Time (1)}} \\
 dim\_date & 1\,827 & Calendar spine 2022--2026 with Algerian calendar flags. \\
 % ---- parcel ----
 \rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- Parcel / express (7)}} \\
-dim\_parcels\_status      & 21    & Parcel status set, terminal flag (seeded). \\
-dim\_parcel\_type         & 2     & ecommerce / internal (seeded). \\
-dim\_delivery\_type       & 2     & HD / SD (seeded). \\
-dim\_zone                & 5     & Pricing zones 0--4 (seeded). \\
-dim\_pricing\_service\_type & 5   & livraison / pickup / echange\dots (seeded). \\
+dim\_parcels\_status      & 21    & Parcel status set, terminal flag. \\
+dim\_parcel\_type         & 2     & ecommerce / internal. \\
+dim\_delivery\_type       & 2     & HD / SD. \\
+dim\_zone                & 5     & Pricing zones 0--4. \\
+dim\_pricing\_service\_type & 5   & livraison / pickup / echange\dots. \\
 dim\_pricing             & 290   & Tariff grid; reloaded each run. \\
 dim\_parcel              & 27\,M & One row per tracking number (collapsed history). \\
 % ---- salary ----
 \rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- Salary, PC~Paie (4)}} \\
-dim\_contract\_type   & 3      & CDI / CDD / Intérimaire (seeded). \\
-dim\_contract\_regime & 2      & Temps plein / partiel (seeded). \\
+dim\_contract\_type   & 3      & CDI / CDD / Intérimaire. \\
+dim\_contract\_regime & 2      & Temps plein / partiel. \\
 dim\_contract        & 108\,K & Contract configurations. \\
 dim\_bulletin        & 108\,K & Payslips (employee $\times$ month). \\
 % ---- cashbox ----
 \rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- Cash~Box (8)}} \\
-dim\_nature\_category & 8      & Top expense classification (seeded). \\
+dim\_nature\_category & 8      & Top expense classification. \\
 dim\_nature          & 13     & Expense natures; FK to category. \\
 dim\_rubriques       & 35     & Expense sub-categories; FK to nature. \\
-dim\_depense\_status  & 3      & en\_attente / validée / rejetée (seeded). \\
-dim\_sinistre\_type   & 3      & perdu / endommagé / vol (seeded). \\
+dim\_depense\_status  & 3      & en\_attente / validée / rejetée. \\
+dim\_sinistre\_type   & 3      & perdu / endommagé / vol. \\
 dim\_paiement\_livreurs & 34\,K & Freelance-driver payment periods. \\
 dim\_remboursement   & 10\,K  & Parcel reimbursement records. \\
 dim\_depense         & 500\,K & Cash-box expense records. \\
 % ---- transport ----
 \rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Dimensions --- On-demand transport (20)}} \\
 dim\_transport\_client\_company & -- & Client companies. \\
-dim\_client\_type              & 2  & conventionné / divers (seeded). \\
+dim\_client\_type              & 2  & conventionné / divers. \\
 dim\_transport\_client         & -- & Clients; FK to client type / company. \\
 dim\_transport\_status         & 5  & Request status, terminal flag. \\
 dim\_transport\_service\_type   & 3  & course\_dediee / courrier / manutention. \\
@@ -113,15 +113,15 @@ dim\_transport\_sub\_service\_type & 3 & livraison / pickup / echange. \\
 dim\_transport\_payment\_status & 3  & Payment status, terminal flag. \\
 dim\_transport\_merchandise\_type & -- & Merchandise categories. \\
 dim\_transport\_cargo          & -- & \textbf{Junk} --- cargo flags (fragile, hazardous\dots). \\
-dim\_distance\_category        & 3  & local / regional / national (seeded). \\
-dim\_complexity\_category      & 2  & direct / multi-stop (seeded). \\
+dim\_distance\_category        & 3  & local / regional / national. \\
+dim\_complexity\_category      & 2  & direct / multi-stop. \\
 dim\_transport\_routing        & -- & \textbf{Junk} --- route profile (night, return, distance, complexity). \\
-dim\_location\_type            & 4  & client\_depot / magasin / yalidine\_center / autre (seeded). \\
+dim\_location\_type            & 4  & client\_depot / magasin / yalidine\_center / autre. \\
 dim\_transport\_departure      & -- & Departure location --- \textbf{role-playing} geography. \\
 dim\_transport\_arrival        & -- & Arrival location --- \textbf{role-playing} geography. \\
-dim\_transport\_vehicle\_type   & 5  & moto / citadine / break / camionnette / camion (seeded). \\
+dim\_transport\_vehicle\_type   & 5  & moto / citadine / break / camionnette / camion. \\
 dim\_transport\_vehicle        & -- & Vehicles with capacity attributes. \\
-dim\_stop\_type                & 2  & pickup / delivery (seeded). \\
+dim\_stop\_type                & 2  & pickup / delivery. \\
 dim\_transport\_stops          & -- & Intermediate stops; FK to transport. \\
 dim\_transport                & -- & Central transport-request entity (all categorical FKs). \\
 \hline

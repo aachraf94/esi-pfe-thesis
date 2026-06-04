@@ -1157,7 +1157,117 @@ the subject of the final design section.
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Security and Conformity}
 \label{sec:ch4-security}
-% TODO
+
+Every layer designed so far --- warehouse, pipeline, application --- handles the company's data, and
+that data is sensitive on two counts: it carries \emph{commercially confidential} figures (costs,
+margins, volumes for the whole national activity) and \emph{personal data} of both clients (names,
+addresses, telephone numbers, declared parcel values) and employees (payroll). Security and conformity
+are therefore not a feature bolted on at the end but a \textbf{cross-cutting concern} that constrains
+the whole design. This section sets out, at the conceptual level, \emph{who} may see \emph{what} (access
+control) and how the design stays aligned with the security and data-protection rules that govern
+Yalidine (conformity). It realises the security requirements specified in \S\ref{sec:ch4-techspec}
+(TS09--TS11); the concrete mechanisms (tokens, certificates, libraries) are deferred to Chapter~5.
+
+% -----------------------------------------------------------------------------
+\subsection{Access Control}
+
+Access control rests on two principles. First, a \textbf{governed user base}: nobody self-registers.
+Accounts are mirrored from the company's HR system and \emph{activated} by an administrator, so the
+right to use LOGIQ follows the organisation itself --- joining, moving, and leaving the company are
+reflected in the platform without a parallel account-management process (TS09). Second,
+\textbf{role-based access control (RBAC)}: each user holds a \emph{role}, and the role --- not the
+individual --- determines which sections of the platform they may consult. Because permissions are
+attached to roles and defined at view level, the administrator can create new roles or adjust existing
+ones as the organisation evolves, without touching the system (\S\ref{sec:ch4-functional}).
+Table~\ref{tab:ch4-rbac} shows how the default roles map onto the platform's sections.
+
+% [VISUAL-IMPLEMENT] RBAC matrix: default role -> accessible sections
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}X|>{\centering\arraybackslash}p{1.7cm}|>{\centering\arraybackslash}p{1.6cm}|>{\centering\arraybackslash}p{1.8cm}|>{\centering\arraybackslash}p{1.9cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Role}} & \textcolor{white}{\textbf{Overview}} &
+\textcolor{white}{\textbf{Parcel}} & \textcolor{white}{\textbf{Transport}} &
+\textcolor{white}{\textbf{Admin.}} \\
+\hline
+Direction Générale & \checkmark & \checkmark & \checkmark & --- \\
+Responsable Colis \& PCC & \checkmark & \checkmark & --- & --- \\
+Responsable Transport & \checkmark & --- & \checkmark & --- \\
+Responsable Tournées & \checkmark & --- & --- & --- \\
+Administrator & --- & --- & --- & \checkmark \\
+\hline
+\end{tabularx}
+\caption{Role-based access control: the default roles of LOGIQ and the sections each may consult.
+``Parcel'' and ``Transport'' each denote that axis's three views (Operations, Cost \& Profitability,
+Performance); the future Route Analysis section is out of scope for this version. The matrix is
+configurable --- new roles can be granted any subset of sections.}
+\label{tab:ch4-rbac}
+\end{table}
+
+Beyond \emph{who} may see a section, two further principles harden access. Sessions are
+\textbf{authenticated} and credentials are \emph{stateless} and revocable, so a session can be ended
+cleanly on logout; and access follows \textbf{least privilege} --- a role is granted only the sections
+its work requires, and the analytical services are \emph{read-only}, so no dashboard user can alter the
+underlying data (the conceptual principles only; their realisation is Chapter~5).
+
+% -----------------------------------------------------------------------------
+\subsection{Conformity and Data Protection}
+
+LOGIQ operates inside an established regulatory context, and its design is shaped to remain conformant
+with two anchors in particular:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{ISO/IEC 27001}~\cite{iso27001} --- the information-security management framework
+          within which Yalidine operates. The platform is designed to sit inside it: controlled access,
+          segregation of duties, traceability, and protection of data in transit are treated as design
+          obligations rather than optional features.
+    \item \textbf{Algerian Law n° 18-07} (10 June 2018)~\cite{loi1807} --- the national law on the
+          protection of natural persons in the processing of personal data. Because LOGIQ processes the
+          personal data of clients and employees, its design respects the law's core principles ---
+          \emph{purpose limitation}, \emph{data minimisation}, and \emph{security of processing}.
+\end{itemize}
+
+These obligations are met not by add-on controls but by choices already made in the design. The most
+important are summarised in Table~\ref{tab:ch4-conformity}.
+
+% [VISUAL-IMPLEMENT] conformity requirements mapped to the design choices that satisfy them
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.3cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Obligation}} & \textcolor{white}{\textbf{How the design responds}} \\
+\hline
+Controlled, need-to-know access & RBAC over an HR-governed user base; least-privilege, view-level
+permissions (\S above). \\
+Data minimisation (Law 18-07) & The dashboards present \emph{aggregated} indicators, not individual
+client records; analysis operates on consolidated figures rather than personal detail. \\
+Integrity of the source data & The decision-support layer is strictly \emph{read-only} --- it never
+writes back to the operational systems, which remain the systems of record. \\
+Segregation of sensitive perimeters & The two financial perimeters are kept strictly separate
+end-to-end, so transport and parcel figures are never mixed (TS10). \\
+Security of processing (in transit) & All communication is encrypted; only the public web entry point is
+exposed, internal services stay on a private network (TS11; realised in Chapter~5). \\
+Traceability \& accountability & User activation, role changes, and every pipeline run are recorded,
+giving an auditable trail of who was granted what and when the data was last refreshed. \\
+\hline
+\end{tabularx}
+\caption{The security and data-protection obligations LOGIQ must meet, and the design choices ---
+already present in the architecture --- that satisfy each.}
+\label{tab:ch4-conformity}
+\end{table}
+
+Taken together, these choices make security and conformity \emph{properties of the architecture} rather
+than later additions: the warehouse consolidates without altering the sources, the application reads
+without writing, access is governed by role over an HR-mirrored user base, and the sensitive perimeters
+stay apart. This completes the conceptual design of LOGIQ --- from its functions and architecture, through
+the warehouse, the pipeline, and the application, to the cross-cutting guarantees that make it
+trustworthy. What remains is to show how this blueprint was \emph{built}, the subject of Chapter~5.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section*{Conclusion}
