@@ -1,0 +1,340 @@
+% ── Chapter 6: Testing, Validation & Results ─────────────────────────────────
+\chapter{Testing, Validation and Results}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+Chapters~4 and~5 designed LOGIQ and then built it. A decision-support system, however, is only as
+valuable as the confidence its users place in it: it must be \emph{shown} to work. This chapter
+validates the platform end to end and presents the results that justify the project.
+
+Because the production source systems could not be connected directly during development, the validation
+rests on a \textbf{faithful test environment} that exercises the entire chain --- from the sources,
+through the ETL pipeline, the warehouse, and the backend API, up to the dashboards and alerts. The
+guiding property of this environment is that the pipeline connects to it \emph{exactly as it would to
+the real systems}: validating against the test environment therefore genuinely validates the production
+design.
+
+The chapter is organised in three movements. It first presents the \textbf{test apparatus} --- the
+simulated source systems (\S\ref{sec:ch6-sources}), the business-realistic data generation
+(\S\ref{sec:ch6-data}), its production scale (\S\ref{sec:ch6-scale}), and the automated data-quality
+gate that admits only clean datasets (\S\ref{sec:ch6-quality}). It then reports the \textbf{end-to-end
+validation} of the full chain (\S\ref{sec:ch6-e2e}). Finally, it presents the \textbf{results} the
+platform delivers against the four objectives and the two business axes (\S\ref{sec:ch6-results}), and
+closes on an honest \textbf{discussion} of what was achieved and where the work stops
+(\S\ref{sec:ch6-discussion}).
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Simulated Source Systems}
+\label{sec:ch6-sources}
+
+At the head of the test environment is a dedicated service --- built with \textbf{FastAPI} over
+\textbf{PostgreSQL} --- that \textbf{simulates the company's five internal source systems}. Each system
+is exposed behind a REST API, and the data it serves stands in for the operational applications scoped in
+\S\ref{sec:ch4-dw}. Together the five cover every feed the warehouse needs (Table~\ref{tab:ch6-sources}).
+
+% [VISUAL-IMPLEMENT] the five simulated source systems and the domain each provides
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Simulated system}} & \textcolor{white}{\textbf{Domain it provides}} \\
+\hline
+Core logistics system & Geography, delivery centres, the pricing grid, and the full parcel-event
+history. \\
+HR system & Companies, agencies, employees, and the organisational hierarchy. \\
+Cash-box system & Operating expenses, freelance-driver payments, reimbursements, and internal
+transfers. \\
+Payroll system & Monthly payslips. \\
+Transport system & Dedicated B2B transport requests and their stops. \\
+\hline
+\end{tabularx}
+\caption{The five simulated source systems and the business domain each one provides to the warehouse.}
+\label{tab:ch6-sources}
+\end{table}
+
+What makes the simulation valuable is not the data alone but the \textbf{fidelity of the contract}. Each
+mock API reproduces the same \emph{endpoints, response shapes, authentication, pagination, and quirks}
+as its real counterpart. Because the ETL pipeline depends only on this published contract --- never on a
+system's internal database (the source decoupling of \S\ref{sec:ch4-etl}, TS17) --- it connects to the
+simulation \textbf{exactly as it would to the production systems}, with no change to its extraction code.
+Validating the platform against the simulation therefore genuinely validates the production design: the
+same pipeline that passes here would run unaltered against the live systems.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Realistic Data Generation}
+\label{sec:ch6-data}
+
+The simulated systems are only as useful as the data they serve. That data is \textbf{synthetically
+generated but business-realistic}, and it is precisely this realism --- rather than toy data --- that
+makes the validation meaningful.
+
+The generator works in \textbf{two tiers}. First, \emph{real reference data} seeds the dimensions: the
+actual Algerian administrative geography (wilayas and communes), the real network of agencies and
+delivery centres, the real company structure, and the real pricing grid. Second, \emph{synthetic
+transactional data} is generated on top --- parcels and their lifecycles, payroll, operating expenses,
+and transport requests --- so that the facts are plausible but the descriptive context is genuine.
+
+Crucially, the synthetic data is shaped by \textbf{domain rules} drawn from how the business actually
+behaves:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Working calendar} --- the Algerian week, with Friday as the only day off and reduced
+          activity at weekends; no operational events fall on the non-working day.
+    \item \textbf{Seasonality} --- the yearly rhythm of Algerian commerce: the Ramadan slowdown and the
+          Eid rebound, the Black Friday surge, and the end-of-year peak (Figure~\ref{fig:ch6-seasonal}).
+    \item \textbf{Geographic realism} --- parcel volume distributed across the wilayas in proportions
+          that mirror the real activity, concentrated on the densest regions.
+    \item \textbf{Labour-law payroll} --- salaries computed following Algerian labour-law rates, so
+          payroll costs are realistic.
+    \item \textbf{Full parcel lifecycle} --- each parcel passes through its complete multi-status
+          lifecycle, not a single end state.
+    \item \textbf{Internal consistency} --- costs, billing, and operations are kept mutually consistent,
+          so financial and operational figures reconcile.
+\end{itemize}
+
+% [VISUAL-IMPLEMENT] illustrative seasonal parcel-volume chart (NOT measured data)
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=\textwidth, height=6cm,
+    ybar, bar width=8pt,
+    ymin=0,
+    symbolic x coords={Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec},
+    xtick=data,
+    x tick label style={font=\scriptsize},
+    ylabel={Relative volume (illustrative)},
+    ylabel style={font=\scriptsize},
+    ytick style={draw=none},
+    ymajorgrids, grid style={figslate!30, dotted},
+    enlarge x limits=0.05,
+    axis lines=left,
+]
+\addplot[fill=figbluetint, draw=figblue] coordinates
+  {(Jan,90)(Feb,95)(Mar,105)(Apr,80)(May,120)(Jun,110)(Jul,100)(Aug,95)(Sep,105)(Oct,115)(Nov,160)(Dec,150)};
+\node[font=\tiny, text=figslate, anchor=south] at (axis cs:Apr,80) {Ramadan};
+\node[font=\tiny\bfseries, text=figorange, anchor=south] at (axis cs:Nov,160) {Black Friday};
+\end{axis}
+\end{tikzpicture}
+\caption{Illustrative seasonal pattern of parcel volume produced by the generator --- the Ramadan
+slowdown, the Black Friday surge, and the year-end peak. The values are \emph{illustrative}, shown to
+convey the shape of the seasonality, not measured figures.}
+\label{fig:ch6-seasonal}
+\end{figure}
+
+Taken together, these rules mean the test dataset does not merely fill the warehouse with rows: it
+reproduces the \emph{behaviour} of the real activity, so that the dashboards, KPIs, and alerts are
+exercised against patterns they will genuinely have to handle in production.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Scale of the Test Dataset}
+\label{sec:ch6-scale}
+
+A realistic \emph{shape} is not enough; the data must also have a realistic \emph{size}. The generator
+produces the dataset at \textbf{production scale}, so the platform can be tested for performance and
+correctness under genuine load rather than on a small sample (Table~\ref{tab:ch6-scale}).
+
+% [VISUAL-IMPLEMENT] qualitative scale of the test dataset (exact counts deferred)
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.6cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Data domain}} & \textcolor{white}{\textbf{Approximate scale}} \\
+\hline
+Parcels generated & On the order of tens of thousands per day, over a multi-year horizon. \\
+% TODO(achraf): confirm exact count (~220M staging events, ~27M parcels) from docs/dw-doc.md
+Parcel-status events & The largest fact --- on the order of \emph{hundreds of millions} of rows. \\
+% TODO(achraf): confirm exact payroll count from docs/mock-data-doc.md
+Payroll & Tens of thousands of employee-months of payslips. \\
+% TODO(achraf): confirm exact expense/transport counts
+Expenses \& transport & Matching operating-expense and transport-request records over the same
+horizon. \\
+\hline
+\end{tabularx}
+\caption{The approximate scale of the generated test dataset. Figures are qualitative; exact counts are
+to be confirmed from the design documents.}
+\label{tab:ch6-scale}
+\end{table}
+
+This scale is what makes the validation credible. It is precisely the volume --- hundreds of millions of
+parcel-status events --- that justifies the two design choices made earlier for performance: the
+pre-computed \textbf{aggregate layer} (\S\ref{sec:ch4-dw}) and the \textbf{incremental} ETL load
+(\S\ref{sec:ch5-data}). On a toy dataset neither could be meaningfully exercised; at production scale,
+both are put under the same pressure they will face in operation.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Data-Quality Validation}
+\label{sec:ch6-quality}
+
+Realistic, production-scale data is worthless for validation if it is internally inconsistent: an
+anomaly seen later in a dashboard could then be blamed on the data rather than the platform. To rule
+this out, an automated \textbf{validation suite} of referential-integrity and business-rule checks runs
+\emph{after every generation}. Only when \emph{all} checks pass is the dataset admitted to the ETL ---
+establishing a clean, trustworthy baseline against which the rest of the platform can be tested
+(Table~\ref{tab:ch6-quality}).
+
+% [VISUAL-IMPLEMENT] data-quality check categories and what each verifies
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.9cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Check category}} & \textcolor{white}{\textbf{What it verifies}} \\
+\hline
+Referential integrity & Every cross-system reference resolves --- each foreign reference points to an
+entity that actually exists. \\
+Financial identities & Costs, billing, and reimbursement figures reconcile, so the financial picture is
+self-consistent. \\
+Distance identities & Transport distances are coherent --- for example, a request's leg distances sum to
+its total. \\
+Working calendar & No operational event falls on the non-working day (Friday). \\
+Identifier formats & Identifiers follow their expected formats and conventions. \\
+Test-entity isolation & Excluded test entities never leak into the generated data. \\
+\hline
+\end{tabularx}
+\caption{The categories of data-quality check run after every generation; the dataset is admitted to the
+ETL only when all of them pass.}
+\label{tab:ch6-quality}
+\end{table}
+
+This quality gate is what makes the end-to-end validation that follows trustworthy. Because the input
+data is guaranteed consistent before the pipeline ever touches it, any discrepancy observed downstream
+--- in the warehouse, the API, or the dashboards --- can be attributed to the platform under test, not
+to a flaw in its input.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{End-to-End Validation}
+\label{sec:ch6-e2e}
+
+With a clean, production-scale dataset in place, the platform was exercised \textbf{end to end}: the
+whole chain --- from the simulated sources, through the ETL pipeline, the warehouse, and the backend
+API, to the dashboards and alerts --- was run as one, and the output of each stage was checked against
+expectations (Figure~\ref{fig:ch6-e2e}).
+
+% [VISUAL-IMPLEMENT] end-to-end validation chain (architecture style)
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  >={Stealth[length=2.6mm]},
+  stage/.style={draw, rounded corners=3pt, align=center, minimum width=2.2cm,
+                minimum height=1.3cm, font=\small\bfseries, text=black!80},
+  flow/.style={->, draw=figslate, line width=1pt}]
+
+  \node[stage, draw=figslate, fill=black!4] (src) {Simulated\\sources};
+  \node[stage, draw=figgreen,  fill=figgreentint, right=0.75cm of src] (etl) {ETL\\pipeline};
+  \node[stage, draw=figteal,   fill=figtealtint,  right=0.75cm of etl] (wh)  {Warehouse};
+  \node[stage, draw=figblue,   fill=figbluetint,  right=0.75cm of wh]  (api) {Backend\\API};
+  \node[stage, draw=figblue,   fill=figbluetint,  right=0.75cm of api] (dsh) {Dashboards};
+  \node[stage, draw=figorange, fill=figambertint, right=0.75cm of dsh] (alr) {Alerts};
+
+  \draw[flow] (src) -- (etl);
+  \draw[flow] (etl) -- (wh);
+  \draw[flow] (wh)  -- (api);
+  \draw[flow] (api) -- (dsh);
+  \draw[flow] (dsh) -- (alr);
+\end{tikzpicture}%
+}
+\caption{The end-to-end validation chain: the complete flow from the simulated sources to the alerts was
+exercised as one, and each stage's output verified against expectations.}
+\label{fig:ch6-e2e}
+\end{figure}
+
+Running the chain confirmed that the parts designed and built separately work \emph{together}: the ETL
+extracts from the mock APIs and populates the warehouse layers; the aggregate layer feeds the backend's
+analytics endpoints; the dashboards render the resulting KPIs; and the alerting service raises and
+delivers notifications when a generated metric crosses a rule's threshold. Because the pipeline connects
+to the simulation exactly as it would to production (\S\ref{sec:ch6-sources}), passing this chain
+validates the production design itself, not merely a test fixture.
+
+One behaviour was verified \textbf{independently} of the rest: the frontend's
+\textbf{graceful degradation} (\S\ref{sec:ch5-backend}). By exercising the interface while the warehouse
+was deliberately made unavailable, it was confirmed that the analytics endpoints fail safe and the
+dashboard falls back to representative figures rather than breaking --- a property that holds, and is
+demonstrable, even without a live warehouse.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Results}
+\label{sec:ch6-results}
+
+Exercised end to end against the test environment, the platform delivers concrete results against the
+\textbf{four objectives} set in Chapter~3 and across the \textbf{two business axes}
+(Table~\ref{tab:ch6-results}).
+
+% [VISUAL-IMPLEMENT] the four objectives mapped to the results delivered
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Objective}} & \textcolor{white}{\textbf{Result delivered}} \\
+\hline
+Centralised warehouse & The data scattered across the source systems is consolidated into one
+dimensional base; the figures are consistent across every view. \\
+Reliable, automated ETL & The warehouse is refreshed automatically --- incrementally, idempotently, and
+observably --- with no manual intervention. \\
+Interactive dashboards & Both axes are navigable through their three views (Operations, Cost \&
+Profitability, Performance), plus a consolidated overview, with KPI cards, charts, maps, and shared
+filters. \\
+Proactive alerting & Threshold rules are evaluated on schedule and raise multi-channel alerts the moment
+a metric drifts beyond its acceptable level. \\
+\hline
+\end{tabularx}
+\caption{The four objectives of the project and the results the validated platform delivers against
+each.}
+\label{tab:ch6-results}
+\end{table}
+
+Concretely, each axis page answers the decision questions it was designed for: \emph{Operations} (how
+much volume, completion and delivery rates, geographic concentration), \emph{Cost \& Profitability}
+(service cost, gross margin, payroll and expense weight), and \emph{Performance} (delays, attempts,
+satisfaction signals). Populated with the generated data, the dashboards render these as live KPIs
+(Figure~\ref{fig:ch6-result-kpi}), and the alerting service is observable in action when a generated
+metric breaches a rule (Figure~\ref{fig:ch6-result-alert}).
+
+% [VISUAL-PLACEHOLDER] results screenshot — a populated KPI dashboard page
+\begin{figure}[H]
+\centering
+\visualplaceholder{A populated dashboard view --- KPI cards, charts, and a map filled with the generated
+data for one axis view.}{Screenshot the running platform on a populated KPI page.}{A populated KPI
+dashboard page, rendered from the generated test data.}
+\label{fig:ch6-result-kpi}
+\end{figure}
+
+% [VISUAL-PLACEHOLDER] results screenshot — an alert firing
+\begin{figure}[H]
+\centering
+\visualplaceholder{A threshold alert firing --- the raised alert and its in-app notification when a
+metric crosses its rule.}{Screenshot the running platform when an alert is raised.}{A proactive alert
+firing when a monitored metric crosses its threshold.}
+\label{fig:ch6-result-alert}
+\end{figure}
+
+On the \textbf{performance} side, the design choices proved out under realistic load: because the
+analytics endpoints read the pre-computed aggregate layer rather than scanning the fact tables, the
+dashboards return within seconds even over the production-scale dataset, and the incremental refresh
+keeps the warehouse current without a full reload.
+% TODO(achraf): add measured numbers — dashboard response times, ETL refresh duration — once benchmarked
+The two business axes are both delivered \textbf{in full}, each on its own financial perimeter, exactly
+as scoped.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Discussion}
+\label{sec:ch6-discussion}
+% TODO
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
+% TODO

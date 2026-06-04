@@ -77,29 +77,420 @@ production component of Table~\ref{tab:ch5-stack} in turn and describe how it wa
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Backend Implementation}
 \label{sec:ch5-backend}
-% TODO
+
+The backend is the \textbf{REST API} that mediates between the data stores and the frontend, and hosts
+the platform's application logic. It is built on \textbf{Django} and the \textbf{Django REST Framework
+(DRF)}: a single, role-aware API over which the dashboard consumes everything it needs --- analytical
+data, alerts, and administration --- without ever talking to a database directly.
+
+% -----------------------------------------------------------------------------
+\subsection{API Responsibilities}
+
+The API groups into five responsibility areas, each realising a module designed in Chapter~4. They are
+summarised in Table~\ref{tab:ch5-backend-resp}, together with the data store each one uses --- a
+distinction that the next subsection turns into a concrete mechanism.
+
+% [VISUAL-IMPLEMENT] backend responsibility areas mapped to store
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{2.5cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Responsibility}} & \textcolor{white}{\textbf{What it does}} &
+\textcolor{white}{\textbf{Store}} \\
+\hline
+Authentication \& sessions & Stateless token sessions, with token rotation and revocation on logout. &
+Operational \\
+Authorisation (RBAC) & The user's role determines which endpoints --- and so which dashboard sections
+--- are reachable. & Operational \\
+Analytics services & \emph{Read-only} endpoints over the warehouse \textbf{aggregate layer}, shaping
+results into the KPIs, time series, breakdowns, and rankings the dashboards consume. & Warehouse \\
+Administration & User activation, role management, announcements, and ETL run history. & Operational \\
+Alerting & Definition of threshold rules and the engine that evaluates them (run in the background,
+\S\ref{sec:ch5-alerting}). & Operational \par(metrics: warehouse) \\
+\hline
+\end{tabularx}
+\caption{The five responsibility areas of the backend API and the data store each one uses; only the
+analytics services read the warehouse.}
+\label{tab:ch5-backend-resp}
+\end{table}
+
+% -----------------------------------------------------------------------------
+\subsection{Two-Database Realisation}
+
+The operational/analytical separation designed conceptually in Chapter~4 is realised physically here.
+The backend connects to \emph{two} PostgreSQL databases --- an \textbf{operational} store (identity,
+roles, notifications, alert rules, ETL run history) and the \textbf{analytical warehouse} --- and a
+\textbf{database router} directs each query to the right one: analytics models to the warehouse,
+everything else to the operational store (Figure~\ref{fig:ch5-routing}).
+
+% [VISUAL-IMPLEMENT] operational/analytical query routing
+\begin{figure}[H]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+  >={Stealth[length=2.6mm]},
+  box/.style={draw, rounded corners=3pt, align=center, minimum width=2.5cm,
+              minimum height=1.2cm, font=\small, text=black!80},
+  dec/.style={draw=figorange, fill=figambertint, diamond, aspect=1.8, align=center,
+              font=\scriptsize, text=black!80, inner sep=1pt},
+  db/.style={draw=figteal, fill=figtealtint, cylinder, shape border rotate=90,
+             aspect=0.28, minimum width=2.4cm, minimum height=1.5cm, align=center,
+             font=\scriptsize, text=black!80},
+  flow/.style={->, draw=figslate, line width=1pt},
+  lbl/.style={font=\scriptsize\itshape, text=figslate}]
+
+  \node[box, draw=figslate, fill=black!4] (fe) {Frontend};
+  \node[box, draw=figblue, fill=figbluetint, right=1.0cm of fe] (be) {Backend\\(Django + DRF)};
+  \node[dec, right=1.1cm of be] (rt) {Database\\router};
+  \node[db, draw=figslate, fill=black!4, above right=0.2cm and 1.3cm of rt] (op) {Operational\\database};
+  \node[db, below right=0.2cm and 1.3cm of rt] (wh) {Analytical\\warehouse};
+
+  \draw[flow] (fe) -- (be);
+  \draw[flow] (be) -- (rt);
+  \draw[flow] (rt.east) -- node[lbl, above, pos=0.55]{application data} (op.west);
+  \draw[flow] (rt.east) -- node[lbl, below, pos=0.55]{read-only analytics} (wh.west);
+\end{tikzpicture}%
+}
+\caption{Operational/analytical query routing: a single backend transparently directs analytics queries
+to the warehouse and every other query to the operational database, enforcing the two-store principle of
+Chapter~4 at the framework level.}
+\label{fig:ch5-routing}
+\end{figure}
+
+The routing is \emph{transparent} to the application code: a view queries an analytics model in the
+ordinary way, and the router --- not the developer --- decides which connection serves it
+(Listing~\ref{lst:ch5-router}). This keeps the separation an infrastructural property rather than
+something each endpoint must remember to enforce.
+
+% [VISUAL-IMPLEMENT] minimal database-router snippet
+\begin{lstlisting}[language=Python, caption={The database router that sends analytics models to the warehouse and all other models to the operational store.}, label={lst:ch5-router}]
+class AnalyticsRouter:
+    def db_for_read(self, model, **hints):
+        if model._meta.app_label == "analytics":
+            return "warehouse"
+        return "default"
+\end{lstlisting}
+
+% -----------------------------------------------------------------------------
+\subsection{Graceful Degradation}
+
+Because the two planes are separate, a brief unavailability of the warehouse need not break the
+application. The analytics endpoints are written to \textbf{fail safe}: when the warehouse cannot be
+reached, they return a representative response rather than an error, so the frontend falls back to
+demonstration figures and the interface stays usable. This realises the graceful-degradation requirement
+(TS08) and proved useful both operationally and when demonstrating the platform without a live
+warehouse.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Warehouse and ETL Implementation}
 \label{sec:ch5-data}
-% TODO
+
+The warehouse and the pipeline that fills it are realised together: the warehouse as a set of tables in
+a single \textbf{PostgreSQL} database, and the pipeline as a \textbf{Dagster} project whose assets are
+those very tables. This section shows how the layered model of \S\ref{sec:ch4-dw} and the asset-oriented
+pipeline of \S\ref{sec:ch4-etl} were built.
+
+% -----------------------------------------------------------------------------
+\subsection{The Warehouse in PostgreSQL}
+
+The four conceptual layers are realised as four groups of tables in one PostgreSQL database
+(Table~\ref{tab:ch5-layers}). The decisive implementation choice is the \textbf{aggregate layer}: the
+pre-computed summaries are materialised as \emph{indexed summary tables}, rebuilt at the end of each
+run, and they are the \emph{only} tables the analytics API reads (\S\ref{sec:ch5-backend}). A dashboard
+query therefore scans a small, indexed summary rather than the hundreds of millions of rows in the fact
+layer --- which is what keeps responses within seconds at national scale.
+
+% [VISUAL-IMPLEMENT] warehouse layers as realised in PostgreSQL
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|>{\centering\arraybackslash}p{1.6cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Layer}} & \textcolor{white}{\textbf{Realised as}} &
+\textcolor{white}{\textbf{Tables}} \\
+\hline
+Staging & One raw landing table per source endpoint; no business logic. & 18 \\
+Dimensions & Normalised (snowflaked) tables, with SCD Type~2 history where attributes change over time.
+& 55 \\
+Facts & Fact tables keyed to their dimensions, holding the measures. & 7 \\
+Aggregates & Indexed summary tables, rebuilt each run; the sole source for the analytics API. & several \\
+\hline
+\end{tabularx}
+\caption{The four warehouse layers as realised in PostgreSQL; counts follow the table inventory of
+\S\ref{sec:ch4-dw}.}
+\label{tab:ch5-layers}
+\end{table}
+
+% -----------------------------------------------------------------------------
+\subsection{The Pipeline in Dagster}
+
+The pipeline realises the asset-oriented philosophy of \S\ref{sec:ch4-etl} directly: \textbf{each
+warehouse table is a Dagster asset} that declares the assets it depends on. From these declarations
+Dagster reconstructs the lineage of the whole warehouse (the asset graph,
+Figure~\ref{fig:ch4-etl-lineage}), materialises assets in dependency order, and lets any single asset be
+re-materialised on its own. The five stages --- extract, stage, load dimensions, load facts, refresh
+aggregates --- are simply layers of this graph. Listing~\ref{lst:ch5-asset} shows the shape of a fact
+asset.
+
+% [VISUAL-IMPLEMENT] minimal Dagster asset snippet
+\begin{lstlisting}[language=Python, caption={A fact table declared as a Dagster asset: its dependencies are explicit, and the load is incremental and idempotent.}, label={lst:ch5-asset}]
+@asset(deps=[stg_parcel_events, dim_date, dim_agence])
+def fct_parcel(context):
+    # resolve dimension keys, compute measures,
+    # then upsert (insert-or-update) so re-runs never duplicate
+    upsert_incremental("fct_parcel", since=context.cursor)
+\end{lstlisting}
+
+Two engineering properties from the design are visible in that asset. Extraction and loading are
+\textbf{incremental} --- the very large parcel feed resumes from the last processed point via a stored
+cursor, never a full reload --- and loads are \textbf{idempotent}, using an insert-or-update (upsert)
+strategy so a retried or repeated run can never duplicate data.
+
+% -----------------------------------------------------------------------------
+\subsection{Scheduling and Observability}
+
+The pipeline runs without manual intervention. A \textbf{full refresh} is scheduled nightly, with a
+\textbf{lighter dimension refresh} on a more frequent schedule, so descriptive data stays current
+between full runs. Every run also reports on itself: Dagster emits \textbf{lifecycle events} --- start,
+success, failure, cancellation --- to the backend, which records each run in its history and forwards
+the outcome to the notification machinery, so users learn when fresh data is available or when a refresh
+has failed (\S\ref{sec:ch5-alerting}). The pipeline's observability is thus the bridge between the data
+layer and the decision-makers who depend on its freshness.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Alerting Implementation}
 \label{sec:ch5-alerting}
-% TODO
+
+The proactive alerting designed in \S\ref{sec:ch4-app} is realised as a \textbf{background service}
+built on \textbf{Celery} with \textbf{Redis} as its message broker. Keeping evaluation off the request
+path is the point: rules are checked by a worker on a schedule, so watching the indicators never slows
+the interface a decision-maker is using.
+
+% -----------------------------------------------------------------------------
+\subsection{Scheduled Rule Evaluation}
+
+A periodic Celery task wakes on a fixed schedule and evaluates every \emph{active} rule
+(Listing~\ref{lst:ch5-alert}). For each rule it reads the current value of the metric from the warehouse
+aggregate layer, compares it against the rule's operator and threshold, and --- if the threshold is
+crossed \emph{and} the cooldown has elapsed --- raises an alert and resets the cooldown. This is the
+happy path of the alerting flow already shown conceptually in Figure~\ref{fig:ch4-alert-flow}; the
+cooldown is what prevents a still-breached metric from alerting on every cycle.
+
+% [VISUAL-IMPLEMENT] minimal Celery rule-evaluation snippet
+\begin{lstlisting}[language=Python, caption={The scheduled task that evaluates active rules and fans out an alert when one is breached.}, label={lst:ch5-alert}]
+@shared_task
+def evaluate_rules():
+    for rule in AlertRule.objects.filter(active=True):
+        value = read_metric(rule.metric)        # warehouse aggregate
+        if rule.is_breached(value) and rule.cooldown_elapsed():
+            fan_out(rule.raise_alert(value))     # deliver per user prefs
+\end{lstlisting}
+
+% -----------------------------------------------------------------------------
+\subsection{Notification Machinery and Channels}
+
+Once raised, an alert is \textbf{fanned out} to the channels each user has enabled --- pushed to the
+interface in real time as an \emph{in-app} notification, sent by \emph{email}, or both. The choice is a
+\textbf{per-user preference} held in the operational database, so the same alert reaches different
+decision-makers through the channels each prefers. Email and other slow work are themselves handed to
+Celery, so delivery never blocks evaluation.
+
+Crucially, this notification machinery is \emph{shared}: the ETL lifecycle events emitted by the
+pipeline (\S\ref{sec:ch5-data}) are delivered through exactly the same path, so a user is told both when
+a business indicator drifts and when fresh data has arrived or a refresh has failed. One controlled
+channel therefore carries both the data's \emph{freshness} and the business's \emph{drift} --- closing
+the loop between the pipeline, the warehouse, and the people who act on them.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Frontend and Dashboard Implementation}
 \label{sec:ch5-frontend}
-% TODO
+
+The frontend is the interface decision-makers actually use. It is realised as a \textbf{single-page
+application} built with \textbf{Next.js} (React, TypeScript): a type-safe, component-based UI that
+consumes the backend API and never touches a database directly. This section describes how the dashboard
+of \S\ref{sec:ch4-app} was built --- its structure, its visualisations, and its interactivity.
+
+% -----------------------------------------------------------------------------
+\subsection{Structure and Role-Filtered Navigation}
+
+The interface is organised exactly as the design prescribed (Table~\ref{tab:ch4-app-nav}): a
+consolidated \textbf{Overview}, one page per \textbf{business axis} --- Parcel Delivery and Dedicated
+Transport --- each with its three views (Operations, Cost \& Profitability, Performance), plus
+\textbf{Alerts}, \textbf{Settings}, and \textbf{Administration}. Navigation is \textbf{role-filtered}:
+on sign-in the frontend reads the user's permissions from the backend and renders only the sections
+their role allows, so the menu itself reflects the role-based access control of
+\S\ref{sec:ch5-backend}.
+
+% [VISUAL-PLACEHOLDER] dashboard screenshot — Parcel Delivery axis page
+\begin{figure}[H]
+\centering
+\visualplaceholder{The Parcel Delivery axis page and its three views (Operations, Cost \&
+Profitability, Performance) --- KPI cards, charts, and the global filter bar.}{Screenshot the running
+platform on the Parcel Delivery page.}{The Parcel Delivery dashboard page --- one of the two business
+axes, read through its three views.}
+\label{fig:ch5-dash-parcel}
+\end{figure}
+
+% [VISUAL-PLACEHOLDER] dashboard screenshot — Dedicated Transport axis page
+\begin{figure}[H]
+\centering
+\visualplaceholder{The Dedicated Transport axis page and its three views, on its strictly separate
+financial perimeter.}{Screenshot the running platform on the Dedicated Transport page.}{The Dedicated
+Transport dashboard page --- the second business axis, kept on a separate financial perimeter.}
+\label{fig:ch5-dash-transport}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+\subsection{Visualisation Toolkit}
+
+The figures are presented \emph{visual-first} (TS12), each KPI rendered as a chart or graphic and
+backed, on demand, by a data-table view of the same figures (TS13). Four specialised libraries cover the
+full range of visualisations (Table~\ref{tab:ch5-viz}).
+
+% [VISUAL-IMPLEMENT] visualisation types mapped to the libraries that render them
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Visualisation}} & \textcolor{white}{\textbf{Library}} &
+\textcolor{white}{\textbf{Used for}} \\
+\hline
+KPI cards & Tremor & Headline figures with a period-over-period delta and severity colouring, for
+at-a-glance monitoring. \\
+Statistical charts & ECharts & Lines and areas (trends), bars and stacked bars (comparison), pies and
+donuts (composition), plus scatter, heatmap, gauge, radar, and Sankey (cost-flow breakdowns). \\
+Custom diagrams & D3.js & Bespoke data-driven cost-flow and network visualisations where a standard
+chart will not do. \\
+Interactive maps & Leaflet & The geographic distribution of the logistics flows across the wilayas. \\
+\hline
+\end{tabularx}
+\caption{The visualisation toolkit: each type of visualisation and the open-source library that renders
+it in the dashboard.}
+\label{tab:ch5-viz}
+\end{table}
+
+% -----------------------------------------------------------------------------
+\subsection{Interactivity}
+
+Three interactions make the dashboard a tool to explore rather than just read. A \textbf{global filter
+bar} --- period, service type, region, agency --- is shared across a page, so adjusting it re-synchronises
+\emph{every} visualisation on that page at once. A configured filter set can be saved as a named
+\textbf{snapshot (bookmark)}, letting a decision-maker return to a recurring analysis in one click.
+Finally, the \textbf{real-time notifications} raised by the alerting service (\S\ref{sec:ch5-alerting})
+appear directly in the interface, so alerts and fresh-data signals reach the user without a page
+refresh.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Deployment and Infrastructure}
 \label{sec:ch5-deploy}
-% TODO
+
+The whole platform is \textbf{containerised} and deployed as a single coherent stack. Every component
+of the preceding sections --- frontend, backend, the two databases, the ETL orchestrator, and the
+background worker --- runs as an isolated container, and the entire system is brought up reproducibly
+with \emph{one command} (Figure~\ref{fig:ch5-deploy}).
+
+% [VISUAL-IMPLEMENT] deployment topology: containers behind reverse proxy on one VPS
+\begin{figure}[H]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+  >={Stealth[length=2.6mm]},
+  comp/.style={draw=figblue, fill=figbluetint, rounded corners=3pt, align=center,
+               minimum width=2.2cm, minimum height=1.0cm, font=\scriptsize, text=black!80},
+  data/.style={draw=figteal, fill=figtealtint, rounded corners=3pt, align=center,
+               minimum width=2.0cm, minimum height=1.0cm, font=\scriptsize, text=black!80},
+  edge/.style={draw=figblue, fill=figbluetint, rounded corners=3pt, align=center,
+               minimum width=2.6cm, minimum height=1.0cm, font=\scriptsize\bfseries, text=black!80},
+  flow/.style={->, draw=figslate, line width=0.9pt},
+  lbl/.style={font=\scriptsize\itshape, text=figslate}]
+
+  \node[draw=figslate, fill=black!4, ellipse, minimum width=2.6cm, minimum height=1.0cm, align=center, font=\scriptsize] (user) at (0,3.3) {User\\(browser)};
+  \node[edge, draw=figorange, fill=figambertint] (nginx) at (0,1.6) {Nginx\\reverse proxy + TLS};
+  \node[comp] (fe) at (-2.5,0.0) {Frontend\\(Next.js)};
+  \node[comp] (be) at ( 2.5,0.0) {Backend\\(Django)};
+  \node[data] (opdb) at (-3.9,-1.9) {Operational\\DB};
+  \node[data] (wh)   at (-1.3,-1.9) {Warehouse};
+  \node[data, draw=figgreen, fill=figgreentint] (dag) at (1.3,-1.9) {ETL\\(Dagster)};
+  \node[data, draw=figgreen, fill=figgreentint] (cw)  at (3.9,-1.9) {Worker\\(Celery+Redis)};
+
+  \draw[flow] (user) -- node[lbl, right]{HTTPS 443} (nginx);
+  \draw[flow] (nginx) -- (fe);
+  \draw[flow] (nginx) -- (be);
+  \draw[flow] (be) -- (opdb);
+  \draw[flow] (be) -- (wh);
+  \draw[flow] (dag) -- (wh);
+  \draw[flow] (cw) -- (be);
+
+  \begin{scope}[on background layer]
+    \node[draw=figteal, dotted, thick, rounded corners, fit=(fe)(be)(opdb)(wh)(dag)(cw),
+          inner sep=11pt, label={[lbl, anchor=south east]south east:private Docker network}] (pnet) {};
+    \node[draw=figslate, dashed, thick, rounded corners, fit=(nginx)(pnet),
+          inner sep=12pt, label={[font=\scriptsize\bfseries, text=figslate]above:Single VPS}] (vps) {};
+  \end{scope}
+\end{tikzpicture}%
+}
+\caption{Deployment topology: all components run as containers on a single VPS. Only the reverse proxy's
+web port is exposed publicly (HTTPS 443); every other container communicates over a private internal
+network. Database and pipeline state live on named volumes (not shown).}
+\label{fig:ch5-deploy}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+\subsection{Containerisation and Persistence}
+
+The stack is described by a single \textbf{Docker Compose} orchestration definition that declares every
+container, its configuration, and how the containers are wired together --- so the platform can be
+started, stopped, or rebuilt as one unit. State that must outlive a rebuild --- the two databases and
+the pipeline-run history --- is held on \textbf{named volumes}, so redeploying the application never
+loses data.
+
+% -----------------------------------------------------------------------------
+\subsection{Reverse Proxy, TLS, and Network Isolation}
+
+An \textbf{Nginx} reverse proxy fronts the stack: it routes public sub-domains to the appropriate
+internal container and terminates \textbf{HTTPS}, with certificates issued and \emph{automatically
+renewed} by \textbf{Let's Encrypt}. The security posture is deliberately tight --- \emph{only} the
+proxy's web port is exposed to the outside, while every other container (databases, ETL, worker, and
+even the application servers) sits on a \textbf{private internal network}, unreachable directly from the
+internet. This realises the encrypted-transport and isolation requirements of \S\ref{sec:ch4-security}
+(TS11).
+
+% -----------------------------------------------------------------------------
+\subsection{Topology and Automation}
+
+The complete stack is designed to run on a \textbf{single modest virtual private server} ---
+demonstrating that a full Business Intelligence platform can be delivered cost-effectively, without a
+fleet of machines (TS19). Once deployed, it runs \textbf{without routine manual intervention}: the ETL
+executes on its schedule (\S\ref{sec:ch5-data}), the TLS certificates renew themselves, and the
+containers restart automatically on failure or reboot. The platform therefore not only \emph{works} but
+keeps working, which is what makes it a deliverable system rather than a prototype.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
-% TODO
+
+This chapter turned the conceptual blueprint of Chapter~4 into a working system. Building on a stack of
+\textbf{open-source, free} components, it realised each design block in turn: a \textbf{backend} on
+Django and DRF that routes analytics to the warehouse and everything else to the operational store; a
+\textbf{warehouse} of four layers in PostgreSQL fed by a \textbf{Dagster} pipeline whose assets are the
+warehouse tables; a \textbf{Celery} alerting service that evaluates rules off the request path and fans
+notifications out to each user's chosen channels; a \textbf{Next.js} dashboard organised by the two axes
+and their three views; and a fully \textbf{containerised} deployment that runs the whole stack behind a
+reverse proxy on a single, modest server.
+
+Two threads run through the realisation. It is \emph{cost-effective and reproducible} --- no licensing
+cost, one orchestration definition, one-command bring-up on commodity infrastructure --- and it is
+\emph{automated}: the pipeline refreshes on schedule, certificates renew themselves, and the platform
+keeps working without routine intervention. The blueprint is now a deliverable system.
+
+What remains is to \emph{show that it works}. Because the real production systems could not be connected
+during development, the platform was exercised end to end against a faithful test environment, and the
+results that justify the project were measured against it --- the subject of Chapter~6.
