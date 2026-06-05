@@ -156,12 +156,12 @@ pipeline of \S\ref{sec:ch4-etl} were built.
 % -----------------------------------------------------------------------------
 \subsection{The Warehouse in PostgreSQL}
 
-The four conceptual layers are realised as four groups of tables in one PostgreSQL database
-(Table~\ref{tab:ch5-layers}). The decisive implementation choice is the \textbf{aggregate layer}: the
-pre-computed summaries are materialised as \emph{indexed summary tables}, rebuilt at the end of each
-run, and they are the \emph{only} tables the analytics API reads (\S\ref{sec:ch5-backend}). A dashboard
-query therefore scans a small, indexed summary rather than the hundreds of millions of rows in the fact
-layer --- which is what keeps responses within seconds at national scale.
+The warehouse lives in a single PostgreSQL database, organised as the four layers designed in
+\S\ref{sec:ch4-dw} (Table~\ref{tab:ch5-layers}). Each layer is a group of objects that builds on the one
+before it, so the schema is created in a strict dependency order --- \textbf{staging $\rightarrow$
+dimensions $\rightarrow$ facts $\rightarrow$ aggregates} --- by a set of \textbf{ordered, idempotent SQL
+scripts}, one group per layer. Because the scripts are idempotent, the whole schema can be (re)built
+deterministically from scratch, with no manual step.
 
 % [VISUAL-IMPLEMENT] warehouse layers as realised in PostgreSQL
 \begin{table}[H]
@@ -172,73 +172,198 @@ layer --- which is what keeps responses within seconds at national scale.
 \hline
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Layer}} & \textcolor{white}{\textbf{Realised as}} &
-\textcolor{white}{\textbf{Tables}} \\
+\textcolor{white}{\textbf{Objects}} \\
 \hline
 Staging & One raw landing table per source endpoint; no business logic. & 18 \\
 Dimensions & Normalised (snowflaked) tables, with SCD Type~2 history where attributes change over time.
 & 56 \\
 Facts & Fact tables keyed to their dimensions, holding the measures. & 7 \\
-Aggregates & Indexed summary tables, rebuilt each run; the sole source for the analytics API. & 5 \\
+Aggregates & \textbf{Materialised views}, refreshed each run; the sole source for the analytics API. & 5 \\
 \hline
 \end{tabularx}
-\caption{The four warehouse layers as realised in PostgreSQL; counts follow the table inventory of
-\S\ref{sec:ch4-dw}.}
+\caption{The four warehouse layers as realised in PostgreSQL, built in dependency order; counts follow
+the table inventory of \S\ref{sec:ch4-dw}.}
 \label{tab:ch5-layers}
 \end{table}
 
+Figure~\ref{fig:ch5-pgadmin} shows the four layers as they actually exist in the database, browsed in
+pgAdmin: the raw staging tables, the snowflaked dimensions, the fact tables, and the aggregate
+materialised views.
+
+% [VISUAL-PLACEHOLDER] (provided) pgAdmin screenshots of the schema, one panel per layer
+% NB: widths may need tuning per image — the dimension panel (56 tables) is the tallest.
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.46\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{stg_tables_pgadmin4}
+  \caption{Staging tables}
+  \label{fig:ch5-pg-stg}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.46\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{Dim_tables_pgadmin4}
+  \caption{Dimension tables}
+  \label{fig:ch5-pg-dim}
+\end{subfigure}
+
+\vspace{0.9em}
+
+\begin{subfigure}[t]{0.46\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{fact_tables_pgadmin4}
+  \caption{Fact tables}
+  \label{fig:ch5-pg-fact}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.46\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{materialised_views_pgadmin4}
+  \caption{Aggregate materialised views}
+  \label{fig:ch5-pg-mv}
+\end{subfigure}
+\caption{The warehouse schema in PostgreSQL, browsed by layer in pgAdmin: staging, dimensions, facts,
+and the aggregate materialised views.}
+\label{fig:ch5-pgadmin}
+\end{figure}
+
+The decisive implementation choice is the \textbf{aggregate layer}. Its summaries are realised as
+PostgreSQL \textbf{materialised views} --- pre-computed, indexed, and \emph{refreshed} at the end of
+every pipeline run --- and they are the \emph{only} objects the analytics API reads
+(\S\ref{sec:ch5-backend}). A dashboard query therefore scans a small, indexed view instead of the
+hundreds of millions of rows in the fact layer, which is what keeps responses within seconds at national
+scale.
+
+The dimensions carry history where it matters. Slowly changing attributes --- an employee's agency or
+post, for instance --- are tracked with \textbf{SCD Type~2}: rather than overwriting a changed value,
+the pipeline closes the current row and opens a new one, each row carrying a \textbf{surrogate key} and
+a \textbf{validity window} (\texttt{valid\_from} / \texttt{valid\_to}) together with an
+\texttt{is\_current} flag. A fact therefore always points to the version of the dimension that was valid
+when the event occurred. Figure~\ref{fig:ch5-scd2} shows this on the employee dimension, and the
+complete constellation model --- every dimension and fact with its keys --- is given as a full
+entity-relationship diagram in Annexe~A.
+
+% [VISUAL-PLACEHOLDER] (provided) dim_employee SCD2 — ERD screenshot of the employee dimension
+\fig[0.65\textwidth]{dim_employee_scd2}{The employee dimension (\texttt{dim\_employee}), illustrating
+SCD Type~2 history: a surrogate key and a validity window (\texttt{valid\_from} / \texttt{valid\_to}),
+together with an \texttt{is\_current} flag, let a fact reference the version of the row that was valid at
+the time of the event.}{ch5-scd2}
+
 % -----------------------------------------------------------------------------
-\subsection{The Pipeline in Dagster}
+\subsection{The ETL Pipeline in Dagster}
 
-The pipeline realises the asset-oriented philosophy of \S\ref{sec:ch4-etl} directly: \textbf{each
-warehouse table is a Dagster asset} that declares the assets it depends on. From these declarations
-Dagster reconstructs the lineage of the whole warehouse (the asset graph,
-Figure~\ref{fig:ch4-etl-lineage}), materialises assets in dependency order, and lets any single asset be
-re-materialised on its own. The five stages --- extract, stage, load dimensions, load facts, refresh
-aggregates --- are simply layers of this graph. Listing~\ref{lst:ch5-asset} shows the shape of a fact
-asset.
+The pipeline is built with \textbf{Dagster} on an \textbf{asset-oriented} model: every warehouse object
+--- each staging table, dimension, fact, and aggregate view --- is declared as an \emph{asset} that
+names the assets it depends on. From those declarations Dagster reconstructs the lineage of the whole
+warehouse and materialises assets in \textbf{dependency order}, which mirrors the build order of the
+schema exactly: \textbf{staging $\rightarrow$ dimensions $\rightarrow$ facts $\rightarrow$ aggregates}
+(Figure~\ref{fig:ch5-asset-graph}). Because each asset is addressable on its own, a single table can be
+re-materialised without rerunning the entire pipeline.
 
-% [VISUAL-IMPLEMENT] minimal Dagster asset snippet
-\begin{lstlisting}[language=Python, caption={A fact table declared as a Dagster asset: its dependencies are explicit, and the load is incremental and idempotent.}, label={lst:ch5-asset}]
-@asset(deps=[stg_parcel_events, dim_date, dim_agence])
-def fct_parcel(context):
-    # resolve dimension keys, compute measures,
-    # then upsert (insert-or-update) so re-runs never duplicate
-    upsert_incremental("fct_parcel", since=context.cursor)
-\end{lstlisting}
+% [VISUAL-PLACEHOLDER] (provided) Dagster asset graph of the warehouse, organised by layer
+\fig[\textwidth]{stg_dim_fact_agg}{The warehouse pipeline as a Dagster asset graph, organised by layer:
+the staging assets feed the snowflaked dimensions, which feed the facts, which in turn feed the aggregate
+materialised views the dashboards read.}{ch5-asset-graph}
 
-Two engineering properties from the design are visible in that asset. Extraction and loading are
-\textbf{incremental} --- the very large parcel feed resumes from the last processed point via a stored
-cursor, never a full reload --- and loads are \textbf{idempotent}, using an insert-or-update (upsert)
-strategy so a retried or repeated run can never duplicate data.
+Mapped onto this graph, the pipeline follows the three classic \textbf{ETL} phases --- extraction,
+transformation, and loading --- each operating between two of the layers.
+
+\textbf{Extraction} pulls data from the source systems' \textbf{REST APIs} into the staging layer. The
+pipeline depends only on the \emph{published API contract}, never on a source's internal database, so it
+runs unchanged against either the real systems or their faithful simulation (\S\ref{sec:ch6-sources}).
+Not every endpoint is loaded the same way. Most staging tables are small enough to be \textbf{fully
+refreshed} --- truncated and re-filled --- on each run. The heavy feeds, above all
+\texttt{stg\_yalidine\_parcel\_history} (on the order of hundreds of millions of rows), are instead
+loaded \textbf{incrementally}: rather than reloading in full, the pipeline clears only a trailing window
+--- the most recent week --- and re-fetches it, so late-arriving updates are captured while the bulk of
+the history is left untouched. In all, the pipeline consumes seventeen endpoints across the five source
+systems; Table~\ref{tab:ch5-endpoints} lists them by system (the source systems themselves are presented
+in Chapter~4).
+
+% [VISUAL-IMPLEMENT] source API endpoints consumed by the extraction stage, grouped by system
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Source system}} & \textcolor{white}{\textbf{Endpoints consumed}} \\
+\hline
+Core logistics (Yalidine) & \texttt{/yalidine/centers}, \texttt{/histories}, \texttt{/pricing},
+\texttt{/wilayas}, \texttt{/communes} \\
+HR (HR Force) & \texttt{/hrforce/companies}, \texttt{/agencies}, \texttt{/users},
+\texttt{/occupations} \\
+Payroll (PC Paie) & \texttt{/paie/bulletins} \\
+Cash-box & \texttt{/cashbox/depenses}, \texttt{/natures}, \texttt{/paiements-livreurs},
+\texttt{/remboursements}, \texttt{/transferts} \\
+Dedicated transport & \texttt{/transport/requests}, \texttt{/transport/stops} \\
+\hline
+\end{tabularx}
+\caption{The source REST endpoints consumed by the extraction stage, grouped by source system
+(seventeen in total). Because the pipeline depends only on these published contracts, the Chapter~6
+simulation can stand in for the production systems with no change to the extraction code.}
+\label{tab:ch5-endpoints}
+\end{table}
+
+\textbf{Transformation} turns the raw staging rows into the dimensional model. Records are cleaned and
+standardised, natural keys are resolved to \textbf{surrogate keys}, the snowflaked dimensions are
+conformed so that both business axes share the same time, geography, and organisation, and the
+SCD~Type~2 dimensions are versioned --- closing and opening rows as attributes change, as described
+above. The fact \textbf{measures} are computed at this stage too, so each fact lands analysis-ready.
+
+\textbf{Loading} writes the transformed data into the warehouse in dependency order --- dimensions
+first, then the facts that reference them --- and finally \textbf{refreshes the aggregate materialised
+views} the API serves. Loads are \textbf{idempotent}: an insert-or-update (upsert) keyed on the business
+identifier means a retried or repeated run never duplicates data, and a failed step retries with
+exponential backoff before the run is marked failed. Together with incremental extraction, this keeps
+even the hundreds-of-millions-row parcel fact current without a full reload.
+Figure~\ref{fig:ch5-lineage} traces one fact --- \texttt{fact\_parcel\_revenue} --- back through the
+staging feed and the dimensions it is built from, as Dagster records its lineage.
+
+% [VISUAL-PLACEHOLDER] (provided) input/output lineage of the fact_parcel_revenue asset
+\fig[0.95\textwidth]{fact_parcel_revenue_lineage}{Dagster's input/output lineage for the
+\texttt{fact\_parcel\_revenue} asset: the fact is materialised from its staging feed and the conformed
+dimensions it references, and feeds the aggregate views downstream.}{ch5-lineage}
 
 % -----------------------------------------------------------------------------
 \subsection{Scheduling and Observability}
 
-The pipeline runs without manual intervention. A \textbf{full refresh} is scheduled nightly, with a
-\textbf{lighter dimension refresh} on a more frequent schedule, so descriptive data stays current
-between full runs. Every run also reports on itself: Dagster emits \textbf{lifecycle events} --- start,
-success, failure, cancellation --- to the backend, which records each run in its history and forwards
-the outcome to the notification machinery, so users learn when fresh data is available or when a refresh
-has failed (\S\ref{sec:ch5-alerting}). The pipeline's observability is thus the bridge between the data
-layer and the decision-makers who depend on its freshness.
+The pipeline runs without manual intervention, on a \textbf{daily schedule}: Dagster launches a full
+materialisation every day at \textbf{01:00 UTC} (02:00 Algerian time), so each morning's dashboards rest
+on data refreshed overnight. Figure~\ref{fig:ch5-automation} shows the schedule and the completion sensor
+as configured in Dagster.
+
+% [VISUAL-PLACEHOLDER] (provided) Dagster automation page — daily schedule + completion sensor
+\fig[0.95\textwidth]{automation_dagster_scrennshot}{The pipeline's automation in Dagster: the daily
+schedule that triggers the materialisation at 01:00~UTC, and the sensor that fires when a run
+completes.}{ch5-automation}
+
+Every run also reports on itself. When a materialisation finishes, a Dagster \textbf{sensor} fires and
+calls a \textbf{webhook on the backend}, which (i) records the run --- its outcome, timing, and any
+failure --- in the ETL run history, and (ii) notifies every user who has enabled ETL notifications that
+fresh data is available, or that a refresh has failed. This reuses the same notification machinery as the
+business alerts (\S\ref{sec:ch5-alerting}), so a single controlled channel carries both the data's
+freshness and the business's drift. The pipeline's observability is thus the bridge between the data
+layer and the decision-makers who depend on it.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Backend Implementation}
 \label{sec:ch5-backend}
 
-The backend is the \textbf{REST API} that mediates between the data stores and the frontend, and hosts
-the platform's application logic. It is built on \textbf{Django} and the \textbf{Django REST Framework
-(DRF)}: a single, role-aware API over which the dashboard consumes everything it needs --- analytical
-data, alerts, and administration --- without ever talking to a database directly.
+The backend is the \textbf{REST API} that mediates between the two databases and the frontend, hosts the
+platform's application logic, and integrates with HR Force for user provisioning. It is built on
+\textbf{Django} and the \textbf{Django REST Framework (DRF)}: a single, role-aware API over which the
+dashboard consumes everything it needs --- analytical data, alerts, preferences, and administration ---
+without ever talking to a database directly.
 
 % -----------------------------------------------------------------------------
 \subsection{API Responsibilities}
 
-The API groups into five responsibility areas, each realising a module designed in Chapter~4. They are
-summarised in Table~\ref{tab:ch5-backend-resp}, together with the data store each one uses --- a
-distinction that the next subsection turns into a concrete mechanism.
+The API groups into six responsibility areas, each realising a module designed in Chapter~4. They are
+summarised in Table~\ref{tab:ch5-backend-resp}, together with the database each one uses --- a
+distinction the next subsection turns into a concrete mechanism.
 
-% [VISUAL-IMPLEMENT] backend responsibility areas mapped to store
+% [VISUAL-IMPLEMENT] backend responsibility areas mapped to database
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.35}
@@ -247,90 +372,109 @@ distinction that the next subsection turns into a concrete mechanism.
 \hline
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Responsibility}} & \textcolor{white}{\textbf{What it does}} &
-\textcolor{white}{\textbf{Store}} \\
+\textcolor{white}{\textbf{Database}} \\
 \hline
 Authentication \& sessions & Stateless token sessions, with token rotation and revocation on logout. &
 Operational \\
 Authorisation (RBAC) & The user's role determines which endpoints --- and so which dashboard sections
 --- are reachable. & Operational \\
-Analytics services & \emph{Read-only} endpoints over the warehouse \textbf{aggregate layer}, shaping
-results into the KPIs, time series, breakdowns, and rankings the dashboards consume. & Warehouse \\
-Administration & User activation, role management, announcements, and ETL run history. & Operational \\
-Alerting & Definition of threshold rules and the engine that evaluates them (run in the background,
-\S\ref{sec:ch5-alerting}). & Operational \par(metrics: warehouse) \\
+Analytics services & \emph{Read-only} endpoints over the analytical \textbf{aggregate layer}, shaping
+results into the KPIs, time series, breakdowns, and rankings the dashboards consume. & Analytical \\
+User \& access management & Imports accounts from HR Force (inactive by default), then handles
+activation, role assignment, and ongoing synchronisation. & Operational \\
+Alerting \& notifications & Threshold-rule definitions, the background engine that evaluates them
+(\S\ref{sec:ch5-alerting}), and multi-channel notification delivery. & Operational \par(metrics:
+analytical) \\
+User preferences & Saved filter snapshots (bookmarks) and per-user notification-channel preferences. &
+Operational \\
 \hline
 \end{tabularx}
-\caption{The five responsibility areas of the backend API and the data store each one uses; only the
-analytics services read the warehouse.}
+\caption{The six responsibility areas of the backend API and the database each one uses; only the
+analytics services read the analytical database.}
 \label{tab:ch5-backend-resp}
 \end{table}
 
 % -----------------------------------------------------------------------------
-\subsection{Two-Database Realisation}
+\subsection{The Two Databases}
 
-The operational/analytical separation designed conceptually in Chapter~4 is realised physically here.
-The backend connects to \emph{two} PostgreSQL databases --- an \textbf{operational} store (identity,
-roles, notifications, alert rules, ETL run history) and the \textbf{analytical warehouse} --- and a
-\textbf{database router} directs each query to the right one: analytics models to the warehouse,
-everything else to the operational store (Figure~\ref{fig:ch5-routing}).
+The operational/analytical separation designed conceptually in Chapter~4 is realised physically here:
+the backend connects to \emph{two} PostgreSQL databases (Figure~\ref{fig:ch5-routing}). The
+\textbf{operational database} holds the platform's own data --- user accounts, roles, alert rules, user
+preferences, notifications, and the ETL run history --- while the \textbf{analytical database} holds the
+read-only aggregate layer the dashboards are built on. A \textbf{database router} sends each query to the
+right one: analytics models to the analytical database, and everything else to the operational database.
 
 % [VISUAL-IMPLEMENT] operational/analytical query routing
 \begin{figure}[H]
 \centering
-\resizebox{0.95\textwidth}{!}{%
+\resizebox{0.97\textwidth}{!}{%
 \begin{tikzpicture}[
   >={Stealth[length=2.6mm]},
-  box/.style={draw, rounded corners=3pt, align=center, minimum width=2.5cm,
-              minimum height=1.2cm, font=\small, text=black!80},
-  dec/.style={draw=figorange, fill=figambertint, diamond, aspect=1.8, align=center,
-              font=\scriptsize, text=black!80, inner sep=1pt},
+  box/.style={draw=figslate, fill=black!4, rounded corners=3pt, align=center,
+              minimum width=2.3cm, minimum height=1.2cm, font=\small, text=black!80},
+  be/.style={draw=figblue, fill=figbluetint, rounded corners=3pt, align=center,
+             minimum width=2.7cm, minimum height=1.3cm, font=\small, text=black!80},
+  dec/.style={draw=figorange, fill=figambertint, diamond, aspect=2.1, align=center,
+              font=\scriptsize\bfseries, text=black!80, inner sep=1pt},
   db/.style={draw=figteal, fill=figtealtint, cylinder, shape border rotate=90,
-             aspect=0.28, minimum width=2.4cm, minimum height=1.5cm, align=center,
+             aspect=0.22, minimum width=3.2cm, minimum height=2.6cm, align=center,
              font=\scriptsize, text=black!80},
+  opdb/.style={db, draw=figslate, fill=black!5},
   flow/.style={->, draw=figslate, line width=1pt},
   lbl/.style={font=\scriptsize\itshape, text=figslate}]
 
-  \node[box, draw=figslate, fill=black!4] (fe) {Frontend};
-  \node[box, draw=figblue, fill=figbluetint, right=1.0cm of fe] (be) {Backend\\(Django + DRF)};
-  \node[dec, right=1.1cm of be] (rt) {Database\\router};
-  \node[db, draw=figslate, fill=black!4, above right=0.2cm and 1.3cm of rt] (op) {Operational\\database};
-  \node[db, below right=0.2cm and 1.3cm of rt] (wh) {Analytical\\warehouse};
+  \node[box] (fe) {Frontend};
+  \node[be, right=1.0cm of fe] (be) {Backend\\[1pt]{\scriptsize Django + DRF}};
+  \node[dec, right=1.2cm of be] (rt) {Database\\router};
+  \node[opdb, above right=0.35cm and 1.8cm of rt] (op)
+      {\textbf{Operational DB}\\[2pt]users, roles\\alert rules, preferences\\notifications\\ETL run history};
+  \node[db, below right=0.35cm and 1.8cm of rt] (an)
+      {\textbf{Analytical DB}\\[2pt]aggregate layer\\(read-only)};
 
   \draw[flow] (fe) -- (be);
   \draw[flow] (be) -- (rt);
-  \draw[flow] (rt.east) -- node[lbl, above, pos=0.55]{application data} (op.west);
-  \draw[flow] (rt.east) -- node[lbl, below, pos=0.55]{read-only analytics} (wh.west);
+  \draw[flow] (rt.east) -- node[lbl, above, pos=0.5]{everything else (read/write)} (op.west);
+  \draw[flow] (rt.east) -- node[lbl, below, pos=0.5]{analytics models (read-only)} (an.west);
 \end{tikzpicture}%
 }
-\caption{Operational/analytical query routing: a single backend transparently directs analytics queries
-to the warehouse and every other query to the operational database, enforcing the two-store principle of
-Chapter~4 at the framework level.}
+\caption{Operational/analytical query routing. The backend (Django\,+\,DRF) connects to two PostgreSQL
+databases; a database router transparently sends analytics models to the read-only \textbf{analytical
+database}, and every other query --- users, roles, alert rules, preferences, notifications, ETL run
+history --- to the \textbf{operational database}. The separation is enforced at the framework level, not
+in each endpoint.}
 \label{fig:ch5-routing}
 \end{figure}
 
-The routing is \emph{transparent} to the application code: a view queries an analytics model in the
-ordinary way, and the router --- not the developer --- decides which connection serves it
-(Listing~\ref{lst:ch5-router}). This keeps the separation an infrastructural property rather than
-something each endpoint must remember to enforce.
+The routing is \emph{transparent} to the application code --- a view queries an analytics model in the
+ordinary way, and the router, not the developer, decides which connection serves it --- so the separation
+is an infrastructural property rather than something each endpoint must remember to enforce. Keeping the
+heavy analytical reads off the operational database also lets the two stores be tuned, and fail,
+independently.
 
-% [VISUAL-IMPLEMENT] minimal database-router snippet
-\begin{lstlisting}[language=Python, caption={The database router that sends analytics models to the warehouse and all other models to the operational store.}, label={lst:ch5-router}]
-class AnalyticsRouter:
-    def db_for_read(self, model, **hints):
-        if model._meta.app_label == "analytics":
-            return "warehouse"
-        return "default"
-\end{lstlisting}
+% -----------------------------------------------------------------------------
+\subsection{User Provisioning and HR Force Integration}
+
+User accounts are not created by hand in LOGIQ; they are \textbf{imported from HR Force}, the company's
+HR application that already owns every employee's identity. On import each account is created
+\textbf{inactive by default} and granted no access: an \textbf{administrator} then activates the accounts
+that need the platform and \textbf{assigns each a role}, which determines the dashboard sections it may
+reach (its role-based access control).
+
+To stay aligned with HR Force over time, the backend also exposes a \textbf{webhook receiver}. Whenever
+an employee is hired, leaves --- through resignation or dismissal --- or has their details changed in HR
+Force, HR Force calls this webhook and the backend \textbf{synchronises} the matching account:
+provisioning a new one, revoking a departed employee's access, or updating the stored information.
+Platform access therefore always reflects the current workforce, with no manual upkeep.
 
 % -----------------------------------------------------------------------------
 \subsection{Graceful Degradation}
 
-Because the two planes are separate, a brief unavailability of the warehouse need not break the
-application. The analytics endpoints are written to \textbf{fail safe}: when the warehouse cannot be
-reached, they return a representative response rather than an error, so the frontend falls back to
-demonstration figures and the interface stays usable. This realises the graceful-degradation requirement
-(TS08) and proved useful both operationally and when demonstrating the platform without a live
-warehouse.
+Because the two planes are separate, a brief unavailability of the analytical database need not break
+the application. The analytics endpoints are written to \textbf{fail safe}: when the analytical database
+cannot be reached, they return a representative response rather than an error, so the frontend falls back
+to demonstration figures and the interface stays usable. This realises the graceful-degradation
+requirement (TS08) and proved useful both operationally and when demonstrating the platform without a
+live analytical database.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Alerting Implementation}
