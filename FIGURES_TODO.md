@@ -27,5 +27,5 @@ Status legend: ☐ to do · ◐ in progress · ☑ done.
 | C3-F2 | Ch.3 §3.1 | IMPLEMENT/asset | Yalidine logo (`Yalidine_logo.png`, `fig:ch3-yalidine-logo`) | supplied & embedded | ☑ |
 | C3-P1 | Ch.3 §3.1 | PLACEHOLDER | Ourquilane organisation chart (organigramme) + company-context / network-position figure | Claude Design / PowerPoint | ☐ |
 | C3-P2 | Ch.3 §3.3 | PLACEHOLDER | Use-case diagram (UML) — *only if drawn instead of TikZ* | draw.io / hand-drawn | ☐ |
-| C4-P1 | Annexe A §A.4 | ~~PLACEHOLDER~~ → IMPLEMENT | Full DW constellation ERD (`fig:anx-dw-erd`) — 7 facts + 55 dims, colour-coded, landscape page | **Done as TikZ** in `annexe_a.tex` (no external export needed) | ☑ |
+| C4-P1 | Annexe A §A.4 | ~~PLACEHOLDER~~ → IMPLEMENT | Full DW constellation ERD (`fig:anx-dw-erd`) — 7 facts + 56 dims, colour-coded, landscape page | **Done as TikZ** in `annexe_a.tex` (no external export needed) | ☑ |
 | AX-P1 | Annexe B | PLACEHOLDER | Extended dashboard gallery | screenshot the running platform | ☐ |

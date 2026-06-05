@@ -11,7 +11,7 @@ realisation is in Chapter~5).
 \section{Complete Table Inventory}
 \label{anx:dw-inventory}
 
-The warehouse holds 18 staging tables, 55 dimensions, and 7 fact tables.
+The warehouse holds 18 staging tables, 56 dimensions, and 7 fact tables.
 % TODO(achraf): confirm dimension total (SQL files = 55; redesign-doc summary states 49)
 Row-count orders of magnitude are indicative.
 % TODO(achraf): confirm row counts against docs/dw-doc.md
@@ -333,7 +333,7 @@ cargo\_key / routing\_profile\_key & SMALLINT FK & Junk dimensions. \\
 \label{anx:dw-erd}
 
 Figure~\ref{fig:anx-dw-erd} gives the complete fact-constellation model on a single rotated page: all 7
-fact tables (crimson) and the 55 dimensions, colour-coded by subject area and grouped into the two
+fact tables (crimson) and the 56 dimensions, colour-coded by subject area and grouped into the two
 financial perimeters around the conformed dimensions. To stay legible at this scale the boxes carry
 table names only --- the fields are in the data dictionaries above. Foreign keys are shown as arrows
 (child~$\rightarrow$~parent); dashed grey arrows mark cross-zone links to conformed dimensions. A

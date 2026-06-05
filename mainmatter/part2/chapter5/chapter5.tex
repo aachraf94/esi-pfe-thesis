@@ -7,15 +7,15 @@
 Chapter~4 set out \emph{what} LOGIQ is and \emph{how} it is logically structured, deliberately
 independent of any particular technology. This chapter is its counterpart: it shows how that blueprint
 was \textbf{built and brought into operation}. Each section mirrors a design block of Chapter~4 ---
-the backend, the warehouse and its pipeline, the alerting, the dashboard, and the deployment --- now
+the warehouse and its pipeline, the backend, the alerting, the dashboard, and the deployment --- now
 expressed in concrete technical terms, naming the frameworks and products that were deliberately
 deferred from the conceptual design.
 
 The account stays at the level of \emph{general technical aspects}: it explains the significant
 implementation choices and how each part of the design was realised, rather than giving an exhaustive
 walkthrough of the code; short snippets appear only where they clarify a point. The chapter opens with
-the \textbf{technology stack}, which every later section reuses, and then follows the architecture in
-turn --- backend, warehouse and ETL, alerting, frontend and dashboard --- before closing on the
+the \textbf{technology stack}, which every later section reuses, and then follows the data flow in
+turn --- warehouse and ETL, backend, alerting, frontend and dashboard --- before closing on the
 \textbf{deployment} that packages the whole and serves it in production.
 
 The \emph{validation} of the platform --- the faithful test environment built to exercise it end to end,
@@ -33,8 +33,8 @@ and adapted, and runs on commodity infrastructure.
 
 Beyond being open-source, each individual technology was selected against three criteria:
 \textbf{stability} (a mature, well-supported, production-proven tool), \textbf{performance} (able to
-operate efficiently at national data scale), and \textbf{mastery} (technologies the team already
-commands, which lowers risk and accelerates delivery). Table~\ref{tab:ch5-stack} lists the full stack
+operate efficiently at national data scale), and \textbf{mastery} (technologies that are already
+well understood, which lowers risk and accelerates delivery). Table~\ref{tab:ch5-stack} lists the full stack
 grouped by concern, giving for each technology a short description, the reason it was chosen, and its
 logo.
 
@@ -67,7 +67,7 @@ platform and is detailed in Chapter~6.}\label{tab:ch5-stack}\\
 \rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Languages}} \\
 \hline
 \techlogo{python} & \textbf{Python} & Primary language for the ETL pipeline, the backend, and the mock
-services. Chosen for its mature data ecosystem and the team's strong command of it, unifying most of the
+services. Chosen for its mature data ecosystem and the strong command of it already in place, unifying most of the
 codebase under one language. \\
 \techlogo{sql} & \textbf{SQL} & Declarative language for every warehouse object --- dimensions, facts,
 staging, aggregates, and the init/validate scripts. The natural, performant way to express set-based
@@ -130,7 +130,7 @@ stack, brought up with a single command. \\
 (\S\ref{sec:ch5-deploy}). \\
 \techlogo{letsencrypt} & \textbf{Let's Encrypt} & Issues and automatically renews the platform's TLS
 certificates. \\
-\techlogo{git} & \textbf{Git} & Version control for the monorepo. \\
+\techlogo{git} & \textbf{Git} & Version control. \\
 \techlogo{vscode} & \textbf{VS Code} & Primary code editor and development environment. \\
 \hline
 \end{longtable}
@@ -143,6 +143,84 @@ the \textbf{source-system simulation} (FastAPI) is \emph{not} part of the delive
 reproduces the source APIs only so the rest of the stack can be exercised under realistic conditions,
 and it is therefore presented with the test environment in Chapter~6. The sections that follow take each
 production component of Table~\ref{tab:ch5-stack} in turn and describe how it was implemented.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Warehouse and ETL Implementation}
+\label{sec:ch5-data}
+
+The warehouse and the pipeline that fills it are realised together: the warehouse as a set of tables in
+a single \textbf{PostgreSQL} database, and the pipeline as a \textbf{Dagster} project whose assets are
+those very tables. This section shows how the layered model of \S\ref{sec:ch4-dw} and the asset-oriented
+pipeline of \S\ref{sec:ch4-etl} were built.
+
+% -----------------------------------------------------------------------------
+\subsection{The Warehouse in PostgreSQL}
+
+The four conceptual layers are realised as four groups of tables in one PostgreSQL database
+(Table~\ref{tab:ch5-layers}). The decisive implementation choice is the \textbf{aggregate layer}: the
+pre-computed summaries are materialised as \emph{indexed summary tables}, rebuilt at the end of each
+run, and they are the \emph{only} tables the analytics API reads (\S\ref{sec:ch5-backend}). A dashboard
+query therefore scans a small, indexed summary rather than the hundreds of millions of rows in the fact
+layer --- which is what keeps responses within seconds at national scale.
+
+% [VISUAL-IMPLEMENT] warehouse layers as realised in PostgreSQL
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|>{\centering\arraybackslash}p{1.6cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Layer}} & \textcolor{white}{\textbf{Realised as}} &
+\textcolor{white}{\textbf{Tables}} \\
+\hline
+Staging & One raw landing table per source endpoint; no business logic. & 18 \\
+Dimensions & Normalised (snowflaked) tables, with SCD Type~2 history where attributes change over time.
+& 56 \\
+Facts & Fact tables keyed to their dimensions, holding the measures. & 7 \\
+Aggregates & Indexed summary tables, rebuilt each run; the sole source for the analytics API. & 5 \\
+\hline
+\end{tabularx}
+\caption{The four warehouse layers as realised in PostgreSQL; counts follow the table inventory of
+\S\ref{sec:ch4-dw}.}
+\label{tab:ch5-layers}
+\end{table}
+
+% -----------------------------------------------------------------------------
+\subsection{The Pipeline in Dagster}
+
+The pipeline realises the asset-oriented philosophy of \S\ref{sec:ch4-etl} directly: \textbf{each
+warehouse table is a Dagster asset} that declares the assets it depends on. From these declarations
+Dagster reconstructs the lineage of the whole warehouse (the asset graph,
+Figure~\ref{fig:ch4-etl-lineage}), materialises assets in dependency order, and lets any single asset be
+re-materialised on its own. The five stages --- extract, stage, load dimensions, load facts, refresh
+aggregates --- are simply layers of this graph. Listing~\ref{lst:ch5-asset} shows the shape of a fact
+asset.
+
+% [VISUAL-IMPLEMENT] minimal Dagster asset snippet
+\begin{lstlisting}[language=Python, caption={A fact table declared as a Dagster asset: its dependencies are explicit, and the load is incremental and idempotent.}, label={lst:ch5-asset}]
+@asset(deps=[stg_parcel_events, dim_date, dim_agence])
+def fct_parcel(context):
+    # resolve dimension keys, compute measures,
+    # then upsert (insert-or-update) so re-runs never duplicate
+    upsert_incremental("fct_parcel", since=context.cursor)
+\end{lstlisting}
+
+Two engineering properties from the design are visible in that asset. Extraction and loading are
+\textbf{incremental} --- the very large parcel feed resumes from the last processed point via a stored
+cursor, never a full reload --- and loads are \textbf{idempotent}, using an insert-or-update (upsert)
+strategy so a retried or repeated run can never duplicate data.
+
+% -----------------------------------------------------------------------------
+\subsection{Scheduling and Observability}
+
+The pipeline runs without manual intervention. A \textbf{full refresh} is scheduled nightly, with a
+\textbf{lighter dimension refresh} on a more frequent schedule, so descriptive data stays current
+between full runs. Every run also reports on itself: Dagster emits \textbf{lifecycle events} --- start,
+success, failure, cancellation --- to the backend, which records each run in its history and forwards
+the outcome to the notification machinery, so users learn when fresh data is available or when a refresh
+has failed (\S\ref{sec:ch5-alerting}). The pipeline's observability is thus the bridge between the data
+layer and the decision-makers who depend on its freshness.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Backend Implementation}
@@ -253,84 +331,6 @@ reached, they return a representative response rather than an error, so the fron
 demonstration figures and the interface stays usable. This realises the graceful-degradation requirement
 (TS08) and proved useful both operationally and when demonstrating the platform without a live
 warehouse.
-
-% ═════════════════════════════════════════════════════════════════════════════
-\section{Warehouse and ETL Implementation}
-\label{sec:ch5-data}
-
-The warehouse and the pipeline that fills it are realised together: the warehouse as a set of tables in
-a single \textbf{PostgreSQL} database, and the pipeline as a \textbf{Dagster} project whose assets are
-those very tables. This section shows how the layered model of \S\ref{sec:ch4-dw} and the asset-oriented
-pipeline of \S\ref{sec:ch4-etl} were built.
-
-% -----------------------------------------------------------------------------
-\subsection{The Warehouse in PostgreSQL}
-
-The four conceptual layers are realised as four groups of tables in one PostgreSQL database
-(Table~\ref{tab:ch5-layers}). The decisive implementation choice is the \textbf{aggregate layer}: the
-pre-computed summaries are materialised as \emph{indexed summary tables}, rebuilt at the end of each
-run, and they are the \emph{only} tables the analytics API reads (\S\ref{sec:ch5-backend}). A dashboard
-query therefore scans a small, indexed summary rather than the hundreds of millions of rows in the fact
-layer --- which is what keeps responses within seconds at national scale.
-
-% [VISUAL-IMPLEMENT] warehouse layers as realised in PostgreSQL
-\begin{table}[H]
-\centering
-\renewcommand{\arraystretch}{1.35}
-\rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|>{\centering\arraybackslash}p{1.6cm}|}
-\hline
-\rowcolor{tblheader}
-\textcolor{white}{\textbf{Layer}} & \textcolor{white}{\textbf{Realised as}} &
-\textcolor{white}{\textbf{Tables}} \\
-\hline
-Staging & One raw landing table per source endpoint; no business logic. & 18 \\
-Dimensions & Normalised (snowflaked) tables, with SCD Type~2 history where attributes change over time.
-& 55 \\
-Facts & Fact tables keyed to their dimensions, holding the measures. & 7 \\
-Aggregates & Indexed summary tables, rebuilt each run; the sole source for the analytics API. & several \\
-\hline
-\end{tabularx}
-\caption{The four warehouse layers as realised in PostgreSQL; counts follow the table inventory of
-\S\ref{sec:ch4-dw}.}
-\label{tab:ch5-layers}
-\end{table}
-
-% -----------------------------------------------------------------------------
-\subsection{The Pipeline in Dagster}
-
-The pipeline realises the asset-oriented philosophy of \S\ref{sec:ch4-etl} directly: \textbf{each
-warehouse table is a Dagster asset} that declares the assets it depends on. From these declarations
-Dagster reconstructs the lineage of the whole warehouse (the asset graph,
-Figure~\ref{fig:ch4-etl-lineage}), materialises assets in dependency order, and lets any single asset be
-re-materialised on its own. The five stages --- extract, stage, load dimensions, load facts, refresh
-aggregates --- are simply layers of this graph. Listing~\ref{lst:ch5-asset} shows the shape of a fact
-asset.
-
-% [VISUAL-IMPLEMENT] minimal Dagster asset snippet
-\begin{lstlisting}[language=Python, caption={A fact table declared as a Dagster asset: its dependencies are explicit, and the load is incremental and idempotent.}, label={lst:ch5-asset}]
-@asset(deps=[stg_parcel_events, dim_date, dim_agence])
-def fct_parcel(context):
-    # resolve dimension keys, compute measures,
-    # then upsert (insert-or-update) so re-runs never duplicate
-    upsert_incremental("fct_parcel", since=context.cursor)
-\end{lstlisting}
-
-Two engineering properties from the design are visible in that asset. Extraction and loading are
-\textbf{incremental} --- the very large parcel feed resumes from the last processed point via a stored
-cursor, never a full reload --- and loads are \textbf{idempotent}, using an insert-or-update (upsert)
-strategy so a retried or repeated run can never duplicate data.
-
-% -----------------------------------------------------------------------------
-\subsection{Scheduling and Observability}
-
-The pipeline runs without manual intervention. A \textbf{full refresh} is scheduled nightly, with a
-\textbf{lighter dimension refresh} on a more frequent schedule, so descriptive data stays current
-between full runs. Every run also reports on itself: Dagster emits \textbf{lifecycle events} --- start,
-success, failure, cancellation --- to the backend, which records each run in its history and forwards
-the outcome to the notification machinery, so users learn when fresh data is available or when a refresh
-has failed (\S\ref{sec:ch5-alerting}). The pipeline's observability is thus the bridge between the data
-layer and the decision-makers who depend on its freshness.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Alerting Implementation}
@@ -548,10 +548,10 @@ keeps working, which is what makes it a deliverable system rather than a prototy
 \addcontentsline{toc}{section}{Conclusion}
 
 This chapter turned the conceptual blueprint of Chapter~4 into a working system. Building on a stack of
-\textbf{open-source, free} components, it realised each design block in turn: a \textbf{backend} on
-Django and DRF that routes analytics to the warehouse and everything else to the operational store; a
-\textbf{warehouse} of four layers in PostgreSQL fed by a \textbf{Dagster} pipeline whose assets are the
-warehouse tables; a \textbf{Celery} alerting service that evaluates rules off the request path and fans
+\textbf{open-source, free} components, it realised each design block in turn: a \textbf{warehouse} of
+four layers in PostgreSQL fed by a \textbf{Dagster} pipeline whose assets are the warehouse tables; a
+\textbf{backend} on Django and DRF that routes analytics to the warehouse and everything else to the
+operational store; a \textbf{Celery} alerting service that evaluates rules off the request path and fans
 notifications out to each user's chosen channels; a \textbf{Next.js} dashboard organised by the two axes
 and their three views; and a fully \textbf{containerised} deployment that runs the whole stack behind a
 reverse proxy on a single, modest server.
