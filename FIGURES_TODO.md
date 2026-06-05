@@ -17,6 +17,7 @@ Status legend: ☐ to do · ◐ in progress · ☑ done.
 | C4-P2 | Ch.4 §4.6 (ETL) | FETCH/PLACEHOLDER | Asset (lineage) dependency graph (`fig:ch4-etl-lineage`) — each warehouse table as a node with edges to upstream assets | download generic asset-graph image OR screenshot the running orchestrator | ☐ |
 | C5-P1 | Ch.5 §5.5 | PLACEHOLDER | Dashboard screenshots — Parcel (`fig:ch5-dash-parcel`) & Transport (`fig:ch5-dash-transport`) axis pages, each × 3 views; **most valuable figures** | screenshot the running platform | ☐ |
 | C6-P1 | Ch.6 §6.6 | PLACEHOLDER | Results screenshots — populated KPI page (`fig:ch6-result-kpi`) + alert firing (`fig:ch6-result-alert`) | screenshot the running platform | ☐ |
+| C5-L1 | Ch.5 §5.1 | FETCH | Technology-stack logos in `tab:ch5-stack` (one PNG per technology, rendered via `\techlogo`) | download official logos as PNG into `assets/logos/tech/` — exact filenames listed in that folder's `README.md`. Missing files render a subtle text stub, so the build is never broken | ☐ |
 
 ## Planned (from `guide/02_contribution_guide.md` / `guide/03_visuals_guide.md` — not yet in the `.tex`)
 

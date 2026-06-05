@@ -39,6 +39,16 @@
 % ── TODO marker (visible in draft, invisible in final) ────────────────────────
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
 
+% ── Technology logo (graceful) ───────────────────────────────────────────────
+% Usage: \techlogo[height]{filename}  — expects a PNG in assets/logos/tech/.
+% Renders the logo if the file is present, otherwise a subtle text stub so the
+% build never breaks while the logos are still being sourced (see FIGURES_TODO.md).
+\newcommand{\techlogo}[2][7mm]{%
+    \IfFileExists{assets/logos/tech/#2.png}%
+        {\raisebox{-0.35\height}{\includegraphics[height=#1]{#2}}}%
+        {\textcolor{black!30}{\scriptsize\ttfamily #2}}%
+}
+
 % ── Framed placeholder for a pending visual ──────────────────────────────────
 % Usage: \visualplaceholder{what it shows}{how to produce it}{caption}
 % (caption package already loaded in packages.tex, so \captionof is available)

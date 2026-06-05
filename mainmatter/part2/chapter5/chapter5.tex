@@ -29,42 +29,112 @@ chapter, which concerns construction and delivery.
 LOGIQ is built \textbf{entirely on open-source, free software}. This is a deliberate engineering
 choice, consistent with the thesis goal of a pragmatic and scalable solution: the whole platform ---
 from the database to the dashboard --- carries \emph{no proprietary licensing cost}, can be inspected
-and adapted, and runs on commodity infrastructure. Table~\ref{tab:ch5-stack} lists each technical
-concern and the technology chosen to realise it, with the reason for the choice.
+and adapted, and runs on commodity infrastructure.
 
-% [VISUAL-IMPLEMENT] technology-stack table (concern -> technology -> rationale)
-\begin{table}[H]
-\centering
-\renewcommand{\arraystretch}{1.35}
+Beyond being open-source, each individual technology was selected against three criteria:
+\textbf{stability} (a mature, well-supported, production-proven tool), \textbf{performance} (able to
+operate efficiently at national data scale), and \textbf{mastery} (technologies the team already
+commands, which lowers risk and accelerates delivery). Table~\ref{tab:ch5-stack} lists the full stack
+grouped by concern, giving for each technology a short description, the reason it was chosen, and its
+logo.
+
+% [VISUAL-IMPLEMENT] technology-stack table (category -> logo -> technology -> description & rationale)
+\begingroup
+\renewcommand{\arraystretch}{1.4}
 \rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X|}
+\begin{longtable}{|>{\centering\arraybackslash}m{1.9cm}|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{9.4cm}|}
+\caption{The LOGIQ technology stack, grouped by concern: for each technology, a short description, the
+reason it was chosen, and its logo. The \emph{Test apparatus} group is not part of the delivered
+platform and is detailed in Chapter~6.}\label{tab:ch5-stack}\\
 \hline
 \rowcolor{tblheader}
-\textcolor{white}{\textbf{Concern}} & \textcolor{white}{\textbf{Technology}} &
-\textcolor{white}{\textbf{Why it was chosen}} \\
+\textcolor{white}{\textbf{Logo}} & \textcolor{white}{\textbf{Technology}} &
+\textcolor{white}{\textbf{Description \& why it was chosen}} \\
 \hline
-Data warehouse \& operational store & PostgreSQL & A single, robust open-source RDBMS serving both the
-analytical warehouse and the operational database. \\
-ETL orchestration & Dagster & Asset-oriented orchestration with built-in lineage and safe, selective
-re-runs --- the direct realisation of the pipeline of \S\ref{sec:ch4-etl}. \\
-Backend REST API & Django + Django REST Framework (DRF) & A mature, batteries-included framework for
-authentication, role-based access control, and the read-only analytics services. \\
-Background processing & Celery + Redis & Runs scheduled alert evaluation and notification fan-out off
-the request path, so heavy work never blocks the interface. \\
-Frontend & Next.js (React, TypeScript) & A single-page dashboard with a type-safe, component-based UI. \\
-Data visualisation & ECharts, D3.js, Leaflet, Tremor & Statistical charts (ECharts), bespoke
-data-driven diagrams (D3.js), interactive maps (Leaflet), and KPI cards (Tremor). \\
-Packaging \& deployment & Docker Compose, Nginx, Let's Encrypt & Reproducible containers behind a
-reverse proxy with automatically renewed HTTPS certificates. \\
-Source-system simulation \emph{(test apparatus)} & FastAPI + PostgreSQL & A faithful mock of the five
-source APIs used to test the chain end to end; belongs to the test environment of Chapter~6, not to the
-production stack. \\
+\endfirsthead
 \hline
-\end{tabularx}
-\caption{The LOGIQ technology stack: each technical concern and the open-source technology that
-realises it. The last row is the test apparatus and is detailed in Chapter~6.}
-\label{tab:ch5-stack}
-\end{table}
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Logo}} & \textcolor{white}{\textbf{Technology}} &
+\textcolor{white}{\textbf{Description \& why it was chosen}} \\
+\hline
+\endhead
+\hline
+\multicolumn{3}{r}{\scriptsize\itshape continued on next page}\\
+\endfoot
+\hline
+\endlastfoot
+
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Languages}} \\
+\hline
+\techlogo{python} & \textbf{Python} & Primary language for the ETL pipeline, the backend, and the mock
+services. Chosen for its mature data ecosystem and the team's strong command of it, unifying most of the
+codebase under one language. \\
+\techlogo{sql} & \textbf{SQL} & Declarative language for every warehouse object --- dimensions, facts,
+staging, aggregates, and the init/validate scripts. The natural, performant way to express set-based
+transformations directly in the database. \\
+\hline
+
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Data \& warehouse}} \\
+\hline
+\techlogo{postgresql} & \textbf{PostgreSQL} & A single, robust RDBMS backing the analytical warehouse
+(snowflake schema), the Django operational database, and the mock source database. Chosen for its
+reliability, rich indexing, and proven performance at large volumes. \\
+\techlogo{dagster} & \textbf{Dagster} & Asset-oriented orchestrator for the ETL pipeline (assets,
+schedules, resources), with built-in lineage and safe, selective re-runs --- the direct realisation of
+the pipeline of \S\ref{sec:ch4-etl}. \\
+\hline
+
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Backend \& API}} \\
+\hline
+\techlogo{django} & \textbf{Django ($\geq$4.2)} & Mature, batteries-included web framework providing the
+API foundation, ORM, authentication, and role-based access control. \\
+\techlogo{drf} & \textbf{Django REST Framework} & Builds the REST API endpoints the dashboard consumes,
+layered cleanly on Django for serialisation, routing, and permissions. \\
+\techlogo{celery} & \textbf{Celery} & Runs the asynchronous and scheduled tasks --- alert evaluation and
+notification fan-out --- off the request path, so heavy work never blocks the interface. \\
+\techlogo{redis} & \textbf{Redis 7} & Fast in-memory store used as Celery's message broker and as a
+cache; lightweight and well-proven. \\
+\hline
+
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Frontend \& visualisation}} \\
+\hline
+\techlogo{nextjs} & \textbf{Next.js} & React framework powering the single-page dashboard, with a
+type-safe, component-based structure and production build tooling. \\
+\techlogo{react} & \textbf{React} & Declarative UI library underpinning the component model of the
+interface. \\
+\techlogo{tailwind} & \textbf{Tailwind CSS 3} & Utility-first styling for a consistent design system
+that is quick to build and predictable to maintain. \\
+\techlogo{echarts} & \textbf{ECharts} & Statistical charts --- lines, bars, pies, scatter, heatmap,
+gauge, radar, Sankey --- covering the bulk of dashboard visualisations. \\
+\techlogo{d3} & \textbf{D3.js} & Bespoke, data-driven cost-flow and network diagrams where a standard
+chart will not do. \\
+\techlogo{leaflet} & \textbf{Leaflet} & Interactive maps of the logistics flows across the wilayas. \\
+\techlogo{tremor} & \textbf{Tremor} & KPI cards with period-over-period deltas and severity colouring,
+for at-a-glance monitoring. \\
+\hline
+
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Test apparatus \emph{(not part of the delivered platform)}}} \\
+\hline
+\techlogo{fastapi} & \textbf{FastAPI} & Lightweight backend that simulates the five Yalidine source
+systems (17 endpoints) so the chain can be exercised end to end; belongs to the test environment of
+Chapter~6. \\
+\techlogo{faker} & \textbf{Faker} & Generates realistic synthetic data to feed the mock source systems. \\
+\hline
+
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Infrastructure \& DevOps}} \\
+\hline
+\techlogo{docker} & \textbf{Docker} & Containerises every component for isolation and reproducibility. \\
+\techlogo{docker-compose} & \textbf{Docker Compose} & Declares and orchestrates the whole multi-container
+stack, brought up with a single command. \\
+\techlogo{nginx} & \textbf{Nginx} & Reverse proxy fronting the stack and terminating HTTPS
+(\S\ref{sec:ch5-deploy}). \\
+\techlogo{letsencrypt} & \textbf{Let's Encrypt} & Issues and automatically renews the platform's TLS
+certificates. \\
+\techlogo{git} & \textbf{Git} & Version control for the monorepo. \\
+\techlogo{vscode} & \textbf{VS Code} & Primary code editor and development environment. \\
+\hline
+\end{longtable}
+\endgroup
 
 Two points are worth underlining. First, \textbf{PostgreSQL alone} backs \emph{both} stores --- the
 analytical warehouse and the operational database --- so the operational/analytical separation designed
