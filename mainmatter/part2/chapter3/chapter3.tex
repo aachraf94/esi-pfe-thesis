@@ -297,8 +297,6 @@ Return-parcel tariff & Billed when an undeliverable parcel is returned to the me
 \hline
 Theoretical tariff & The grid price, read from the published zone-based pricing grid. \\
 Real tariff & Recomputed from the parcel's measured weight and volume. \\
-Theoretical vs.\ real gap & The difference between the two; a direct signal of cost and
-profitability. \\
 \hline
 \end{tabularx}
 \caption{A parcel's price by valuation method: how the tariff amount is set.}
@@ -662,67 +660,56 @@ perimeters} identified in the diagnosis.
 \section{Development Methodology and Planning}
 \label{sec:ch3-methodology}
 
-\todo{Section 3.7 — review and complete: confirm the methodology framing (iterative/incremental), the four project phases and the Gantt dates against the PFE planning form, and the tools paragraph; tighten the prose once verified.}
+The project was carried out in successive phases, each building on the previous one, from the early
+study of the field through to the final delivery. The work was organised and tracked throughout in
+\textbf{Notion}, used as the single workspace for planning, task management, and progress monitoring.
+The seven phases and their scheduling over the academic year are shown in
+Figure~\ref{fig:ch3-gantt}:
 
-\subsection{Development Approach}
+\begin{itemize}[noitemsep]
+    \item \textbf{Literature Review} (Oct--Dec) : study of the foundations --- data-driven decision
+          making, Business Intelligence, and logistics in the data age --- to frame the problem.
+    \item \textbf{Analysis of the Existing System} (Dec--Feb) : study of the organisations, business
+          processes, and operational applications, and the diagnosis of their weaknesses.
+    \item \textbf{Needs Analysis} (Feb--Mar) : synthesis of the gathered needs into the objectives and
+          the prioritised scope of the target system.
+    \item \textbf{Conceptual Design} (Mar--Apr) : design of the data warehouse and the overall
+          architecture of the solution.
+    \item \textbf{Implementation} (May) : building of the ETL pipelines, the warehouse, and the
+          dashboards.
+    \item \textbf{Testing \& Deployment} (mid-May--June) : validation of the platform and its
+          deployment.
+    \item \textbf{Documentation} (Apr--June) : running write-up of the thesis, conducted in parallel
+          with the later phases.
+\end{itemize}
 
-% The project followed an \textbf{iterative and incremental} approach rather than a single linear pass.
-% Two reasons made this natural. First, the needs could only be fully grasped through ongoing contact
-% with the business, so the analysis had to keep evolving as understanding grew. Second, a
-% decision-support system is best validated by putting concrete views in front of its users: showing a
-% dashboard raises questions that a specification never would. The work therefore advanced in short
-% cycles --- each one deepening the analysis, extending the data model and the dashboards, and feeding
-% back into the next --- which kept the solution aligned with the business and let the scope be
-% reprioritised as it matured.
+% [VISUAL-FETCH] author-provided project Gantt chart (PNG in figures/)
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{Gantt Chart.png}
+\caption{Project Gantt chart: the seven phases of the project across the academic year, to the final
+delivery.}
+\label{fig:ch3-gantt}
+\end{figure}
 
-\subsection{Project Planning}
-
-The work was organised into four main phases spanning the academic year, from the analysis of the
-existing situation through to the final documentation, with the writing of this thesis running in
-parallel from February onwards (Figure~\ref{fig:ch3-gantt}).
-
-% [VISUAL-IMPLEMENT] project timeline (Gantt) — schedule from the PFE planning form
-% \begin{figure}[H]
-% \centering
-% \begin{ganttchart}[
-%   hgrid, vgrid={*1{draw=black!12}},
-%   x unit=1.15cm,
-%   y unit title=0.62cm,
-%   y unit chart=0.6cm,
-%   title height=1,
-%   bar height=0.6,
-%   bar/.append style={fill=esiblue!85, draw=esiblue},
-%   bar label font=\footnotesize,
-%   title label font=\footnotesize\bfseries,
-%   canvas/.append style={draw=black!25}
-% ]{1}{9}
-%   \gantttitle{2025}{3}\gantttitle{2026}{6} \\
-%   \gantttitlelist{Oct,Nov,Dec,Jan,Feb,Mar,Apr,May,Jun}{1} \\
-%   \ganttbar{Analysis of the existing situation}{1}{3} \\
-%   \ganttbar{Solution design}{4}{5} \\
-%   \ganttbar{Development, deployment \& testing}{6}{8} \\
-%   \ganttbar{Documentation \& user manual}{9}{9} \\
-%   \ganttbar[bar/.append style={fill=black!35, draw=black!45}]{Thesis writing (in parallel)}{5}{9}
-% \end{ganttchart}
-% \caption{Project timeline: the four main phases of the work, with thesis writing running in parallel.}
-% \label{fig:ch3-gantt}
-% \end{figure}
-
-\subsection{Tools}
-
-
-% The technical tooling --- the open-source data and web stack used to build the data warehouse, the
-% ETL pipeline, the backend, and the dashboards --- is presented in detail in Chapter~4. At this stage
-% it is enough to note that the project relied entirely on free, open-source technologies, which keeps
-% the solution free of licensing costs and able to evolve without vendor lock-in.
 
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
-% TODO(redaction): summarise the analysis (organisations, existing systems, the
-% gap, the prioritised scope, the methodology) and transition to Chapter 4
-% (Design & Architecture).
+
+This chapter grounded the project in its concrete setting. After introducing the host and client
+organisations, it followed Yalidine's two business services and inventoried the operational
+applications that record their activity. From that study emerged a clear diagnosis: the information
+needed to steer the business exists, but it is fragmented across disconnected systems, duplicated,
+and hard to trust --- leaving management to decide on partial and late information rather than on
+evidence.
+
+Building on the needs gathered in the field, this diagnosis was turned into the objectives of the
+target system, a scope prioritised across the two delivery axes with the MoSCoW method, and the
+phased methodology that organised the work. With the problem now precisely defined and bounded, the
+next chapter moves from \emph{what} the system must achieve to \emph{how} it is built, setting out
+its design and overall architecture.
 
 
 % =============================================================================
