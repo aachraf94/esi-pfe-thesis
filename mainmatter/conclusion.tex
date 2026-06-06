@@ -1,14 +1,153 @@
 % ── General Conclusion & Perspectives ────────────────────────────────────────
 \uchapter{General Conclusion and Perspectives}
 
+This thesis set out from a clear problem: at Yalidine, as in much of the logistics sector, the
+information needed to steer the business was not missing but \emph{scattered} --- dispersed across
+several disconnected systems, slow to reconcile, and difficult to trust. The question that drove the work
+was whether a unified, automated, and scalable Business Intelligence architecture could turn that
+fragmented data into a reliable foundation for proactive, data-driven decisions across operations, cost
+and profitability, and performance.
+
+The answer is \textbf{LOGIQ} --- the decision-support system designed, built, and validated over the
+preceding chapters. Part~I established the conceptual and technological foundations, from
+decision-making and information systems to Business Intelligence and the logistics domain. Part~II
+carried the system from a diagnosis of the existing situation (Chapter~3), through its conceptual design
+(Chapter~4) and technical realisation (Chapter~5), to an end-to-end validation against a faithful,
+production-scale test environment (Chapter~6). The result is an operational platform that consolidates
+the company's scattered data, refreshes it automatically, surfaces it through decision-oriented
+dashboards, and raises alerts the moment a monitored indicator drifts.
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section*{Summary of Contributions}
 \addcontentsline{toc}{section}{Summary of Contributions}
-% TODO
 
+Measured against the four objectives set at the outset, the work delivers on each: a \textbf{centralised
+data warehouse} consolidating the heterogeneous sources, a \textbf{reliable automated ETL} that keeps it
+current, \textbf{interactive dashboards} that turn the data into decision-oriented analytics, and a
+\textbf{proactive alerting mechanism} that catches deviations early. Both prioritised business axes ---
+\textbf{on-demand dedicated transport} and \textbf{parcel delivery} --- are delivered in full, each read
+along the same three aspects (operations, cost and profitability, performance) and kept on its own
+\textbf{independent financial perimeter} so that costs and revenues are never mixed.
+
+Beyond meeting these objectives, the project makes a set of concrete engineering contributions
+(Table~\ref{tab:concl-contributions}).
+
+% [VISUAL-IMPLEMENT] summary of the project's main contributions
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Area}} & \textcolor{white}{\textbf{Contribution}} \\
+\hline
+Warehouse design & A layered dimensional warehouse (staging $\rightarrow$ dimensions $\rightarrow$ facts
+$\rightarrow$ aggregates) on a constellation schema with conformed, snowflaked dimensions. \\
+Modelling techniques & SCD Type~2 history, junk and role-playing dimensions, and controlled, justified
+denormalisation --- applied where each genuinely serves the analysis. \\
+Data integration & An asset-oriented ETL that is incremental, idempotent, and observable, depending only
+on the source \emph{contract} so it runs unchanged against real or simulated systems. \\
+Operational/analytical split & A two-store design that keeps the platform's own data separate from the
+analytical warehouse, so heavy analytics never disturbs the application. \\
+Decision experience & Multi-axis dashboards with role-filtered navigation, and \textbf{auditable KPIs} ---
+every figure traceable from headline to underlying records. \\
+Security & Role-based access control over stateless authentication, aligned with the client's ISO~27001
+context, on a read-only decision-support layer. \\
+Proactive monitoring & A scheduled, threshold-based alerting engine with multi-channel (in-app and
+e-mail) delivery and per-user preferences. \\
+Validation apparatus & A faithful, production-scale source simulation behind an automated data-quality
+gate and a post-load warehouse-integrity audit. \\
+\hline
+\end{tabularx}
+\caption{The main contributions of the project, by area.}
+\label{tab:concl-contributions}
+\end{table}
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section*{Limitations}
 \addcontentsline{toc}{section}{Limitations}
-% TODO
 
+The work is honest about the boundaries within which these results hold:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Simulated, not live, sources.} The production systems could not be connected within the
+          scope of this project, so the validation rests on the simulation. Its fidelity to the source
+          contract makes it a sound substitute, but the platform has yet to run against the real feeds.
+    \item \textbf{Performance assessed qualitatively.} The aggregate layer and incremental load behave as
+          designed under production-scale data, but the work reports no formal benchmark (response-time
+          percentiles, throughput, refresh duration).
+    \item \textbf{No live user-acceptance round.} The platform was validated technically; it has not yet
+          been evaluated formally with the decision-makers in their day-to-day use.
+    \item \textbf{Scope deliberately bounded.} Of the two prioritised axes, both are delivered; a third
+          analytical capability --- route analysis --- was kept out of this version because the data it
+          needs was not available within the project's scope.
+\end{itemize}
+
+None of these undermines the core outcome; each marks, instead, a clear and natural next step.
+
+% ─────────────────────────────────────────────────────────────────────────────
 \section*{Future Work and Perspectives}
 \addcontentsline{toc}{section}{Future Work and Perspectives}
-% TODO
+
+LOGIQ was designed to evolve, and its architecture leaves room to grow without being reworked. Two
+directions stand out, alongside a small number of consolidating steps (Table~\ref{tab:concl-future}).
+
+\textbf{Route analysis.} The natural extension of the transport axis is to analyse \emph{how} goods move,
+not only how much they cost. Once the routing and optimisation-reference data becomes available, this
+capability can be added on top of the warehouse, which was already designed to accommodate it: a
+route-optimisation component would compare the routes actually taken against optimised alternatives,
+surfacing the gap as interactive maps and comparative KPI tables. It is deferred purely for want of the
+input data, not for any architectural reason.
+
+\textbf{Conversational analytics assistant.} The second perspective makes the platform reachable in plain
+language. A decision-maker would express an information need in natural language --- in words --- and a
+conversational assistant would translate it into the corresponding query over the warehouse and return
+the matching visualisation: a chart, a map, or a KPI, generated on demand. This lowers the barrier to the
+data still further, letting non-technical managers obtain a tailored view without navigating the
+dashboards by hand.
+
+Beyond these, the immediate consolidating steps are to point the ETL at the live production systems
+(a change of configuration, not of design), to benchmark performance formally under load, and to run a
+structured user-acceptance round. Further out, the existing facts offer a foundation for predictive
+analytics --- forecasting volumes, costs, and performance --- extending LOGIQ from describing the past to
+anticipating the future.
+
+% [VISUAL-IMPLEMENT] capability-status table for future work
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.6cm}|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Capability}} & \textcolor{white}{\textbf{Status}} &
+\textcolor{white}{\textbf{Condition / next step}} \\
+\hline
+Route analysis & Designed, deferred & Awaits routing and optimisation-reference data; the warehouse
+already accommodates it. \\
+Conversational analytics assistant & Planned & Natural-language request $\rightarrow$ automatically
+generated visualisation over the warehouse. \\
+Live production integration & Ready by design & Repoint the ETL from the simulation to the real source
+contracts. \\
+Formal performance benchmarking & Pending & Measure response-time and refresh-duration figures under
+production load. \\
+User-acceptance testing & Pending & Evaluate the platform in day-to-day use with the decision-makers. \\
+Predictive analytics & Envisaged & Extend the existing facts with forecasting of volumes, costs, and
+performance. \\
+\hline
+\end{tabularx}
+\caption{Directions for future work and their status.}
+\label{tab:concl-future}
+\end{table}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section*{Closing Word}
+\addcontentsline{toc}{section}{Closing Word}
+
+This project began with fragmented data and a business unable to read its own activity with confidence.
+It ends with a working, validated decision-support system that consolidates that data, keeps it current,
+makes it visible along the dimensions that matter, and turns trustworthy figures into the basis for
+proactive decisions. In doing so, LOGIQ answers the question that opened this thesis --- and, true to its
+name, helps move the business from decisions taken on intuition to decisions grounded in logic and
+evidence.

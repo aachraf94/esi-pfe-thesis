@@ -433,27 +433,48 @@ each.}
 Concretely, each axis page answers the decision questions it was designed for: \emph{Operations} (how
 much volume, completion and delivery rates, geographic concentration), \emph{Cost \& Profitability}
 (service cost, gross margin, payroll and expense weight), and \emph{Performance} (delays, attempts,
-satisfaction signals). Populated with the generated data, the dashboards render these as live KPIs
-(Figure~\ref{fig:ch6-result-kpi}), and the alerting service is observable in action when a generated
-metric breaches a rule (Figure~\ref{fig:ch6-result-alert}).
+satisfaction signals). Populated with the generated data, the dashboards render these as live KPIs, and
+the alerting service is observable in the same view: Figure~\ref{fig:ch6-result-kpi} shows the
+On-Demand Dedicated Transport \emph{Operations} page --- KPI cards (total requests, completion and
+cancellation rates, average stops), the monthly-volume and request-status charts, the cost breakdown ---
+with the notification panel open on the right, where proactive alerts (a cost accumulation, a high
+operational cost) have fired alongside the pipeline's own run notifications.
 
-% [VISUAL-PLACEHOLDER] results screenshot — a populated KPI dashboard page
+% [VISUAL-PLACEHOLDER] (provided) populated On-Demand Transport Operations page + live alert panel
 \begin{figure}[H]
 \centering
-\visualplaceholder{A populated dashboard view --- KPI cards, charts, and a map filled with the generated
-data for one axis view.}{Screenshot the running platform on a populated KPI page.}{A populated KPI
-dashboard page, rendered from the generated test data.}
+\includegraphics[width=\linewidth]{Transport_page_notification}
+\caption{A populated dashboard page rendered from the generated data: the On-Demand Dedicated Transport
+\emph{Operations} view --- KPI cards, monthly-volume and request-status charts, and the cost breakdown ---
+with proactive alerts firing in the notification panel.}
 \label{fig:ch6-result-kpi}
 \end{figure}
 
-% [VISUAL-PLACEHOLDER] results screenshot — an alert firing
+\subsection{Verifiable KPIs: From Headline to Source}
+\label{sec:ch6-traceability}
+
+A decision-support tool earns trust only if its users can believe its numbers. Where
+\S\ref{sec:ch6-wh-integrity} established that the data is correct \emph{inside} the warehouse, the
+platform extends that confidence to the decision-maker at the point of use. Every KPI card opens an
+information panel with a \textbf{data-table view} that lists the individual records behind the headline
+figure (Figure~\ref{fig:ch6-result-datatable}). Opening the \emph{Total Requests} card, for instance,
+reveals the underlying transport requests --- each with its identifier, date, service, status, origin,
+destination, distance, and stop count --- which the user can page through and reconcile against the
+aggregate.
+
+% [VISUAL-PLACEHOLDER] (provided) KPI drill-down — the data-table view behind a KPI card
 \begin{figure}[H]
 \centering
-\visualplaceholder{A threshold alert firing --- the raised alert and its in-app notification when a
-metric crosses its rule.}{Screenshot the running platform when an alert is raised.}{A proactive alert
-firing when a monitored metric crosses its threshold.}
-\label{fig:ch6-result-alert}
+\includegraphics[width=\linewidth]{Transport_data_table_view}
+\caption{KPI traceability: the data-table view behind the \emph{Total Requests} card lists the individual
+records that make up the figure, so a decision-maker can confirm any headline number against the real
+underlying data.}
+\label{fig:ch6-result-datatable}
 \end{figure}
+
+This drill-down closes the trust loop the chapter has been building: the warehouse-integrity audit proves
+the figures are right to the engineer, and the data-table view lets the decision-maker verify them for
+themselves --- turning every KPI from an opaque number into an \emph{auditable} one.
 
 On the \textbf{performance} side, the design choices proved out under realistic load: because the
 analytics endpoints read the pre-computed aggregate layer rather than scanning the fact tables, the
@@ -481,6 +502,8 @@ on every front:
           exactly as scoped;
     \item the ETL is shown to move tens of millions of rows through every layer with \textbf{100\%
           coverage and zero rule violations} (\S\ref{sec:ch6-wh-integrity});
+    \item the figures are \textbf{auditable end to end} --- correct inside the warehouse, and verifiable
+          by the decision-maker through the KPI data-table view (\S\ref{sec:ch6-traceability});
     \item because the pipeline binds only to the source \emph{contract}, the design that passes here is
           the one that would run, unchanged, against the live systems.
 \end{itemize}
