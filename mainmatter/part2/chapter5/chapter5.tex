@@ -477,71 +477,6 @@ requirement (TS08) and proved useful both operationally and when demonstrating t
 live analytical database.
 
 % ═════════════════════════════════════════════════════════════════════════════
-\section{Alerting Implementation}
-\label{sec:ch5-alerting}
-
-Alerting and notification are realised together as a \textbf{background service} built on \textbf{Celery}
-with \textbf{Redis} as its message broker. Keeping this work off the request path is the point: rules are
-evaluated and messages delivered by a worker, so watching the indicators never slows the interface a
-decision-maker is using.
-
-% -----------------------------------------------------------------------------
-\subsection{What is Notified}
-
-The service delivers two kinds of notification: \textbf{ETL-run} events --- a refresh has completed or
-failed (\S\ref{sec:ch5-data}) --- and business \textbf{alerts}, each carrying a \textbf{severity}:
-\emph{info}, \emph{warning}, or \emph{critical}. Both kinds travel through one shared machinery, so a
-single controlled channel carries both the data's \emph{freshness} and the business's \emph{drift}.
-
-% -----------------------------------------------------------------------------
-\subsection{Alert Rules and Subscriptions}
-
-Alerts originate from \textbf{rules the users define} themselves. A rule pairs a metric with an operator,
-a threshold, a severity, and a cooldown; a periodic Celery task reads each active rule's current value
-from the aggregate layer (\S\ref{sec:ch5-data}) and --- when the threshold is crossed \emph{and} the
-cooldown has elapsed --- raises an alert (the conceptual flow of Figure~\ref{fig:ch4-alert-flow}). The
-cooldown prevents a still-breached metric from alerting on every cycle.
-
-Delivery is then governed by \textbf{subscription}: a user receives an alert only for the rules they have
-\textbf{subscribed} to, and can \textbf{unsubscribe} at any time. Creating rules and managing these
-subscriptions is done from the interface, shown in the frontend walkthrough
-(\S\ref{sec:ch5-frontend}, Figure~\ref{fig:ch5-alerts}).
-
-% -----------------------------------------------------------------------------
-\subsection{Channels and Delivery}
-
-Each user also chooses \emph{how} they are notified, through a \textbf{per-user channel preference} held
-in the operational database --- \textbf{in-app}, \textbf{email}, or both. What a given user actually
-receives is therefore the combination of their channel preferences and their rule subscriptions.
-
-\textbf{In-app} notifications are pushed to the interface in \textbf{real time}, appearing in the
-notification centre as soon as an alert is raised or a refresh completes (Figure~\ref{fig:ch5-notif}).
-\textbf{Email} delivery is handled by Celery so it never blocks evaluation: an ETL-run e-mail is sent
-when a run finishes, while alerts are gathered into a \textbf{weekly digest} --- sent every
-\textbf{Sunday at 07:00} --- grouping the week's info, warning, and critical alerts into a single message
-(Figure~\ref{fig:ch5-emails}).
-
-% [VISUAL-PLACEHOLDER] (provided) in-app notification centre
-\fig[0.5\textwidth]{notification}{The in-app notification centre: alerts and ETL-run events pushed to the
-interface in real time.}{ch5-notif}
-
-% [VISUAL-PLACEHOLDER] (provided) e-mail notifications — ETL run and weekly alert digest
-\begin{figure}[H]
-\centering
-\begin{subfigure}[t]{0.49\linewidth}
-  \centering\includegraphics[width=\linewidth]{email_etl}
-  \caption{ETL-run e-mail}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.49\linewidth}
-  \centering\includegraphics[width=\linewidth]{email_alert_critic}
-  \caption{Alert e-mail (critical)}
-\end{subfigure}
-\caption{E-mail notifications: a per-run ETL message, and an alert e-mail at critical severity. Alert
-e-mails are gathered into a weekly digest sent each Sunday at 07:00.}
-\label{fig:ch5-emails}
-\end{figure}
-
-% ═════════════════════════════════════════════════════════════════════════════
 \section{Frontend and Dashboard Implementation}
 \label{sec:ch5-frontend}
 
@@ -605,10 +540,31 @@ Dedicated Transport axis.
 \label{fig:ch5-dash-parcel}
 \end{figure}
 
-% [VISUAL-PLACEHOLDER] (provided) Dedicated Transport axis — representative view
-\fig[0.92\textwidth]{BusinessUser_Transport_operations}{The Dedicated Transport axis page (Operations
-view); its Cost \& Profitability and Performance views follow the same three-view pattern and appear in
-Annexe~B.}{ch5-dash-transport}
+% [VISUAL-PLACEHOLDER] (provided) Dedicated Transport axis — 2x2 grid of views
+\begin{figure}[p]
+\centering
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Transport_operations}
+  \caption{Operations}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Transport_costs}
+  \caption{Cost \& Profitability}
+\end{subfigure}
+
+\vspace{0.7em}
+
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Parcel_operations}
+  \caption{Operations}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Parcel_performance}
+  \caption{Performance}
+\end{subfigure}
+\caption{The Dedicated Transport axis page, read through its views.}
+\label{fig:ch5-dash-transport}
+\end{figure}
 
 Three interactions turn these pages from something to read into something to explore. A \textbf{global
 filter bar} --- period, service type, region, agency --- is shared across a page, so adjusting it
@@ -739,6 +695,71 @@ pipeline's run history --- the very records written by the completion sensor of 
 \caption{The Administration view: platform overview, user activation and role assignment, role
 definitions, and the ETL run history.}
 \label{fig:ch5-admin}
+\end{figure}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Alerting Implementation}
+\label{sec:ch5-alerting}
+
+Alerting and notification are realised together as a \textbf{background service} built on \textbf{Celery}
+with \textbf{Redis} as its message broker. Keeping this work off the request path is the point: rules are
+evaluated and messages delivered by a worker, so watching the indicators never slows the interface a
+decision-maker is using.
+
+% -----------------------------------------------------------------------------
+\subsection{What is Notified}
+
+The service delivers two kinds of notification: \textbf{ETL-run} events --- a refresh has completed or
+failed (\S\ref{sec:ch5-data}) --- and business \textbf{alerts}, each carrying a \textbf{severity}:
+\emph{info}, \emph{warning}, or \emph{critical}. Both kinds travel through one shared machinery, so a
+single controlled channel carries both the data's \emph{freshness} and the business's \emph{drift}.
+
+% -----------------------------------------------------------------------------
+\subsection{Alert Rules and Subscriptions}
+
+Alerts originate from \textbf{rules the users define} themselves. A rule pairs a metric with an operator,
+a threshold, a severity, and a cooldown; a periodic Celery task reads each active rule's current value
+from the aggregate layer (\S\ref{sec:ch5-data}) and --- when the threshold is crossed \emph{and} the
+cooldown has elapsed --- raises an alert (the conceptual flow of Figure~\ref{fig:ch4-alert-flow}). The
+cooldown prevents a still-breached metric from alerting on every cycle.
+
+Delivery is then governed by \textbf{subscription}: a user receives an alert only for the rules they have
+\textbf{subscribed} to, and can \textbf{unsubscribe} at any time. Creating rules and managing these
+subscriptions is done from the interface, shown in the frontend walkthrough
+(\S\ref{sec:ch5-frontend}, Figure~\ref{fig:ch5-alerts}).
+
+% -----------------------------------------------------------------------------
+\subsection{Channels and Delivery}
+
+Each user also chooses \emph{how} they are notified, through a \textbf{per-user channel preference} held
+in the operational database --- \textbf{in-app}, \textbf{email}, or both. What a given user actually
+receives is therefore the combination of their channel preferences and their rule subscriptions.
+
+\textbf{In-app} notifications are pushed to the interface in \textbf{real time}, appearing in the
+notification centre as soon as an alert is raised or a refresh completes (Figure~\ref{fig:ch5-notif}).
+\textbf{Email} delivery is handled by Celery so it never blocks evaluation: an ETL-run e-mail is sent
+when a run finishes, while alerts are gathered into a \textbf{weekly digest} --- sent every
+\textbf{Sunday at 07:00} --- grouping the week's info, warning, and critical alerts into a single message
+(Figure~\ref{fig:ch5-emails}).
+
+% [VISUAL-PLACEHOLDER] (provided) in-app notification centre
+\fig[0.5\textwidth]{notification}{The in-app notification centre: alerts and ETL-run events pushed to the
+interface in real time.}{ch5-notif}
+
+% [VISUAL-PLACEHOLDER] (provided) e-mail notifications — ETL run and weekly alert digest
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{email_etl}
+  \caption{ETL-run e-mail}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{email_alert_critic}
+  \caption{Alert e-mail (critical)}
+\end{subfigure}
+\caption{E-mail notifications: a per-run ETL message, and an alert e-mail at critical severity. Alert
+e-mails are gathered into a weekly digest sent each Sunday at 07:00.}
+\label{fig:ch5-emails}
 \end{figure}
 
 % ═════════════════════════════════════════════════════════════════════════════
