@@ -800,31 +800,81 @@ network. Database and pipeline state live on named volumes (not shown).}
 \subsection{Containerisation and Persistence}
 
 The stack is described by a single \textbf{Docker Compose} orchestration definition that declares every
-container, its configuration, and how the containers are wired together --- so the platform can be
-started, stopped, or rebuilt as one unit. State that must outlive a rebuild --- the two databases and
-the pipeline-run history --- is held on \textbf{named volumes}, so redeploying the application never
-loses data.
+container --- the two databases, Redis, the backend, the Celery worker, the Dagster orchestrator, and the
+frontend --- their configuration, and how they are wired together, so the platform can be started,
+stopped, or rebuilt as one unit. The simulated source systems of Chapter~6 run as a \emph{separate}
+Compose stack on the same shared network. State that must outlive a rebuild --- the two databases and the
+Dagster run history --- is held on \textbf{named volumes}, so redeploying never loses data.
 
 % -----------------------------------------------------------------------------
 \subsection{Reverse Proxy, TLS, and Network Isolation}
 
-An \textbf{Nginx} reverse proxy fronts the stack: it routes public sub-domains to the appropriate
-internal container and terminates \textbf{HTTPS}, with certificates issued and \emph{automatically
-renewed} by \textbf{Let's Encrypt}. The security posture is deliberately tight --- \emph{only} the
-proxy's web port is exposed to the outside, while every other container (databases, ETL, worker, and
-even the application servers) sits on a \textbf{private internal network}, unreachable directly from the
-internet. This realises the encrypted-transport and isolation requirements of \S\ref{sec:ch4-security}
-(TS11).
+An \textbf{Nginx} reverse proxy fronts the stack: it routes each public sub-domain to the appropriate
+internal container and terminates \textbf{HTTPS}, with a single multi-domain certificate issued and
+\emph{automatically renewed} by \textbf{Let's Encrypt}. It also carries the long-lived event stream that
+delivers \textbf{real-time notifications} to the interface (\S\ref{sec:ch5-alerting}). The security
+posture is deliberately tight: a host firewall leaves \emph{only} the web ports (80/443) open, and every
+other container --- the two databases, Redis, the ETL orchestrator, the worker, and even the application
+servers --- sits on a \textbf{private internal Docker network}, unreachable directly from the internet.
+This realises the encrypted-transport and isolation requirements of \S\ref{sec:ch4-security} (TS11).
 
 % -----------------------------------------------------------------------------
-\subsection{Topology and Automation}
+\subsection{Hosting Environment}
 
-The complete stack is designed to run on a \textbf{single modest virtual private server} ---
-demonstrating that a full Business Intelligence platform can be delivered cost-effectively, without a
-fleet of machines (TS19). Once deployed, it runs \textbf{without routine manual intervention}: the ETL
-executes on its schedule (\S\ref{sec:ch5-data}), the TLS certificates renew themselves, and the
-containers restart automatically on failure or reboot. The platform therefore not only \emph{works} but
-keeps working, which is what makes it a deliverable system rather than a prototype.
+For testing and demonstration the platform is hosted on a \textbf{single Hostinger VPS} --- a modest
+\emph{KVM~2} instance (2~vCPU, 8~GB RAM, 100~GB disk) running \textbf{Ubuntu~24.04 LTS} --- which alone
+runs the entire stack, confirming that a full Business Intelligence platform can be delivered
+cost-effectively, without a fleet of machines (TS19). It is served from the domain \texttt{logiq.space},
+with one sub-domain per externally reachable service (Table~\ref{tab:ch5-urls});
+Figure~\ref{fig:ch5-hostinger} shows the VPS and its running containers in the Hostinger console.
+
+\emph{This Hostinger deployment is temporary} --- it exists only to test and demonstrate the platform.
+The \textbf{production deployment will be provisioned, and costed, by the company}.
+
+% [VISUAL-IMPLEMENT] public service URLs
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{5.2cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Service}} & \textcolor{white}{\textbf{Public URL}} \\
+\hline
+Dashboard (frontend) & \texttt{https://logiq.space} \\
+Backend REST API & \texttt{https://api.logiq.space} \\
+ETL orchestrator (Dagster) & \texttt{https://dagster.logiq.space} \\
+Simulated sources (test only) & \texttt{https://mock.logiq.space} \\
+\hline
+\end{tabularx}
+\caption{The publicly reachable services and their sub-domains; every other container stays on the
+private internal network. The simulated-sources host belongs to the Chapter~6 test environment.}
+\label{tab:ch5-urls}
+\end{table}
+
+% [VISUAL-PLACEHOLDER] (provided) Hostinger console — VPS overview and container manager
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{hostinger_vps_overview}
+  \caption{VPS overview}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{hostinger_docker_manager}
+  \caption{Container manager}
+\end{subfigure}
+\caption{The deployment on a single Hostinger VPS: the server overview and the running containers, as
+seen in the Hostinger console.}
+\label{fig:ch5-hostinger}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+\subsection{Automation}
+
+Once deployed, the platform runs \textbf{without routine manual intervention}: the ETL executes on its
+schedule (\S\ref{sec:ch5-data}), the TLS certificates renew themselves, and the containers restart
+automatically on failure or reboot. The platform therefore not only \emph{works} but keeps working,
+which is what makes it a deliverable system rather than a prototype.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section*{Conclusion}
@@ -833,11 +883,11 @@ keeps working, which is what makes it a deliverable system rather than a prototy
 This chapter turned the conceptual blueprint of Chapter~4 into a working system. Building on a stack of
 \textbf{open-source, free} components, it realised each design block in turn: a \textbf{warehouse} of
 four layers in PostgreSQL fed by a \textbf{Dagster} pipeline whose assets are the warehouse tables; a
-\textbf{backend} on Django and DRF that routes analytics to the warehouse and everything else to the
-operational store; a \textbf{Celery} alerting service that evaluates rules off the request path and fans
-notifications out to each user's chosen channels; a \textbf{Next.js} dashboard organised by the two axes
-and their three views; and a fully \textbf{containerised} deployment that runs the whole stack behind a
-reverse proxy on a single, modest server.
+\textbf{backend} on Django and DRF that routes queries across the operational and analytical databases
+and provisions its users from HR Force; a \textbf{Celery} service that evaluates alert rules off the
+request path and delivers notifications --- in-app and by e-mail --- to each user's chosen channels; a
+multilingual \textbf{Next.js} dashboard organised by the two axes and their three views; and a fully
+\textbf{containerised} deployment that runs the whole stack behind a reverse proxy on a single VPS.
 
 Two threads run through the realisation. It is \emph{cost-effective and reproducible} --- no licensing
 cost, one orchestration definition, one-command bring-up on commodity infrastructure --- and it is
