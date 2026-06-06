@@ -139,9 +139,9 @@ together answer the specific objectives of Chapter~3.}
 
 Figure~\ref{fig:ch4-usecase} draws actors and use cases together as a use-case overview. The
 business user interacts mainly with the consultation and monitoring use cases, while the
-administrator governs users, roles, and the data pipeline. Access to every use case is mediated by
-the user's role, so two users signing in under different roles may legitimately see different
-sections.
+administrator additionally governs users, roles, and the data pipeline and may exercise every use
+case in the system. Access to each use case is mediated by the user's role, so two users signing in
+under different roles may legitimately see different sections.
 
 % [VISUAL-IMPLEMENT] global use-case diagram (actors x main use cases, role-mediated)
 % Stick-figure actors + ellipse use cases inside a LOGIQ system boundary; palette from settings.tex.
@@ -169,15 +169,15 @@ sections.
 
   % ---- use cases (centre column) ---------------------------------------------
   \node[uc] (uc1) at (0, 3.5)  {Consult consolidated\\overview};
-  \node[uc] (uc2) at (0, 1.9)  {Analyse an axis\\{\itshape Operations · Cost \&}\\{\itshape Profitability · Performance}};
-  \node[uc] (uc3) at (0, 0.2)  {Manage \& receive\\proactive alerts};
-  \node[uc] (uc4) at (0,-1.4)  {Manage filters\\\& preferences};
+  \node[uc] (uc2) at (0, 1.9)  {Consult dashboards of business axis\\{\itshape Operations · Cost \&}\\{\itshape Profitability · Performance}};
+  \node[uc] (uc3) at (0, 0.2)  {Manage \& receive\\proactive alerts \& notifications};
+  \node[uc] (uc4) at (0,-1.4)  {Manage own\\\& preferences};
   \node[uc] (uc5) at (0,-3.0)  {Administer\\users \& roles};
   \node[uc] (uc6) at (0,-4.5)  {Supervise the\\data pipeline};
 
   % ---- actor (left): the business user --------------------------------------
   \pic at (-5.4, 1.0)  {actor};
-  \node[alab] at (-5.4, 0.18) {Business user\\{\itshape (utilisateur métier)}};
+  \node[alab] at (-5.4, 0.18) {Business user};
 
   % ---- actor (right) ---------------------------------------------------------
   \pic at (5.4,-3.0)  {actor};
@@ -189,13 +189,17 @@ sections.
   \draw[rel] (-5.1, 1.0) -- (uc3.west);
   \draw[rel] (-5.1, 1.0) -- (uc4.west);
 
-  % ---- associations: administrator -> use cases ------------------------------
+  % ---- associations: administrator -> use cases (governs all) ----------------
+  \draw[rel] (5.1,-3.0) -- (uc1.east);
+  \draw[rel] (5.1,-3.0) -- (uc2.east);
+  \draw[rel] (5.1,-3.0) -- (uc3.east);
+  \draw[rel] (5.1,-3.0) -- (uc4.east);
   \draw[rel] (5.1,-3.0) -- (uc5.east);
   \draw[rel] (5.1,-3.0) -- (uc6.east);
-  \draw[rel] (5.1,-3.0) -- (uc3.east);
 \end{tikzpicture}
 \caption{Global use-case overview of LOGIQ: the business user consults and monitors; the administrator
-governs users, roles, and the pipeline. Every association is mediated by the user's role.}
+governs users, roles, and the pipeline and can exercise every use case. Every association is mediated
+by the user's role.}
 \label{fig:ch4-usecase}
 \end{figure}
 
@@ -309,53 +313,65 @@ this chapter, each requirement is stated independently of any particular technol
 Table~\ref{tab:ch4-techspec} collects them.
 
 % [VISUAL-IMPLEMENT] technical (non-functional) specifications, numbered and grouped by ISO/IEC 25010 attributes
-\begin{table}[H]
-\centering
+% Page-breakable: xltabular (longtable + X column); breaks only fall between ISO/IEC groups (\\* keeps each group intact).
+\begingroup
 \renewcommand{\arraystretch}{1.35}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\centering\arraybackslash}p{1.0cm}|>{\raggedright\arraybackslash}X|}
+\begin{xltabular}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\centering\arraybackslash}p{1.0cm}|>{\raggedright\arraybackslash}X|}
+\caption{The technical specifications of LOGIQ (TS01--TS19), grouped along the product-quality
+characteristics of ISO/IEC~25010 and tracing the quality expectations of \S\ref{subsec:ch4-quality}.}
+\label{tab:ch4-techspec} \\
 \hline
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Specification category}} & \textcolor{white}{\textbf{ID}} &
 \textcolor{white}{\textbf{Specification}} \\
 \hline
+\endfirsthead
+\multicolumn{3}{@{}r@{}}{\footnotesize\itshape (Table~\ref{tab:ch4-techspec} continued)}\\
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Specification category}} & \textcolor{white}{\textbf{ID}} &
+\textcolor{white}{\textbf{Specification}} \\
+\hline
+\endhead
+\hline
+\multicolumn{3}{@{}r@{}}{\footnotesize\itshape continued on next page}\\
+\endfoot
+\hline
+\endlastfoot
 \multirow{3}{3.5cm}{\raggedright Performance efficiency} & TS01 &
-Analytical views and KPI queries return within a few seconds --- not minutes --- over the full national history. \\
- & TS02 & Response time and resource use stay bounded as the data grows, by reading from a pre-computed aggregate layer. \\
+Analytical views and KPI queries return within a few seconds --- not minutes --- over the full national history. \\*
+ & TS02 & Response time and resource use stay bounded as the data grows, by reading from a pre-computed aggregate layer. \\*
  & TS03 & Analytical workloads are isolated from operational ones. \\
 \hline
 \rowcolor{tblrowalt}\multirow{2}{3.5cm}{\raggedright Capacity \& scalability} & TS04 &
-Sized for production-scale volumes --- a massive parcel history, on the order of tens of millions of status events. \\
+Sized for production-scale volumes --- a massive parcel history, on the order of tens of millions of status events. \\*
 \rowcolor{tblrowalt} & TS05 & Refreshed automatically and incrementally rather than reloaded in full, leaving headroom to grow with the activity. \\
 \hline
 \multirow{3}{3.5cm}{\raggedright Reliability} & TS06 &
-Figures are consistent across every view. \\
- & TS07 & The data refresh is idempotent and recoverable, so a failed or repeated run never corrupts or duplicates data. \\
+Figures are consistent across every view. \\*
+ & TS07 & The data refresh is idempotent and recoverable, so a failed or repeated run never corrupts or duplicates data. \\*
  & TS08 & The system degrades gracefully when the analytical store is briefly unavailable. \\
 \hline
 \rowcolor{tblrowalt}\multirow{3}{3.5cm}{\raggedright Security} & TS09 &
-Every view is gated by role-based access control; user accounts are provisioned from the company's HR system by an administrator, never self-registered. \\
-\rowcolor{tblrowalt} & TS10 & The two financial perimeters are kept strictly separate. \\
+Every view is gated by role-based access control; user accounts are provisioned from the company's HR system by an administrator, never self-registered. \\*
+\rowcolor{tblrowalt} & TS10 & The two financial perimeters are kept strictly separate. \\*
 \rowcolor{tblrowalt} & TS11 & Sessions use stateless authentication and all transport is encrypted. \\
 \hline
 \multirow{3}{3.5cm}{\raggedright Usability} & TS12 &
-Readable and navigable by managers who are not data specialists --- visual-first, clear indicators over raw tables. \\
- & TS13 & Each KPI is presented as a chart or graphic, backed by an on-demand data-table view of the same underlying figures. \\
+Readable and navigable by managers who are not data specialists --- visual-first, clear indicators over raw tables. \\*
+ & TS13 & Each KPI is presented as a chart or graphic, backed by an on-demand data-table view of the same underlying figures. \\*
  & TS14 & Consistent across the two axes and their three views. \\
 \hline
 \rowcolor{tblrowalt}\multirow{2}{3.5cm}{\raggedright Maintainability} & TS15 &
-Built as the loosely coupled functional modules of \S\ref{sec:ch4-funcarch} on open, non-proprietary foundations. \\
+Built as the loosely coupled functional modules of \S\ref{sec:ch4-funcarch} on open, non-proprietary foundations. \\*
 \rowcolor{tblrowalt} & TS16 & Operational and analytical concerns are cleanly separated, so each part can evolve independently. \\
 \hline
 \multirow{3}{3.5cm}{\raggedright Compatibility \& portability} & TS17 &
-Source integration depends only on each system's API contract, so the real production systems connect unchanged. \\
- & TS18 & The design accommodates the deferred Route Analysis axis without restructuring. \\
+Source integration depends only on each system's API contract, so the real production systems connect unchanged. \\*
+ & TS18 & The design accommodates the deferred Route Analysis axis without restructuring. \\*
  & TS19 & Reproducibly deployable on modest infrastructure. \\
-\hline
-\end{tabularx}
-\caption{The technical specifications of LOGIQ (TS01--TS19), grouped along the product-quality
-characteristics of ISO/IEC~25010 and tracing the quality expectations of \S\ref{subsec:ch4-quality}.}
-\label{tab:ch4-techspec}
-\end{table}
+\end{xltabular}
+\endgroup
 
 Three of these characteristics dominate the design and recur as drivers in the sections that follow:
 \textbf{performance and capacity} justify the pre-computed aggregate layer and the analytical/operational
