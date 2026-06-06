@@ -22,28 +22,10 @@ Before any warehouse can be modelled or any dashboard built, the existing situat
 understood: who the actors are, which systems already run, how the business operates day to day, and
 precisely where the analytical gap lies.
 
-The chapter therefore proceeds as a structured analysis. It introduces the organisations behind the
+The chapter therefore proceeds as a structured analysis: it introduces the organisations behind the
 project, studies the systems and processes already in place, and from that diagnosis derives the
 objectives of the target system, the prioritised business scope, and the methodology that guide the
-remainder of the contribution:
-
-\begin{itemize}[noitemsep]
-    \item \textbf{Host and client organisations} (\S\ref{sec:ch3-orgs}) --- Ourquilane, the software
-          company carrying the project, and Yalidine, the logistics operator that is its final client,
-          together with its national network.
-    \item \textbf{Study of the existing systems} (\S\ref{sec:ch3-existing}) --- the services and
-          business processes in operation and the operational applications that record them.
-    \item \textbf{Diagnosis of the existing situation} (\S\ref{sec:ch3-diagnosis}) --- the weaknesses
-          of the current setup and the analytical gap it leaves behind.
-    \item \textbf{Needs-gathering methods} (\S\ref{sec:ch3-methods}) --- the techniques used to
-          understand the business and collect its needs.
-    \item \textbf{Needs analysis and synthesis} (\S\ref{sec:ch3-objectives}) --- the synthesised needs
-          and the objectives of the target system derived from them.
-    \item \textbf{Business scope and prioritisation} (\S\ref{sec:ch3-scope}) --- the two business axes,
-          ranked with the MoSCoW method.
-    \item \textbf{Development methodology and planning} (\S\ref{sec:ch3-methodology}) --- the iterative
-          approach adopted and the project timeline.
-\end{itemize}
+remainder of the contribution.
 
 
 % ═════════════════════════════════════════════════════════════════════════════
@@ -168,9 +150,9 @@ directions, a network of call centres, and a large vehicle fleet. Physically, pa
   \draw[fl] (r1) -- (s1); \draw[fl] (r2) -- (s2);
   \draw[fl] (r3) -- (s3); \draw[fl] (r4) -- (s4);
   % tier labels down the right side
-  \node[tier] at (5.8, 0)    {Tier 1\\Sorting hubs};
-  \node[tier] at (5.8,-2.3)  {Tier 2\\Regional centres};
-  \node[tier] at (5.8,-4.4)  {Tier 3\\Last mile};
+  \node[tier] at (6.5, 0)    {Tier 1\\Sorting hubs};
+  \node[tier] at (6.5,-2.3)  {Tier 2\\Regional centres};
+  \node[tier] at (6.5,-4.4)  {Tier 3\\Last mile};
 \end{tikzpicture}
 \caption{Yalidine's three-tier operational network. Arrows are two-way: parcels move down for
 delivery and back up for transfer and returns.}

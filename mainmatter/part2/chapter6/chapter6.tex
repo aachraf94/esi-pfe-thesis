@@ -42,13 +42,13 @@ is exposed behind a REST API, and the data it serves stands in for the operation
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Simulated system}} & \textcolor{white}{\textbf{Domain it provides}} \\
 \hline
-Core logistics system & Geography, delivery centres, the pricing grid, and the full parcel-event
+Yalidine App & Geography, delivery centres, the pricing grid, and the full parcel-event
 history. \\
-HR system & Companies, agencies, employees, and the organisational hierarchy. \\
-Cash-box system & Operating expenses, freelance-driver payments, reimbursements, and internal
+HR~Force & Companies, agencies, employees, and the organisational hierarchy. \\
+Cash~Box & Operating expenses, freelance-driver payments, reimbursements, and internal
 transfers. \\
-Payroll system & Monthly payslips. \\
-Transport system & Dedicated B2B transport requests and their stops. \\
+PC~Paie & Monthly payslips. \\
+Transport & Dedicated B2B transport requests and their stops. \\
 \hline
 \end{tabularx}
 \caption{The five simulated source systems and the business domain each one provides to the warehouse.}
@@ -101,8 +101,9 @@ behaves:
 \begin{itemize}[noitemsep]
     \item \textbf{Working calendar} --- the Algerian week, with Friday as the only day off and reduced
           activity at weekends; no operational events fall on the non-working day.
-    \item \textbf{Seasonality} --- the yearly rhythm of Algerian commerce: the Ramadan slowdown and the
-          Eid rebound, the Black Friday surge, and the end-of-year peak (Figure~\ref{fig:ch6-seasonal}).
+    \item \textbf{Seasonality} --- the yearly rhythm of Algerian commerce: a slowdown in the first half of
+          Ramadan followed by a peak in its second half ahead of Eid, the Black Friday surge, and the
+          end-of-year peak.
     \item \textbf{Geographic realism} --- parcel volume distributed across the wilayas in proportions
           that mirror the real activity, concentrated on the densest regions.
     \item \textbf{Labour-law payroll} --- salaries computed following Algerian labour-law rates, so
@@ -112,36 +113,6 @@ behaves:
     \item \textbf{Internal consistency} --- costs, billing, and operations are kept mutually consistent,
           so financial and operational figures reconcile.
 \end{itemize}
-
-% [VISUAL-IMPLEMENT] illustrative seasonal parcel-volume chart (NOT measured data)
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-\begin{axis}[
-    width=\textwidth, height=6cm,
-    ybar, bar width=8pt,
-    ymin=0,
-    symbolic x coords={Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec},
-    xtick=data,
-    x tick label style={font=\scriptsize},
-    ylabel={Relative volume (illustrative)},
-    ylabel style={font=\scriptsize},
-    ytick style={draw=none},
-    ymajorgrids, grid style={figslate!30, dotted},
-    enlarge x limits=0.05,
-    axis lines=left,
-]
-\addplot[fill=figbluetint, draw=figblue] coordinates
-  {(Jan,90)(Feb,95)(Mar,105)(Apr,80)(May,120)(Jun,110)(Jul,100)(Aug,95)(Sep,105)(Oct,115)(Nov,160)(Dec,150)};
-\node[font=\tiny, text=figslate, anchor=south] at (axis cs:Apr,80) {Ramadan};
-\node[font=\tiny\bfseries, text=figorange, anchor=south] at (axis cs:Nov,160) {Black Friday};
-\end{axis}
-\end{tikzpicture}
-\caption{Illustrative seasonal pattern of parcel volume produced by the generator --- the Ramadan
-slowdown, the Black Friday surge, and the year-end peak. The values are \emph{illustrative}, shown to
-convey the shape of the seasonality, not measured figures.}
-\label{fig:ch6-seasonal}
-\end{figure}
 
 Taken together, these rules mean the test dataset does not merely fill the warehouse with rows: it
 reproduces the \emph{behaviour} of the real activity, so that the dashboards, KPIs, and alerts are
@@ -317,7 +288,7 @@ Table~\ref{tab:ch6-integrity}.
 \textcolor{white}{\textbf{Audit dimension}} & \textcolor{white}{\textbf{What it verifies}} &
 \textcolor{white}{\textbf{Result}} \\
 \hline
-Layer population & Every staging, dimension, and fact table holds the expected rows. & 45 tables, all
+Layer population & Every staging table and principal dimension and fact holds the expected rows. & All
 populated \\
 SCD Type~2 integrity & No duplicate current rows and no overlapping validity windows (agencies,
 employees). & 4 checks, 0 violations \\
@@ -334,14 +305,15 @@ either full coverage or zero violations.}
 \label{tab:ch6-integrity}
 \end{table}
 
-\textbf{Layer population.} The first check counts the rows of every warehouse object across the four
-layers (Figure~\ref{fig:ch6-rowcounts}). All 45 objects --- 18 staging tables, 20 dimensions, and 7
-facts --- are populated, with the figures matching the generated volumes of Table~\ref{tab:ch6-scale}:
-the staging parcel history holds 30{,}527{,}458 events, \texttt{dim\_parcel} 13{,}008{,}349 parcels, and
-the fact layer the corresponding rows. A telling detail is that \texttt{fact\_parcel\_revenue}
-(12{,}917{,}389) carries fewer rows than \texttt{dim\_parcel} (13{,}008{,}349): only parcels that reach a
-terminal, billable state produce revenue, while \emph{every} parcel --- delivered or not --- is measured
-for performance. The model therefore captures the full lifecycle, not just successful deliveries.
+\textbf{Layer population.} The first check counts the rows held across the four layers
+(Figure~\ref{fig:ch6-rowcounts}), confirming that each staging table, \emph{principal} dimension, and
+fact is populated, with the counts reconciling against the generated volumes of
+Table~\ref{tab:ch6-scale}. The audit targets the principal dimensions and facts --- the tables that
+carry the analytical load --- rather than every object in the warehouse. Where a fact legitimately holds
+fewer rows than its dimension, this reflects the business rule behind it, not a loss in transformation:
+only events that reach a billable state produce revenue rows, for instance, whereas \emph{every} event
+--- successful or not --- is still measured for performance. The model therefore captures the full
+lifecycle, not just its successful outcomes.
 
 % [VISUAL-PLACEHOLDER] (provided) row-count audit of every warehouse table by layer
 \begin{figure}[H]
@@ -355,9 +327,10 @@ populated as expected after a full pipeline run.}
 \textbf{Transformation coverage.} Two checks confirm that no data is silently lost between layers
 (Figure~\ref{fig:ch6-coverage}): every non-test source entity reaches its dimension
 (staging\,$\rightarrow$\,dimension), and every dimension is exercised by its facts
-(dimension\,$\rightarrow$\,fact). Both return \textbf{100\% coverage} on all rows --- for example, all
-13{,}008{,}349 parcel trackings in staging resolve to a \texttt{dim\_parcel} row, and all are joined by
-\texttt{fact\_parcel\_performance}.
+(dimension\,$\rightarrow$\,fact). Both return \textbf{100\% coverage} on all rows.
+
+For example, every parcel tracking in staging resolves to its dimension row, and all are in turn joined by
+their performance fact --- nothing is dropped as the data moves through the layers.
 
 % [VISUAL-PLACEHOLDER] (provided) staging->dimension and dimension->fact coverage, both 100%
 \begin{figure}[H]

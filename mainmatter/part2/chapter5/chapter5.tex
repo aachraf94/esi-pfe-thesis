@@ -272,7 +272,7 @@ pipeline depends only on the \emph{published API contract}, never on a source's 
 runs unchanged against either the real systems or their faithful simulation (\S\ref{sec:ch6-sources}).
 Not every endpoint is loaded the same way. Most staging tables are small enough to be \textbf{fully
 refreshed} --- truncated and re-filled --- on each run. The heavy feeds, above all
-\texttt{stg\_yalidine\_parcel\_history} (on the order of tens of millions of rows), are instead
+\texttt{stg\_\allowbreak yalidine\_\allowbreak parcel\_\allowbreak history} (on the order of tens of millions of rows), are instead
 loaded \textbf{incrementally}: rather than reloading in full, the pipeline clears only a trailing window
 --- the most recent week --- and re-fetches it, so late-arriving updates are captured while the bulk of
 the history is left untouched. In all, the pipeline consumes seventeen endpoints across the five source
@@ -433,15 +433,13 @@ right one: analytics models to the analytical database, and everything else to t
 
   \draw[flow] (fe) -- (be);
   \draw[flow] (be) -- (rt);
-  \draw[flow] (rt.east) -- node[lbl, above, pos=0.5]{everything else (read/write)} (op.west);
-  \draw[flow] (rt.east) -- node[lbl, below, pos=0.5]{analytics models (read-only)} (an.west);
+  \draw[flow] (rt.east) -- node[lbl, above, pos=0.28]{everything else (read/write)} (op.west);
+  \draw[flow] (rt.east) -- node[lbl, below, pos=0.28]{analytics models (read-only)} (an.west);
 \end{tikzpicture}%
 }
-\caption{Operational/analytical query routing. The backend (Django\,+\,DRF) connects to two PostgreSQL
-databases; a database router transparently sends analytics models to the read-only \textbf{analytical
-database}, and every other query --- users, roles, alert rules, preferences, notifications, ETL run
-history --- to the \textbf{operational database}. The separation is enforced at the framework level, not
-in each endpoint.}
+\caption{Operational/analytical query routing: a database router sends analytics models to the read-only
+\textbf{analytical database} and every other query to the \textbf{operational database}, enforcing the
+separation at the framework level rather than in each endpoint.}
 \label{fig:ch5-routing}
 \end{figure}
 
@@ -494,7 +492,7 @@ credentials} already imported by the backend (\S\ref{sec:ch5-backend}); there ar
 passwords to manage (Figure~\ref{fig:ch5-login}).
 
 % [VISUAL-PLACEHOLDER] (provided) sign-in screen
-\fig[0.55\textwidth]{login_page}{The sign-in screen: users authenticate with their HR Force
+\fig[0.68\textwidth]{login_page}{The sign-in screen: users authenticate with their HR Force
 credentials.}{ch5-login}
 
 Once signed in, the user lands on a consolidated \textbf{Overview} (Figure~\ref{fig:ch5-overview}). The
@@ -513,13 +511,14 @@ sign-in.}{ch5-overview}
 \subsection{The Business-User Workspace}
 
 Each business axis has its own page, read through the same three views and kept on a \textbf{separate
-financial perimeter}, so costs and revenues are never mixed across axes. Figure~\ref{fig:ch5-dash-parcel}
-shows the Parcel Delivery axis across all three views, and Figure~\ref{fig:ch5-dash-transport} the
-Dedicated Transport axis.
+financial perimeter}, so costs and revenues are never mixed across axes.
+Figure~\ref{fig:ch5-dash-transport} illustrates both axes through a selection of their views --- the
+Dedicated Transport axis (Operations, Cost \& Profitability) and the Parcel Delivery axis (Operations,
+Performance).
 
 
-% [VISUAL-PLACEHOLDER] (provided) Dedicated Transport axis — 2x2 grid of views
-\begin{figure}[p]
+% [VISUAL-PLACEHOLDER] (provided) Business-user workspace — 2x2 grid across both axes
+\begin{figure}[H]
 \centering
 \begin{subfigure}[t]{0.49\linewidth}
   \centering\includegraphics[width=\linewidth]{BusinessUser_Transport_operations}
@@ -540,7 +539,9 @@ Dedicated Transport axis.
   \centering\includegraphics[width=\linewidth]{BusinessUser_Parcel_performance}
   \caption{Performance}
 \end{subfigure}
-\caption{The Dedicated Transport axis page, read through its views.}
+\caption{The business-user workspace across both axes: the Dedicated Transport axis (Operations,
+Cost \& Profitability) and the Parcel Delivery axis (Operations, Performance), each read through its
+views on a separate financial perimeter.}
 \label{fig:ch5-dash-transport}
 \end{figure}
 
