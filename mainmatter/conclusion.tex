@@ -74,9 +74,6 @@ The work is honest about the boundaries within which these results hold:
     \item \textbf{Simulated, not live, sources.} The production systems could not be connected within the
           scope of this project, so the validation rests on the simulation. Its fidelity to the source
           contract makes it a sound substitute, but the platform has yet to run against the real feeds.
-    \item \textbf{Performance assessed qualitatively.} The aggregate layer and incremental load behave as
-          designed under production-scale data, but the work reports no formal benchmark (response-time
-          percentiles, throughput, refresh duration).
     \item \textbf{No live user-acceptance round.} The platform was validated technically; it has not yet
           been evaluated formally with the decision-makers in their day-to-day use.
     \item \textbf{Scope deliberately bounded.} Of the two prioritised axes, both are delivered; a third
@@ -91,27 +88,13 @@ None of these undermines the core outcome; each marks, instead, a clear and natu
 \addcontentsline{toc}{section}{Future Work and Perspectives}
 
 LOGIQ was designed to evolve, and its architecture leaves room to grow without being reworked. Two
-directions stand out, alongside a small number of consolidating steps (Table~\ref{tab:concl-future}).
-
-\textbf{Route analysis.} The natural extension of the transport axis is to analyse \emph{how} goods move,
-not only how much they cost. Once the routing and optimisation-reference data becomes available, this
-capability can be added on top of the warehouse, which was already designed to accommodate it: a
-route-optimisation component would compare the routes actually taken against optimised alternatives,
-surfacing the gap as interactive maps and comparative KPI tables. It is deferred purely for want of the
-input data, not for any architectural reason.
-
-\textbf{Conversational analytics assistant.} The second perspective makes the platform reachable in plain
-language. A decision-maker would express an information need in natural language --- in words --- and a
-conversational assistant would translate it into the corresponding query over the warehouse and return
-the matching visualisation: a chart, a map, or a KPI, generated on demand. This lowers the barrier to the
-data still further, letting non-technical managers obtain a tailored view without navigating the
-dashboards by hand.
-
-Beyond these, the immediate consolidating steps are to point the ETL at the live production systems
-(a change of configuration, not of design), to benchmark performance formally under load, and to run a
-structured user-acceptance round. Further out, the existing facts offer a foundation for predictive
-analytics --- forecasting volumes, costs, and performance --- extending LOGIQ from describing the past to
-anticipating the future.
+directions stand out: \textbf{route analysis}, the natural extension of the transport axis (deferred only
+for want of the routing data the warehouse is already designed to accommodate), and a \textbf{conversational
+analytics assistant} that would turn a plain-language request into a query over the warehouse and return
+the matching visualisation on demand. Alongside these sit a small number of consolidating steps ---
+pointing the ETL at the live production systems, formal performance benchmarking, and a structured
+user-acceptance round --- and, further out, predictive analytics built on the existing facts. Each is set
+out in Table~\ref{tab:concl-future}.
 
 % [VISUAL-IMPLEMENT] capability-status table for future work
 \begin{table}[H]
@@ -130,9 +113,9 @@ Conversational analytics assistant & Planned & Natural-language request $\righta
 generated visualisation over the warehouse. \\
 Live production integration & Ready by design & Repoint the ETL from the simulation to the real source
 contracts. \\
-Formal performance benchmarking & Pending & Measure response-time and refresh-duration figures under
+Formal performance benchmarking & Envisaged & Measure response-time and refresh-duration figures under
 production load. \\
-User-acceptance testing & Pending & Evaluate the platform in day-to-day use with the decision-makers. \\
+User-acceptance testing & Envisaged & Evaluate the platform in day-to-day use with the decision-makers. \\
 Predictive analytics & Envisaged & Extend the existing facts with forecasting of volumes, costs, and
 performance. \\
 \hline

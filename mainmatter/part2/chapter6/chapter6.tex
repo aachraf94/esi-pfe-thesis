@@ -21,8 +21,7 @@ simulated source systems (\S\ref{sec:ch6-sources}), the business-realistic data 
 gate that admits only clean datasets (\S\ref{sec:ch6-quality}). It then reports the \textbf{end-to-end
 validation} of the full chain (\S\ref{sec:ch6-e2e}), backed by the warehouse-integrity checks run after
 every load. Finally, it presents the \textbf{results} the platform delivers against the four objectives
-and the two business axes (\S\ref{sec:ch6-results}), and closes on an honest \textbf{discussion} of what
-was achieved and where the work stops (\S\ref{sec:ch6-discussion}).
+and the two business axes (\S\ref{sec:ch6-results}).
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Simulated Source Systems}
@@ -483,54 +482,6 @@ keeps the warehouse current without a full reload.
 % TODO(achraf): add measured numbers — dashboard response times, ETL refresh duration — once benchmarked
 The two business axes are both delivered \textbf{in full}, each on its own financial perimeter, exactly
 as scoped.
-
-% ═════════════════════════════════════════════════════════════════════════════
-\section{Discussion}
-\label{sec:ch6-discussion}
-
-The validation reported above supports a clear conclusion: LOGIQ works end to end, and it meets the
-objectives set in Chapter~3. It is worth stating plainly both what that establishes and where the work
-stops.
-
-\textbf{What was achieved.} Against a faithful, production-scale test environment, the platform delivered
-on every front:
-
-\begin{itemize}[noitemsep]
-    \item the \textbf{four objectives} are met --- a consolidated warehouse, a reliable automated ETL,
-          interactive multi-axis dashboards, and proactive alerting (Table~\ref{tab:ch6-results});
-    \item both \textbf{business axes} are delivered \emph{in full}, each on its own financial perimeter,
-          exactly as scoped;
-    \item the ETL is shown to move tens of millions of rows through every layer with \textbf{100\%
-          coverage and zero rule violations} (\S\ref{sec:ch6-wh-integrity});
-    \item the figures are \textbf{auditable end to end} --- correct inside the warehouse, and verifiable
-          by the decision-maker through the KPI data-table view (\S\ref{sec:ch6-traceability});
-    \item because the pipeline binds only to the source \emph{contract}, the design that passes here is
-          the one that would run, unchanged, against the live systems.
-\end{itemize}
-
-\textbf{Where the work stops.} The validation is honest about its bounds, and naming them is part of the
-result:
-
-\begin{itemize}[noitemsep]
-    \item \textbf{Simulated, not live, sources.} The production systems could not be connected within the
-          project scope, so the evidence rests on the simulation. The contract fidelity of
-          \S\ref{sec:ch6-sources} is what makes this a sound substitute rather than a weaker test, but it
-          remains a substitute until the platform is pointed at the real feeds.
-    \item \textbf{Performance assessed qualitatively.} The aggregate layer and incremental load behave as
-          designed under production-scale data, but the chapter reports no formal benchmark (response-time
-          percentiles, throughput, refresh duration). Measured figures are left as a small,
-          well-defined next step.
-          % TODO(achraf): add measured numbers once benchmarked
-    \item \textbf{No live user-acceptance testing.} The platform was validated technically; it has not yet
-          been put in front of the decision-makers for a formal acceptance round.
-    \item \textbf{Route Analysis} remains future work: the reference data it needs was not available
-          within the scope of this version, and the warehouse is already designed to accommodate it.
-\end{itemize}
-
-None of these undermines the core finding. Within a faithful, production-scale environment, LOGIQ is shown
-to consolidate the scattered data correctly, refresh it reliably, surface it through the dashboards each
-axis was designed for, and raise alerts when a metric drifts --- which is precisely what the project set
-out to deliver.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section*{Conclusion}
