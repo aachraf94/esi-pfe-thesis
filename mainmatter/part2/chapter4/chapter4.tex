@@ -446,7 +446,7 @@ The data warehouse is the analytical core of LOGIQ: the single consolidated base
 dashboard and alert reads. This section designs it conceptually --- the approach, the sources, the
 layers, the table inventory, the schema, the modelling techniques, and the scale --- without naming any
 database technology, which is deferred to Chapter~5. The full field-level data dictionary is given in
-Annexe~A.
+Appendix~A.
 
 % -----------------------------------------------------------------------------
 \subsection{Design Approach}
@@ -569,7 +569,7 @@ The model materialises into \textbf{18 staging tables}, \textbf{56 dimensions}, 
 % TODO(achraf): confirm dimension total (SQL files = 56; redesign-doc summary states 49 = 26 seeded + 23 loaded)
 Tables~\ref{tab:ch4-dw-staging} and~\ref{tab:ch4-dw-dims} list the staging and dimension tables by
 domain; the facts are declared in Table~\ref{tab:ch4-dw-facts}. The complete field-level dictionary of
-every table is in Annexe~A.
+every table is in Appendix~A.
 
 % [VISUAL-IMPLEMENT] staging-table inventory by source
 \begin{table}[H]
@@ -642,7 +642,7 @@ LOGIQ adopts a \textbf{fact-constellation} (galaxy) schema with \textbf{snowflak
 
 Table~\ref{tab:ch4-dw-facts} declares the grain and measures of the seven facts;
 Figure~\ref{fig:ch4-dw-constellation} shows a fragment of the constellation. The complete model is
-reproduced in Annexe~A.
+reproduced in Appendix~A.
 
 % [VISUAL-IMPLEMENT] grain + measures of the 7 fact tables, grouped by financial perimeter
 \begin{table}[H]
