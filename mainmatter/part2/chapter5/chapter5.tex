@@ -230,7 +230,7 @@ The decisive implementation choice is the \textbf{aggregate layer}. Its summarie
 PostgreSQL \textbf{materialised views} --- pre-computed, indexed, and \emph{refreshed} at the end of
 every pipeline run --- and they are the \emph{only} objects the analytics API reads
 (\S\ref{sec:ch5-backend}). A dashboard query therefore scans a small, indexed view instead of the
-hundreds of millions of rows in the fact layer, which is what keeps responses within seconds at national
+tens of millions of rows in the fact layer, which is what keeps responses within seconds at national
 scale.
 
 The dimensions carry history where it matters. Slowly changing attributes --- an employee's agency or
@@ -272,7 +272,7 @@ pipeline depends only on the \emph{published API contract}, never on a source's 
 runs unchanged against either the real systems or their faithful simulation (\S\ref{sec:ch6-sources}).
 Not every endpoint is loaded the same way. Most staging tables are small enough to be \textbf{fully
 refreshed} --- truncated and re-filled --- on each run. The heavy feeds, above all
-\texttt{stg\_yalidine\_parcel\_history} (on the order of hundreds of millions of rows), are instead
+\texttt{stg\_yalidine\_parcel\_history} (on the order of tens of millions of rows), are instead
 loaded \textbf{incrementally}: rather than reloading in full, the pipeline clears only a trailing window
 --- the most recent week --- and re-fetches it, so late-arriving updates are captured while the bulk of
 the history is left untouched. In all, the pipeline consumes seventeen endpoints across the five source

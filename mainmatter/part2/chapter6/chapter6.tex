@@ -19,10 +19,10 @@ The chapter is organised in three movements. It first presents the \textbf{test 
 simulated source systems (\S\ref{sec:ch6-sources}), the business-realistic data generation
 (\S\ref{sec:ch6-data}), its production scale (\S\ref{sec:ch6-scale}), and the automated data-quality
 gate that admits only clean datasets (\S\ref{sec:ch6-quality}). It then reports the \textbf{end-to-end
-validation} of the full chain (\S\ref{sec:ch6-e2e}). Finally, it presents the \textbf{results} the
-platform delivers against the four objectives and the two business axes (\S\ref{sec:ch6-results}), and
-closes on an honest \textbf{discussion} of what was achieved and where the work stops
-(\S\ref{sec:ch6-discussion}).
+validation} of the full chain (\S\ref{sec:ch6-e2e}), backed by the warehouse-integrity checks run after
+every load. Finally, it presents the \textbf{results} the platform delivers against the four objectives
+and the two business axes (\S\ref{sec:ch6-results}), and closes on an honest \textbf{discussion} of what
+was achieved and where the work stops (\S\ref{sec:ch6-discussion}).
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Simulated Source Systems}
@@ -63,6 +63,24 @@ system's internal database (the source decoupling of \S\ref{sec:ch4-etl}, TS17) 
 simulation \textbf{exactly as it would to the production systems}, with no change to its extraction code.
 Validating the platform against the simulation therefore genuinely validates the production design: the
 same pipeline that passes here would run unaltered against the live systems.
+
+Figure~\ref{fig:ch6-mockapi} makes this concrete on the HR feed. Each simulated system publishes
+interactive API documentation; calling the \texttt{/hrforce/agencies} endpoint returns paginated,
+authenticated JSON with the same nested structure (agency $\rightarrow$ city $\rightarrow$ state $\rightarrow$
+company), the same identifier conventions, and the same quirks the real system exposes --- precisely the
+contract the extraction stage is written against.
+
+% [VISUAL-PLACEHOLDER] (provided) mock source API exercised — Swagger request + JSON response
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{test_api_mock_datasources_request}\\[6pt]
+\includegraphics[width=\linewidth]{test_api_mock_datasources_response}
+\caption{A simulated source system exercised through its interactive API documentation: the
+\texttt{/hrforce/agencies} request (top) and its paginated, authenticated JSON response (bottom). The
+endpoints, response shapes, authentication, and pagination reproduce the real systems' contract, so the
+ETL connects to the simulation exactly as it would to production.}
+\label{fig:ch6-mockapi}
+\end{figure}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Realistic Data Generation}
@@ -136,38 +154,39 @@ exercised against patterns they will genuinely have to handle in production.
 
 A realistic \emph{shape} is not enough; the data must also have a realistic \emph{size}. The generator
 produces the dataset at \textbf{production scale}, so the platform can be tested for performance and
-correctness under genuine load rather than on a small sample (Table~\ref{tab:ch6-scale}).
+correctness under genuine load rather than on a small sample. Table~\ref{tab:ch6-scale} reports the
+actual volumes generated and loaded, read directly from the warehouse after a full run.
 
-% [VISUAL-IMPLEMENT] qualitative scale of the test dataset (exact counts deferred)
+% [VISUAL-IMPLEMENT] measured scale of the test dataset (real counts from the loaded warehouse)
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.6cm}|>{\raggedright\arraybackslash}X|}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.9cm}|>{\raggedright\arraybackslash}X|}
 \hline
 \rowcolor{tblheader}
-\textcolor{white}{\textbf{Data domain}} & \textcolor{white}{\textbf{Approximate scale}} \\
+\textcolor{white}{\textbf{Data domain}} & \textcolor{white}{\textbf{Volume generated}} \\
 \hline
-Parcels generated & On the order of tens of thousands per day, over a multi-year horizon. \\
-% TODO(achraf): confirm exact count (~220M staging events, ~27M parcels) from docs/dw-doc.md
-Parcel-status events & The largest fact --- on the order of \emph{hundreds of millions} of rows. \\
-% TODO(achraf): confirm exact payroll count from docs/mock-data-doc.md
-Payroll & Tens of thousands of employee-months of payslips. \\
-% TODO(achraf): confirm exact expense/transport counts
-Expenses \& transport & Matching operating-expense and transport-request records over the same
-horizon. \\
+Parcels & 13{,}008{,}349 parcels (\(\approx\)\,13 million) over an extended period of operation. \\
+Parcel-status events & 30{,}527{,}458 status events (\(\approx\)\,30.5 million) --- the largest feed,
+the full multi-status lifecycle of every parcel. \\
+Payroll & 45{,}378 monthly payslips for 3{,}000 employees. \\
+Operating expenses & 277{,}574 cash-box expense records, plus 43{,}668 freelance-driver payments and
+15{,}949 reimbursements. \\
+Dedicated transport & 3{,}822 B2B transport requests, with 13{,}414 stops. \\
+Reference dimensions & 58 wilayas, 1{,}541 communes, 331 agencies, and 252 delivery centres. \\
 \hline
 \end{tabularx}
-\caption{The approximate scale of the generated test dataset. Figures are qualitative; exact counts are
-to be confirmed from the design documents.}
+\caption{The measured scale of the generated test dataset, read from the loaded warehouse (see the
+row-count audit in Figure~\ref{fig:ch6-rowcounts}).}
 \label{tab:ch6-scale}
 \end{table}
 
-This scale is what makes the validation credible. It is precisely the volume --- hundreds of millions of
-parcel-status events --- that justifies the two design choices made earlier for performance: the
-pre-computed \textbf{aggregate layer} (\S\ref{sec:ch4-dw}) and the \textbf{incremental} ETL load
-(\S\ref{sec:ch5-data}). On a toy dataset neither could be meaningfully exercised; at production scale,
-both are put under the same pressure they will face in operation.
+This scale is what makes the validation credible. It is precisely this volume --- tens of millions of
+parcel-status events on top of a massive parcel history --- that justifies the two design choices made
+earlier for performance: the pre-computed \textbf{aggregate layer} (\S\ref{sec:ch4-dw}) and the
+\textbf{incremental} ETL load (\S\ref{sec:ch5-data}). On a toy dataset neither could be meaningfully
+exercised; at this scale, both are put under realistic pressure.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Data-Quality Validation}
@@ -205,6 +224,23 @@ Test-entity isolation & Excluded test entities never leak into the generated dat
 ETL only when all of them pass.}
 \label{tab:ch6-quality}
 \end{table}
+
+The suite runs in two tiers (Figure~\ref{fig:ch6-datagen-validation}): \textbf{critical checks} ---
+referential integrity, financial and distance identities, the working calendar, identifier formats, and
+test-entity isolation --- whose failure blocks the dataset outright; and \textbf{statistical checks} that
+confirm the generated distributions are plausible (volumes by wilaya, salary ranges, lifecycle
+proportions). Generation is admitted to the ETL only when \emph{every} critical check passes.
+
+% [VISUAL-PLACEHOLDER] (provided) data-generation validation suite output — critical + statistical tiers
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{data_generation_validation_critical_checks}\\[6pt]
+\includegraphics[width=\linewidth]{data_generation_validation_statistical_checks}
+\caption{The data-quality gate run after every generation: the critical checks (top) and the statistical
+checks (bottom). All critical checks pass, so the dataset is admitted to the ETL --- establishing the
+clean baseline the rest of the validation depends on.}
+\label{fig:ch6-datagen-validation}
+\end{figure}
 
 This quality gate is what makes the end-to-end validation that follows trustworthy. Because the input
 data is guaranteed consistent before the pipeline ever touches it, any discrepancy observed downstream
@@ -261,6 +297,104 @@ One behaviour was verified \textbf{independently} of the rest: the frontend's
 was deliberately made unavailable, it was confirmed that the analytics endpoints fail safe and the
 dashboard falls back to representative figures rather than breaking --- a property that holds, and is
 demonstrable, even without a live warehouse.
+
+\subsection{Warehouse Integrity Validation}
+\label{sec:ch6-wh-integrity}
+
+Running the chain is one thing; \emph{proving} that the data arrived intact at the far end is another. To
+that end, an automated audit runs against the loaded warehouse after every full pipeline run. It does not
+re-check the source data (that was the gate of \S\ref{sec:ch6-quality}); it checks that the ETL
+\emph{itself} preserved the data through every layer. The audit covers five dimensions, summarised in
+Table~\ref{tab:ch6-integrity}.
+
+% [VISUAL-IMPLEMENT] synthesised summary of the post-load warehouse-integrity audit (real results)
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.1cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.0cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Audit dimension}} & \textcolor{white}{\textbf{What it verifies}} &
+\textcolor{white}{\textbf{Result}} \\
+\hline
+Layer population & Every staging, dimension, and fact table holds the expected rows. & 45 tables, all
+populated \\
+SCD Type~2 integrity & No duplicate current rows and no overlapping validity windows (agencies,
+employees). & 4 checks, 0 violations \\
+Staging\,$\rightarrow$\,dimension coverage & Every source entity reaches its dimension --- nothing
+dropped in transformation. & 8 checks, 100\% \\
+Dimension\,$\rightarrow$\,fact coverage & Every dimension key is exercised by its facts. & 7 checks,
+100\% \\
+Business rules & Financial, format, and test-isolation invariants hold after load. & 12 checks, 0
+violations \\
+\hline
+\end{tabularx}
+\caption{The post-load warehouse-integrity audit: five dimensions, all passing. Every check returns
+either full coverage or zero violations.}
+\label{tab:ch6-integrity}
+\end{table}
+
+\textbf{Layer population.} The first check counts the rows of every warehouse object across the four
+layers (Figure~\ref{fig:ch6-rowcounts}). All 45 objects --- 18 staging tables, 20 dimensions, and 7
+facts --- are populated, with the figures matching the generated volumes of Table~\ref{tab:ch6-scale}:
+the staging parcel history holds 30{,}527{,}458 events, \texttt{dim\_parcel} 13{,}008{,}349 parcels, and
+the fact layer the corresponding rows. A telling detail is that \texttt{fact\_parcel\_revenue}
+(12{,}917{,}389) carries fewer rows than \texttt{dim\_parcel} (13{,}008{,}349): only parcels that reach a
+terminal, billable state produce revenue, while \emph{every} parcel --- delivered or not --- is measured
+for performance. The model therefore captures the full lifecycle, not just successful deliveries.
+
+% [VISUAL-PLACEHOLDER] (provided) row-count audit of every warehouse table by layer
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.52\textwidth]{ETL_validation_row_counts}
+\caption{The row-count audit: every warehouse object across the four layers (staging, dimensions, facts)
+populated as expected after a full pipeline run.}
+\label{fig:ch6-rowcounts}
+\end{figure}
+
+\textbf{Transformation coverage.} Two checks confirm that no data is silently lost between layers
+(Figure~\ref{fig:ch6-coverage}): every non-test source entity reaches its dimension
+(staging\,$\rightarrow$\,dimension), and every dimension is exercised by its facts
+(dimension\,$\rightarrow$\,fact). Both return \textbf{100\% coverage} on all rows --- for example, all
+13{,}008{,}349 parcel trackings in staging resolve to a \texttt{dim\_parcel} row, and all are joined by
+\texttt{fact\_parcel\_performance}.
+
+% [VISUAL-PLACEHOLDER] (provided) staging->dimension and dimension->fact coverage, both 100%
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{ETL_validation_dim_coverage}\\[6pt]
+\includegraphics[width=0.86\linewidth]{ETL_validation_fact_coverage}
+\caption{Transformation coverage: staging\,$\rightarrow$\,dimension (top) and
+dimension\,$\rightarrow$\,fact (bottom). Every check reports 100\% --- nothing is dropped as the data
+moves through the layers.}
+\label{fig:ch6-coverage}
+\end{figure}
+
+\textbf{Correctness.} Finally, the audit checks that the warehouse is internally correct
+(Figure~\ref{fig:ch6-correctness}). The \textbf{SCD Type~2} checks confirm the history mechanism behaves:
+no dimension has duplicate \texttt{is\_current} rows, and no entity has overlapping validity windows.
+The \textbf{business-rule} checks confirm post-load invariants --- financial identities (e.g.\
+transport \texttt{total\_cost} equals the sum of its components within tolerance; no negative fees or
+salaries), referential link rules, and the isolation of test entities. Across both groups, \emph{every
+check returns zero violations}.
+
+% [VISUAL-PLACEHOLDER] (provided) SCD2 integrity + business-rule checks, all zero violations
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.86\linewidth]{ETL_validation_scd2_integrity}\\[8pt]
+\includegraphics[width=\linewidth]{ETL_validation_business_rules}
+\caption{Warehouse correctness: SCD Type~2 integrity (top) and business-rule checks (bottom). Every
+check reports zero violations --- the history mechanism and the financial and referential invariants all
+hold after the load.}
+\label{fig:ch6-correctness}
+\end{figure}
+
+Taken together, this audit turns the end-to-end run from a qualitative ``it worked'' into measured
+evidence: the data the simulated sources served is shown to arrive in the warehouse \emph{complete}
+(100\% coverage), \emph{correct} (zero rule violations), and \emph{consistently historised} (SCD~2
+intact). Because the pipeline connects to the simulation exactly as it would to production, this is
+evidence about the production design, not merely a test fixture.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Results}
@@ -332,9 +466,61 @@ as scoped.
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Discussion}
 \label{sec:ch6-discussion}
-% TODO
+
+The validation reported above supports a clear conclusion: LOGIQ works end to end, and it meets the
+objectives set in Chapter~3. It is worth stating plainly both what that establishes and where the work
+stops.
+
+\textbf{What was achieved.} Against a faithful, production-scale test environment, the platform delivered
+on every front:
+
+\begin{itemize}[noitemsep]
+    \item the \textbf{four objectives} are met --- a consolidated warehouse, a reliable automated ETL,
+          interactive multi-axis dashboards, and proactive alerting (Table~\ref{tab:ch6-results});
+    \item both \textbf{business axes} are delivered \emph{in full}, each on its own financial perimeter,
+          exactly as scoped;
+    \item the ETL is shown to move tens of millions of rows through every layer with \textbf{100\%
+          coverage and zero rule violations} (\S\ref{sec:ch6-wh-integrity});
+    \item because the pipeline binds only to the source \emph{contract}, the design that passes here is
+          the one that would run, unchanged, against the live systems.
+\end{itemize}
+
+\textbf{Where the work stops.} The validation is honest about its bounds, and naming them is part of the
+result:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Simulated, not live, sources.} The production systems could not be connected within the
+          project scope, so the evidence rests on the simulation. The contract fidelity of
+          \S\ref{sec:ch6-sources} is what makes this a sound substitute rather than a weaker test, but it
+          remains a substitute until the platform is pointed at the real feeds.
+    \item \textbf{Performance assessed qualitatively.} The aggregate layer and incremental load behave as
+          designed under production-scale data, but the chapter reports no formal benchmark (response-time
+          percentiles, throughput, refresh duration). Measured figures are left as a small,
+          well-defined next step.
+          % TODO(achraf): add measured numbers once benchmarked
+    \item \textbf{No live user-acceptance testing.} The platform was validated technically; it has not yet
+          been put in front of the decision-makers for a formal acceptance round.
+    \item \textbf{Route Analysis} remains future work: the reference data it needs was not available
+          within the scope of this version, and the warehouse is already designed to accommodate it.
+\end{itemize}
+
+None of these undermines the core finding. Within a faithful, production-scale environment, LOGIQ is shown
+to consolidate the scattered data correctly, refresh it reliably, surface it through the dashboards each
+axis was designed for, and raise alerts when a metric drifts --- which is precisely what the project set
+out to deliver.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
-% TODO
+
+This chapter closed the loop opened by the two that preceded it: having designed LOGIQ (Chapter~4) and
+built it (Chapter~5), it set out to \emph{show} that the system works. Because the production sources
+could not be connected during development, the demonstration rested on a faithful test environment --- a
+simulation that reproduces the real systems' contract, fed with business-realistic, production-scale data
+that passes an automated quality gate before it is ever used.
+
+Exercised end to end through that environment, the platform was validated stage by stage: the data the
+simulated sources serve was shown to arrive in the warehouse complete, correct, and consistently
+historised, and to surface through the dashboards and alerts the business depends on. Measured against the
+four objectives and the two axes, LOGIQ delivers --- with its limits stated openly. The general
+conclusion that follows draws these threads together and sets out the perspectives the platform opens.

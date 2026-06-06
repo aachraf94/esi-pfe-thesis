@@ -324,7 +324,7 @@ Analytical views and KPI queries return within a few seconds --- not minutes ---
  & TS03 & Analytical workloads are isolated from operational ones. \\
 \hline
 \rowcolor{tblrowalt}\multirow{2}{3.5cm}{\raggedright Capacity \& scalability} & TS04 &
-Sized for production-scale volumes --- a parcel history on the order of hundreds of millions of status events over a multi-year horizon. \\
+Sized for production-scale volumes --- a massive parcel history, on the order of tens of millions of status events. \\
 \rowcolor{tblrowalt} & TS05 & Refreshed automatically and incrementally rather than reloaded in full, leaving headroom to grow with the activity. \\
 \hline
 \multirow{3}{3.5cm}{\raggedright Reliability} & TS06 &
@@ -821,10 +821,9 @@ current at their event date.}
 \label{subsec:ch4-dw-scale}
 
 The warehouse is dimensioned for \textbf{production-scale volumes}. The parcel status-event history
-dominates --- of the order of \emph{hundreds of millions of rows}, collapsing to tens of millions of
-parcels --- while the cost side (payslips, expenses) is smaller and the transport facts are modest.%
-% TODO(achraf): confirm exact counts — parcel events (~220M staging), parcels (~27M) from docs/dw-doc.md
-\ This scale is precisely why the design takes the shape it does:
+dominates --- a massive feed on the order of \emph{tens of millions of rows} --- while the cost side
+(payslips, expenses) is smaller and the transport facts are modest. This scale is precisely why the
+design takes the shape it does:
 
 \begin{itemize}[noitemsep]
     \item the \textbf{aggregate layer} lets a dashboard read a small summary instead of scanning the
@@ -963,7 +962,7 @@ engineering properties, each answering a concrete demand of operating at nationa
 \textcolor{white}{\textbf{Property}} & \textcolor{white}{\textbf{Why it matters}} \\
 \hline
 Incremental extraction & The very large parcel-history feed is loaded from where the last run stopped,
-not reloaded in full --- the only tractable option at a scale of hundreds of millions of events. \\
+not reloaded in full --- the only tractable option at a scale of tens of millions of events. \\
 Idempotent loads & Loads follow an \emph{insert-or-update} strategy, so re-running a stage never
 duplicates data; the pipeline is always safe to retry. \\
 Resilience & Failed source calls are retried with exponential backoff, so the pipeline tolerates a
