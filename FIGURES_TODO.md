@@ -20,7 +20,14 @@ Status legend: ☐ to do · ◐ in progress · ☑ done.
 | C5-P4 | Ch.5 §5.2.2 | PLACEHOLDER | Dagster asset graph by layer (`fig:ch5-asset-graph`) — staging → dimensions → facts → aggregates | Author-provided screenshot embedded as `stg_dim_fact_agg.png` | ☑ |
 | C5-P5 | Ch.5 §5.2.2 | PLACEHOLDER | `fact_parcel_revenue` input/output lineage (`fig:ch5-lineage`) | Author-provided screenshot embedded as `fact_parcel_revenue_lineage.png` (renamed from spaced filename) | ☑ |
 | C5-P6 | Ch.5 §5.2.3 | PLACEHOLDER | Dagster automation (`fig:ch5-automation`) — daily 01:00 UTC schedule + completion sensor | Author-provided screenshot embedded as `automation_dagster_scrennshot.png` | ☑ |
-| C5-P1 | Ch.5 §5.5 | PLACEHOLDER | Dashboard screenshots — Parcel (`fig:ch5-dash-parcel`) & Transport (`fig:ch5-dash-transport`) axis pages, each × 3 views; **most valuable figures** | screenshot the running platform | ☐ |
+| C5-P1 | Ch.5 §5.5 | PLACEHOLDER | Axis pages — Parcel 3-view (`fig:ch5-dash-parcel`) + Transport Operations (`fig:ch5-dash-transport`) | Author-provided screenshots embedded (`BusinessUser_Parcel_*`, `BusinessUser_Transport_operations.png`) | ☑ |
+| C5-P7 | Ch.5 §5.5 | PLACEHOLDER | Sign-in (`fig:ch5-login`) + Overview (`fig:ch5-overview`) | Embedded `login_page.png`, `BusinessUser_Overview.png` | ☑ |
+| C5-P8 | Ch.5 §5.5 | PLACEHOLDER | Alerting in UI (`fig:ch5-alerts`) — alerts page, rule creation, channel subscription | Embedded `BusinessUser_Alert*.png` | ☑ |
+| C5-P9 | Ch.5 §5.5 | PLACEHOLDER | Preferences + Arabic RTL (`fig:ch5-prefs`) | Embedded `BusinessUser_Preferences_arabic_light.png`, `BusinessUser_parcel_arabic_light.png` | ☑ |
+| C5-P10 | Ch.5 §5.5 | PLACEHOLDER | Administration view (`fig:ch5-admin`) — overview, users, roles, ETL runs | Embedded `Admin_*.png` | ☑ |
+| C5-P11 | Ch.5 §5.4 | PLACEHOLDER | In-app notification centre (`fig:ch5-notif`) | Embedded `notification_alert/notification.png` | ☑ |
+| C5-P12 | Ch.5 §5.4 | PLACEHOLDER | E-mail notifications (`fig:ch5-emails`) — ETL-run e-mail + critical alert e-mail | Embedded `notification_alert/email_etl.png`, `email_alert_critic.png` | ☑ |
+| C5-B1 | Annexe B | PLACEHOLDER | Frontend overflow — Transport Cost & Performance views, Admin user-detail panel | Embedded later from `figures/frontend/` (`BusinessUser_Transport_costs.png`, `BusinessUser_Transport_performance.png`, `Admin_user_panel.png`) | ☐ |
 | C6-P1 | Ch.6 §6.6 | PLACEHOLDER | Results screenshots — populated KPI page (`fig:ch6-result-kpi`) + alert firing (`fig:ch6-result-alert`) | screenshot the running platform | ☐ |
 | C5-L1 | Ch.5 §5.1 | FETCH | Technology-stack logos in `tab:ch5-stack` (one PNG per technology, rendered via `\techlogo`) | download official logos as PNG into `assets/logos/tech/` — exact filenames listed in that folder's `README.md`. Missing files render a subtle text stub, so the build is never broken | ☑ |
 

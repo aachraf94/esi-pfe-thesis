@@ -480,84 +480,142 @@ live analytical database.
 \section{Alerting Implementation}
 \label{sec:ch5-alerting}
 
-The proactive alerting designed in \S\ref{sec:ch4-app} is realised as a \textbf{background service}
-built on \textbf{Celery} with \textbf{Redis} as its message broker. Keeping evaluation off the request
-path is the point: rules are checked by a worker on a schedule, so watching the indicators never slows
-the interface a decision-maker is using.
+Alerting and notification are realised together as a \textbf{background service} built on \textbf{Celery}
+with \textbf{Redis} as its message broker. Keeping this work off the request path is the point: rules are
+evaluated and messages delivered by a worker, so watching the indicators never slows the interface a
+decision-maker is using.
 
 % -----------------------------------------------------------------------------
-\subsection{Scheduled Rule Evaluation}
+\subsection{What is Notified}
 
-A periodic Celery task wakes on a fixed schedule and evaluates every \emph{active} rule
-(Listing~\ref{lst:ch5-alert}). For each rule it reads the current value of the metric from the warehouse
-aggregate layer, compares it against the rule's operator and threshold, and --- if the threshold is
-crossed \emph{and} the cooldown has elapsed --- raises an alert and resets the cooldown. This is the
-happy path of the alerting flow already shown conceptually in Figure~\ref{fig:ch4-alert-flow}; the
-cooldown is what prevents a still-breached metric from alerting on every cycle.
-
-% [VISUAL-IMPLEMENT] minimal Celery rule-evaluation snippet
-\begin{lstlisting}[language=Python, caption={The scheduled task that evaluates active rules and fans out an alert when one is breached.}, label={lst:ch5-alert}]
-@shared_task
-def evaluate_rules():
-    for rule in AlertRule.objects.filter(active=True):
-        value = read_metric(rule.metric)        # warehouse aggregate
-        if rule.is_breached(value) and rule.cooldown_elapsed():
-            fan_out(rule.raise_alert(value))     # deliver per user prefs
-\end{lstlisting}
+The service delivers two kinds of notification: \textbf{ETL-run} events --- a refresh has completed or
+failed (\S\ref{sec:ch5-data}) --- and business \textbf{alerts}, each carrying a \textbf{severity}:
+\emph{info}, \emph{warning}, or \emph{critical}. Both kinds travel through one shared machinery, so a
+single controlled channel carries both the data's \emph{freshness} and the business's \emph{drift}.
 
 % -----------------------------------------------------------------------------
-\subsection{Notification Machinery and Channels}
+\subsection{Alert Rules and Subscriptions}
 
-Once raised, an alert is \textbf{fanned out} to the channels each user has enabled --- pushed to the
-interface in real time as an \emph{in-app} notification, sent by \emph{email}, or both. The choice is a
-\textbf{per-user preference} held in the operational database, so the same alert reaches different
-decision-makers through the channels each prefers. Email and other slow work are themselves handed to
-Celery, so delivery never blocks evaluation.
+Alerts originate from \textbf{rules the users define} themselves. A rule pairs a metric with an operator,
+a threshold, a severity, and a cooldown; a periodic Celery task reads each active rule's current value
+from the aggregate layer (\S\ref{sec:ch5-data}) and --- when the threshold is crossed \emph{and} the
+cooldown has elapsed --- raises an alert (the conceptual flow of Figure~\ref{fig:ch4-alert-flow}). The
+cooldown prevents a still-breached metric from alerting on every cycle.
 
-Crucially, this notification machinery is \emph{shared}: the ETL lifecycle events emitted by the
-pipeline (\S\ref{sec:ch5-data}) are delivered through exactly the same path, so a user is told both when
-a business indicator drifts and when fresh data has arrived or a refresh has failed. One controlled
-channel therefore carries both the data's \emph{freshness} and the business's \emph{drift} --- closing
-the loop between the pipeline, the warehouse, and the people who act on them.
+Delivery is then governed by \textbf{subscription}: a user receives an alert only for the rules they have
+\textbf{subscribed} to, and can \textbf{unsubscribe} at any time. Creating rules and managing these
+subscriptions is done from the interface, shown in the frontend walkthrough
+(\S\ref{sec:ch5-frontend}, Figure~\ref{fig:ch5-alerts}).
+
+% -----------------------------------------------------------------------------
+\subsection{Channels and Delivery}
+
+Each user also chooses \emph{how} they are notified, through a \textbf{per-user channel preference} held
+in the operational database --- \textbf{in-app}, \textbf{email}, or both. What a given user actually
+receives is therefore the combination of their channel preferences and their rule subscriptions.
+
+\textbf{In-app} notifications are pushed to the interface in \textbf{real time}, appearing in the
+notification centre as soon as an alert is raised or a refresh completes (Figure~\ref{fig:ch5-notif}).
+\textbf{Email} delivery is handled by Celery so it never blocks evaluation: an ETL-run e-mail is sent
+when a run finishes, while alerts are gathered into a \textbf{weekly digest} --- sent every
+\textbf{Sunday at 07:00} --- grouping the week's info, warning, and critical alerts into a single message
+(Figure~\ref{fig:ch5-emails}).
+
+% [VISUAL-PLACEHOLDER] (provided) in-app notification centre
+\fig[0.5\textwidth]{notification}{The in-app notification centre: alerts and ETL-run events pushed to the
+interface in real time.}{ch5-notif}
+
+% [VISUAL-PLACEHOLDER] (provided) e-mail notifications — ETL run and weekly alert digest
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{email_etl}
+  \caption{ETL-run e-mail}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{email_alert_critic}
+  \caption{Alert e-mail (critical)}
+\end{subfigure}
+\caption{E-mail notifications: a per-run ETL message, and an alert e-mail at critical severity. Alert
+e-mails are gathered into a weekly digest sent each Sunday at 07:00.}
+\label{fig:ch5-emails}
+\end{figure}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Frontend and Dashboard Implementation}
 \label{sec:ch5-frontend}
 
-The frontend is the interface decision-makers actually use. It is realised as a \textbf{single-page
-application} built with \textbf{Next.js} (React, TypeScript): a type-safe, component-based UI that
-consumes the backend API and never touches a database directly. This section describes how the dashboard
-of \S\ref{sec:ch4-app} was built --- its structure, its visualisations, and its interactivity.
+The frontend is the interface decision-makers actually use --- a \textbf{single-page application} built
+with \textbf{Next.js} (React, TypeScript) that consumes the backend API and never touches a database
+directly. Users sign in with their \textbf{HR Force credentials}, and what they then see is shaped by
+their role. This section walks the realised interface --- from sign-in through the business-user
+workspace to administration --- and shows how the dashboard of \S\ref{sec:ch4-app} was built.
 
 % -----------------------------------------------------------------------------
-\subsection{Structure and Role-Filtered Navigation}
+\subsection{Sign-in and Role-Filtered Navigation}
 
-The interface is organised exactly as the design prescribed (Table~\ref{tab:ch4-app-nav}): a
-consolidated \textbf{Overview}, one page per \textbf{business axis} --- Parcel Delivery and Dedicated
-Transport --- each with its three views (Operations, Cost \& Profitability, Performance), plus
-\textbf{Alerts}, \textbf{Settings}, and \textbf{Administration}. Navigation is \textbf{role-filtered}:
-on sign-in the frontend reads the user's permissions from the backend and renders only the sections
-their role allows, so the menu itself reflects the role-based access control of
-\S\ref{sec:ch5-backend}.
+Access begins at a single \textbf{sign-in} screen, where users authenticate with the \textbf{HR Force
+credentials} already imported by the backend (\S\ref{sec:ch5-backend}); there are no separate LOGIQ
+passwords to manage (Figure~\ref{fig:ch5-login}).
 
-% [VISUAL-PLACEHOLDER] dashboard screenshot — Parcel Delivery axis page
-\begin{figure}[H]
+% [VISUAL-PLACEHOLDER] (provided) sign-in screen
+\fig[0.55\textwidth]{login_page}{The sign-in screen: users authenticate with their HR Force
+credentials.}{ch5-login}
+
+Once signed in, the user lands on a consolidated \textbf{Overview} (Figure~\ref{fig:ch5-overview}). The
+interface is organised exactly as the design prescribed (Table~\ref{tab:ch4-app-nav}): the Overview, one
+page per \textbf{business axis} --- Parcel Delivery and Dedicated Transport --- each read through its
+three views (Operations, Cost \& Profitability, Performance), plus \textbf{Alerts}, \textbf{Preferences},
+and --- for administrators --- \textbf{Administration}. Navigation is \textbf{role-filtered}: the
+frontend reads the user's permissions from the backend and renders only the sections their role allows,
+so the menu itself reflects the role-based access control of \S\ref{sec:ch5-backend}.
+
+% [VISUAL-PLACEHOLDER] (provided) consolidated overview
+\fig[0.95\textwidth]{BusinessUser_Overview}{The consolidated Overview, the landing page after
+sign-in.}{ch5-overview}
+
+% -----------------------------------------------------------------------------
+\subsection{The Business-User Workspace}
+
+Each business axis has its own page, read through the same three views and kept on a \textbf{separate
+financial perimeter}, so costs and revenues are never mixed across axes. Figure~\ref{fig:ch5-dash-parcel}
+shows the Parcel Delivery axis across all three views, and Figure~\ref{fig:ch5-dash-transport} the
+Dedicated Transport axis.
+
+% [VISUAL-PLACEHOLDER] (provided) Parcel Delivery axis — three views
+\begin{figure}[p]
 \centering
-\visualplaceholder{The Parcel Delivery axis page and its three views (Operations, Cost \&
-Profitability, Performance) --- KPI cards, charts, and the global filter bar.}{Screenshot the running
-platform on the Parcel Delivery page.}{The Parcel Delivery dashboard page --- one of the two business
-axes, read through its three views.}
+\begin{subfigure}{0.74\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Parcel_operations}
+  \caption{Operations}
+\end{subfigure}
+
+\vspace{0.7em}
+\begin{subfigure}{0.74\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Parcel_costs}
+  \caption{Cost \& Profitability}
+\end{subfigure}
+
+\vspace{0.7em}
+\begin{subfigure}{0.74\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Parcel_performance}
+  \caption{Performance}
+\end{subfigure}
+\caption{The Parcel Delivery axis page, read through its three views.}
 \label{fig:ch5-dash-parcel}
 \end{figure}
 
-% [VISUAL-PLACEHOLDER] dashboard screenshot — Dedicated Transport axis page
-\begin{figure}[H]
-\centering
-\visualplaceholder{The Dedicated Transport axis page and its three views, on its strictly separate
-financial perimeter.}{Screenshot the running platform on the Dedicated Transport page.}{The Dedicated
-Transport dashboard page --- the second business axis, kept on a separate financial perimeter.}
-\label{fig:ch5-dash-transport}
-\end{figure}
+% [VISUAL-PLACEHOLDER] (provided) Dedicated Transport axis — representative view
+\fig[0.92\textwidth]{BusinessUser_Transport_operations}{The Dedicated Transport axis page (Operations
+view); its Cost \& Profitability and Performance views follow the same three-view pattern and appear in
+Annexe~B.}{ch5-dash-transport}
+
+Three interactions turn these pages from something to read into something to explore. A \textbf{global
+filter bar} --- period, service type, region, agency --- is shared across a page, so adjusting it
+re-synchronises \emph{every} visualisation at once. A configured filter set can be saved as a named
+\textbf{snapshot (bookmark)} and reopened in one click. And the \textbf{real-time notifications} raised
+by the alerting service (\S\ref{sec:ch5-alerting}) appear directly in the interface, so alerts and
+fresh-data signals arrive without a page refresh.
 
 % -----------------------------------------------------------------------------
 \subsection{Visualisation Toolkit}
@@ -592,15 +650,96 @@ it in the dashboard.}
 \end{table}
 
 % -----------------------------------------------------------------------------
-\subsection{Interactivity}
+\subsection{Alerting and Notifications}
 
-Three interactions make the dashboard a tool to explore rather than just read. A \textbf{global filter
-bar} --- period, service type, region, agency --- is shared across a page, so adjusting it re-synchronises
-\emph{every} visualisation on that page at once. A configured filter set can be saved as a named
-\textbf{snapshot (bookmark)}, letting a decision-maker return to a recurring analysis in one click.
-Finally, the \textbf{real-time notifications} raised by the alerting service (\S\ref{sec:ch5-alerting})
-appear directly in the interface, so alerts and fresh-data signals reach the user without a page
-refresh.
+The interface is also where decision-makers set up and receive their own monitoring. From the
+\textbf{Alerts} area a user can define a threshold \textbf{rule} (metric, operator, threshold, severity,
+cooldown), review the alerts that have been raised, and \textbf{subscribe} to the channels --- in-app,
+email, or both --- on which they wish to be notified (Figure~\ref{fig:ch5-alerts}). The evaluation engine
+behind these rules is described in \S\ref{sec:ch5-alerting}; the platform actually raising an alert
+against live data is shown with the results in Chapter~6.
+
+% [VISUAL-PLACEHOLDER] (provided) alerting in the interface
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.82\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Alert}
+  \caption{The Alerts page}
+\end{subfigure}
+
+\vspace{0.7em}
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Alert_creation}
+  \caption{Defining a rule}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Alert_subscription}
+  \caption{Channel subscription}
+\end{subfigure}
+\caption{Alerting in the interface: reviewing raised alerts, defining a threshold rule, and subscribing
+to notification channels (in-app, email, or both).}
+\label{fig:ch5-alerts}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+\subsection{Preferences and Multilingual Support}
+
+Each user tailors the interface from a \textbf{Preferences} area: the colour \textbf{theme} (light or
+dark), notification-channel preferences, and the interface \textbf{language}. LOGIQ ships in \textbf{three
+languages}, including a complete \textbf{Arabic} localisation with right-to-left layout, so the same
+dashboards read naturally for every user (Figure~\ref{fig:ch5-prefs}).
+
+% [VISUAL-PLACEHOLDER] (provided) preferences and Arabic (RTL) localisation
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_Preferences_arabic_light}
+  \caption{Preferences (Arabic)}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}
+  \centering\includegraphics[width=\linewidth]{BusinessUser_parcel_arabic_light}
+  \caption{A dashboard page (Arabic, RTL)}
+\end{subfigure}
+\caption{User preferences and multilingual support: the interface in its Arabic, right-to-left
+localisation.}
+\label{fig:ch5-prefs}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+\subsection{Administration}
+
+Administrators retain full access to every business-user page, and in addition have an
+\textbf{Administration} view for running the platform (Figure~\ref{fig:ch5-admin}). An \textbf{admin
+overview} summarises platform activity; the \textbf{Users}
+page is where the imported HR Force accounts are activated and assigned roles (\S\ref{sec:ch5-backend});
+the \textbf{Roles} page defines what each role may reach; and the \textbf{ETL Runs} page lists the
+pipeline's run history --- the very records written by the completion sensor of \S\ref{sec:ch5-data}.
+
+% [VISUAL-PLACEHOLDER] (provided) administration view
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.48\linewidth}
+  \centering\includegraphics[width=\linewidth]{Admin_adminOverview}
+  \caption{Admin overview}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.48\linewidth}
+  \centering\includegraphics[width=\linewidth]{Admin_users_page}
+  \caption{Users}
+\end{subfigure}
+
+\vspace{0.7em}
+\begin{subfigure}[t]{0.48\linewidth}
+  \centering\includegraphics[width=\linewidth]{Admin_roles}
+  \caption{Roles}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.48\linewidth}
+  \centering\includegraphics[width=\linewidth]{Admin_etl_page}
+  \caption{ETL runs}
+\end{subfigure}
+\caption{The Administration view: platform overview, user activation and role assignment, role
+definitions, and the ETL run history.}
+\label{fig:ch5-admin}
+\end{figure}
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Deployment and Infrastructure}
