@@ -10,16 +10,14 @@ exceeds what any manager can interpret unaided, and the quality of a decision in
 the systems that turn that data into insight. This chapter builds the conceptual foundation of the
 thesis along a single arc --- from the \textbf{abstract} to the \textbf{technical}.
 
-\begin{itemize}[noitemsep]
-    \item \textbf{Decision-making in organisations} (\S\ref{sec:ch1-decisions}) --- what a decision is,
-          how decisions differ, and why unaided judgement is insufficient at scale.
-    \item \textbf{From data to decisions} (\S\ref{sec:ch1-is}) --- how data becomes insight (the DIKW
-          hierarchy), and the information systems, including Decision Support Systems, that deliver it.
-    \item \textbf{Business Intelligence} (\S\ref{sec:ch1-bi}) --- the modern paradigm that operationalises
-          data-driven decision support.
-    \item \textbf{The building blocks of a BI system} (\S\ref{sec:ch1-bi-blocks}) --- the technical
-          components (data warehouse, ETL, OLAP, dashboards, alerting) that Part~II designs and builds.
-\end{itemize}
+It begins with \textbf{decision-making in organisations} (\S\ref{sec:ch1-decisions}) --- what a decision
+is, how decisions differ, and why unaided judgement is insufficient at scale --- before turning to the
+question of how \textbf{data becomes decisions} (\S\ref{sec:ch1-is}) through the DIKW hierarchy and the
+information systems, including Decision Support Systems, that deliver insight. It then presents
+\textbf{Business Intelligence} (\S\ref{sec:ch1-bi}), the modern paradigm that operationalises
+data-driven decision support, and closes with \textbf{the building blocks of a BI system}
+(\S\ref{sec:ch1-bi-blocks}) --- the technical components (data warehouse, ETL, OLAP, dashboards, and
+alerting) that Part~II designs and builds.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Decision-Making in Organisations}
@@ -198,17 +196,13 @@ the Decision Support Systems that target managerial decisions directly.
 
 Not all content carries the same decision value. The \textbf{DIKW hierarchy}, originating with
 \textcite{ackoff1989} and later consolidated by \textcite{rowley2007}, distinguishes four ascending
-levels, each adding context and usefulness to the one below:
-
-\begin{itemize}[noitemsep]
-    \item \textbf{Data} --- raw, unprocessed facts and figures (\eg a delivery cost of 1{,}200 DZD).
-    \item \textbf{Information} --- data placed in context, answering \emph{who, what, where, when}
-          (\eg the average delivery cost per zone this month).
-    \item \textbf{Knowledge} --- patterns and rules derived from information, answering \emph{how}
-          (\eg which routes systematically erode margin).
-    \item \textbf{Wisdom} --- judgement that applies knowledge to act, answering \emph{why} and
-          \emph{what to do} (\eg whether to re-price or re-route a service).
-\end{itemize}
+levels, each adding context and usefulness to the one below. At the base, \textbf{data} is raw,
+unprocessed facts and figures (\eg a delivery cost of 1{,}200 DZD); \textbf{information} places that
+data in context, answering \emph{who, what, where, when} (\eg the average delivery cost per zone this
+month); \textbf{knowledge} extracts patterns and rules from information, answering \emph{how} (\eg which
+routes systematically erode margin); and \textbf{wisdom}, at the summit, applies that knowledge in
+judgement to act, answering \emph{why} and \emph{what to do} (\eg whether to re-price or re-route a
+service).
 
 A BI system is, in essence, a machine for climbing this hierarchy (Figure~\ref{fig:ch1-dikw}): it
 ingests data and lifts it, stage by stage, toward the knowledge on which decisions rest.
@@ -301,17 +295,13 @@ manage and analyse data in order to support decision-making and optimise organis
 \parencite{abbas2024bi}. \textcite{chaudhuri2011} define it as ``a collection of decision support
 technologies for the enterprise, aimed at enabling knowledge workers to make better and faster
 decisions'', while \textcite{negash2004} stresses the transformation of raw data into meaningful,
-usable information. Three characteristics distinguish BI from earlier decision support:
-
-\begin{itemize}[noitemsep]
-    \item \textbf{A single, integrated data foundation} --- one authoritative repository (the data
-          warehouse) that eliminates the conflicting departmental versions of the truth that plagued
-          classical DSS.
-    \item \textbf{An analytical orientation} --- BI reveals not only \emph{what} happened but
-          \emph{why}, and increasingly \emph{what is likely next}.
-    \item \textbf{Broad organisational accessibility} --- self-service dashboards extend analytics from
-          a specialist elite to managers across the organisation \parencite{sharda2020}.
-\end{itemize}
+usable information. Three characteristics distinguish BI from earlier decision support. The first is
+\textbf{a single, integrated data foundation}: one authoritative repository (the data warehouse) that
+eliminates the conflicting departmental versions of the truth that plagued classical DSS. The second is
+\textbf{an analytical orientation}, since BI reveals not only \emph{what} happened but \emph{why}, and
+increasingly \emph{what is likely next}. The third is \textbf{broad organisational accessibility}:
+self-service dashboards extend analytics from a specialist elite to managers across the organisation
+\parencite{sharda2020}.
 
 This value is not automatic. \textcite{yeoh2010} show that BI success depends on organisational
 conditions --- executive sponsorship, clear business objectives, data quality and governance, and a
