@@ -176,7 +176,7 @@ deterministically from scratch, with no manual step.
 \hline
 Staging & One raw landing table per source endpoint; no business logic. & 18 \\
 Dimensions & Normalised (snowflaked) tables, with SCD Type~2 history where attributes change over time.
-& 56 \\
+& 55 \\
 Facts & Fact tables keyed to their dimensions, holding the measures. & 7 \\
 Aggregates & \textbf{Materialised views}, refreshed each run; the sole source for the analytics API. & 5 \\
 \hline
@@ -191,7 +191,7 @@ pgAdmin: the raw staging tables, the snowflaked dimensions, the fact tables, and
 materialised views.
 
 % [VISUAL-PLACEHOLDER] (provided) pgAdmin screenshots of the schema, one panel per layer
-% NB: widths may need tuning per image — the dimension panel (56 tables) is the tallest.
+% NB: widths may need tuning per image — the dimension panel (55 tables) is the tallest.
 \begin{figure}[H]
 \centering
 \begin{subfigure}[t]{0.46\linewidth}

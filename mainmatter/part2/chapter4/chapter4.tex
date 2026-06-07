@@ -582,8 +582,7 @@ of the sources (staging) up to the pre-computed summaries the dashboards consume
 \subsection{Table Inventory}
 \label{subsec:ch4-dw-inventory}
 
-The model materialises into \textbf{18 staging tables}, \textbf{56 dimensions}, and \textbf{7 facts}.
-% TODO(achraf): confirm dimension total (SQL files = 56; redesign-doc summary states 49 = 26 seeded + 23 loaded)
+The model materialises into \textbf{18 staging tables}, \textbf{55 dimensions}, and \textbf{7 facts}.
 Tables~\ref{tab:ch4-dw-staging} and~\ref{tab:ch4-dw-dims} list the staging and dimension tables by
 domain; the facts are declared in Table~\ref{tab:ch4-dw-facts}. The complete field-level dictionary of
 every table is in Appendix~A.
@@ -657,9 +656,10 @@ LOGIQ adopts a \textbf{fact-constellation} (galaxy) schema with \textbf{snowflak
           SCD2-unstable join path.
 \end{itemize}
 
-Table~\ref{tab:ch4-dw-facts} declares the grain and measures of the seven facts;
-Figure~\ref{fig:ch4-dw-constellation} shows a fragment of the constellation. The complete model is
-reproduced in Appendix~A.
+Table~\ref{tab:ch4-dw-facts} declares the grain and measures of the seven facts.
+Figure~\ref{fig:ch4-dw-constellation} shows a fragment of the constellation as a reading guide, and
+Figure~\ref{fig:ch4-dw-erd} gives the complete model; the full field-level dictionary of every table is
+in Appendix~A.
 
 % [VISUAL-IMPLEMENT] grain + measures of the 7 fact tables, grouped by financial perimeter
 \begin{table}[H]
@@ -742,6 +742,20 @@ share the conformed \texttt{dim\_date} and \texttt{dim\_agence} dimensions, whil
 hierarchy below \texttt{dim\_agence} is snowflaked into one normalised table per level.}
 \label{fig:ch4-dw-constellation}
 \end{figure}
+
+% [VISUAL-IMPLEMENT] full DW constellation ERD — landscape, colour-coded by subject area (shared with Appendix A)
+\begin{landscape}
+\thispagestyle{empty}
+\begin{figure}[p]
+\centering
+\input{assets/global-figures/constellation-erd-tikz}
+\caption{The complete LOGIQ data-warehouse constellation ERD: 7 fact tables (crimson) and 55
+dimensions, colour-coded by subject area, organised into the two financial perimeters around the
+conformed dimensions (\texttt{date}, geography, organisation, employee). Boxes carry table names only;
+the field-level dictionaries are in Appendix~A.}
+\label{fig:ch4-dw-erd}
+\end{figure}
+\end{landscape}
 
 % -----------------------------------------------------------------------------
 \subsection{Advanced Modelling Techniques}
@@ -879,7 +893,8 @@ The pipeline is designed not as a linear script of imperative steps (``run this,
 around the \textbf{data assets} it produces. Each table in the warehouse is modelled as an
 \emph{asset} that \emph{declares the assets it derives from}: a fact declares the dimensions it needs,
 an aggregate declares the facts it summarises, and so on. From these declarations the orchestrator
-reconstructs the \textbf{lineage} of the entire warehouse --- what depends on what, end to end.
+reconstructs the \textbf{lineage} of the entire warehouse --- what depends on what, end to end
+(Figure~\ref{fig:ch4-etl-lineage}).
 
 This asset-oriented view yields design advantages a plain script could not:
 
@@ -893,16 +908,10 @@ This asset-oriented view yields design advantages a plain script could not:
           warehouse, making the pipeline auditable and far easier to reason about and debug.
 \end{itemize}
 
-% [VISUAL-PLACEHOLDER] asset/lineage dependency graph of the warehouse pipeline
-\begin{figure}[H]
-\centering
-\visualplaceholder{The asset (lineage) dependency graph of the pipeline --- each warehouse table as a
-node, with edges to the assets it derives from, materialised in dependency order.}{Export a generic
-asset-graph illustration into \texttt{figures/}, or screenshot the dependency graph of the running
-orchestrator.}{The warehouse asset-dependency (lineage) graph: every table is an asset that declares its
-upstream dependencies, letting the pipeline build in the correct order and re-run any subset safely.}
-\label{fig:ch4-etl-lineage}
-\end{figure}
+% [VISUAL-FETCH] (provided) asset/lineage dependency graph screenshot of the warehouse pipeline
+\fig[\textwidth]{dagster_lineage}{The warehouse asset-dependency (lineage) graph: every table is an
+asset that declares its upstream dependencies, so the pipeline builds in the correct order and any
+single asset or sub-graph can be re-run safely.}{ch4-etl-lineage}
 
 % -----------------------------------------------------------------------------
 \subsection{The Five Stages}
@@ -978,12 +987,15 @@ engineering properties, each answering a concrete demand of operating at nationa
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Property}} & \textcolor{white}{\textbf{Why it matters}} \\
 \hline
-Incremental extraction & The very large parcel-history feed is loaded from where the last run stopped,
-not reloaded in full --- the only tractable option at a scale of tens of millions of events. \\
+Incremental extraction & New and changed rows only, resumed from a high-water mark rather than reloaded
+in full --- the only tractable option at tens of millions of events. \\
+Trailing re-window (parcel status) & A parcel's status keeps changing after creation, so a pure
+high-water mark would miss late updates. Each run therefore \emph{clears the last 7 days} of status
+history and reloads that window incrementally, so retroactive status changes are always captured. \\
 Idempotent loads & Loads follow an \emph{insert-or-update} strategy, so re-running a stage never
 duplicates data; the pipeline is always safe to retry. \\
-Resilience & Failed source calls are retried with exponential backoff, so the pipeline tolerates a
-source system being briefly unavailable rather than aborting the whole run. \\
+Resilience & Failed source calls are retried with exponential backoff, and a stalled source is skipped
+rather than aborting the whole run, so a briefly unavailable system never breaks the refresh. \\
 Scheduling & A full refresh runs automatically on a nightly schedule, with a lighter, more frequent
 dimension refresh --- no manual intervention is needed to keep the warehouse current. \\
 Observability & Every run emits lifecycle events (start, success, failure, cancellation) to the
@@ -1022,13 +1034,31 @@ that realise them are deferred to Chapter~5.
 \subsection{Two Logical Planes --- Application and Analytics}
 
 A structuring choice precedes everything the platform does: the data it manages is split across
-\textbf{two logical planes}. The \emph{analytical} plane is the warehouse of \S\ref{sec:ch4-dw}, read
-only to answer decision-support queries. The \emph{operational} plane is the platform's \emph{own}
-data --- user accounts, roles, alert rules, saved preferences, notifications, and pipeline-run history.
-The back-end routes every analytical query to the warehouse and everything else to the operational
-store, so that heavy analytics never disturbs the running application and each store stays optimised for
-its purpose (TS03, TS16). The conceptual separation is what matters here; its physical realisation as
-two databases is a Chapter~5 concern.
+\textbf{two logical planes} (Table~\ref{tab:ch4-app-planes}). The back-end routes every analytical query
+to the analytical plane and everything else to the operational one, so heavy analytics never disturbs
+the running application and each store stays optimised for its purpose (TS03, TS16). The conceptual
+separation is what matters here; its physical realisation as two databases is a Chapter~5 concern.
+
+% [VISUAL-IMPLEMENT] the two logical data planes of the platform
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.4cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Plane}} & \textcolor{white}{\textbf{What it holds}} &
+\textcolor{white}{\textbf{Access}} \\
+\hline
+Analytical & The warehouse of \S\ref{sec:ch4-dw} & Read-only, decision-support queries \\
+Operational & The platform's own data --- accounts, roles, alert rules, saved preferences,
+notifications, pipeline-run history & Read/write \\
+\hline
+\end{tabularx}
+\caption{The two logical data planes: analytics is read-only over the warehouse, while the platform's own
+state lives on a separate operational plane.}
+\label{tab:ch4-app-planes}
+\end{table}
 
 % -----------------------------------------------------------------------------
 \subsection{Decision-Support Dashboards}
@@ -1081,10 +1111,152 @@ vocabulary of visualisations:
 \end{itemize}
 
 Every KPI is backed, on demand, by a data-table view of the same underlying figures, for users who want
-the exact numbers (TS13). Reading is made interactive by a \textbf{global filter bar} --- period,
-service type, region, agency --- shared across a page so that all of its visualisations stay in sync;
-users can save a configured filter set as a named \textbf{snapshot (bookmark)} to return to a recurring
-analysis in one click.
+the exact numbers (TS13). Reading is made interactive by a \textbf{global filter bar} shared across a
+page, so all of its visualisations stay in sync; a configured filter set can be saved as a named
+\textbf{snapshot (bookmark)} for one-click return to a recurring analysis. Both axes expose the same
+filters (Table~\ref{tab:ch4-dash-filters}).
+
+% [VISUAL-IMPLEMENT] shared per-axis filter bar
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Filter}} & \textcolor{white}{\textbf{Control}} &
+\textcolor{white}{\textbf{Values}} \\
+\hline
+Quick range & Pills & 7\,d / 30\,d / 90\,d / year-to-date \\
+Custom range & Date pickers & Any start--end window within the available history \\
+Type (parcel axis) & Dropdown & All / home delivery / stop-desk (pickup point) \\
+Type (transport axis) & Dropdown & All / dedicated trip / courier / handling \\
+\hline
+\end{tabularx}
+\caption{The shared filter bar of each axis; changing any filter re-queries every KPI and chart on the
+active page. The two type filters are axis-specific.}
+\label{tab:ch4-dash-filters}
+\end{table}
+
+Tables~\ref{tab:ch4-dash-kpi-parcel} and~\ref{tab:ch4-dash-kpi-transport} catalogue the five KPIs of
+each of the three views, per axis --- with a pseudo-formula and the decision each supports ---
+while Table~\ref{tab:ch4-dash-charts} lists the supporting charts.
+
+% [VISUAL-IMPLEMENT] KPI catalogue --- Parcel Delivery axis (name, pseudo formula, business value)
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.22}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.6cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{KPI}} & \textcolor{white}{\textbf{Formula (pseudo)}} &
+\textcolor{white}{\textbf{Business value}} \\
+\hline
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Operations} --- volume \& activity} \\
+\hline
+Parcels handled & COUNT(*) over creation date & Raw activity volume processed. \\
+Delivered & COUNT FILTER status = Delivered & Successful deliveries. \\
+Returns & COUNT FILTER status = Returned & Cost incurred without delivery revenue. \\
+In transit & COUNT FILTER not terminal & Live backlog still moving. \\
+Avg delivery duration & AVG(duration) / 60 FILTER Delivered & Speed of service (hours). \\
+\hline
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Cost \& Profitability} --- revenue, cost, margin} \\
+\hline
+Fees collected & SUM(delivery fee) & Revenue of the parcel segment (DZD). \\
+Operational cost & SUM(validated charges) + SUM(salaries) & Total cost to serve (DZD). \\
+Gross margin \% & (fees $-$ cost) / fees $\times$ 100 & Profitability of the axis. \\
+Avg fee / parcel & fees / delivered & Average unit revenue. \\
+Cost / delivered parcel & cost / delivered & Unit cost; loss-making above the fee. \\
+\hline
+\rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Performance} --- quality \& service level} \\
+\hline
+Delivery rate \% & delivered / created $\times$ 100 & Service level (alert below 73\,\%). \\
+Avg attempts & AVG(attempts $+$ 1) FILTER Delivered & Field efficiency. \\
+1st-attempt success \% & first-try delivered / delivered $\times$ 100 & Right-first-time quality. \\
+Avg delivery duration & AVG(duration) / 60 FILTER Delivered & Speed of service (hours). \\
+Claims declared & COUNT(reimbursements) & Packaging / handling quality signal. \\
+\hline
+\end{tabularx}
+\caption{KPI catalogue of the Parcel Delivery axis --- the five indicators of each view, with their
+pseudo-formula and the decision each one supports. All monetary values in DZD.}
+\label{tab:ch4-dash-kpi-parcel}
+\end{table}
+
+% [VISUAL-IMPLEMENT] KPI catalogue --- On-Demand Transport axis (name, pseudo formula, business value)
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.22}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.6cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{KPI}} & \textcolor{white}{\textbf{Formula (pseudo)}} &
+\textcolor{white}{\textbf{Business value}} \\
+\hline
+\rowcolor{tblanal}\multicolumn{3}{|l|}{\textbf{Operations} --- volume \& activity} \\
+\hline
+Total requests & COUNT(*) over created date & Demand volume. \\
+Completion rate \% & completed / total $\times$ 100 & Fulfilment level. \\
+Cancellation rate \% & cancelled / total $\times$ 100 & Lost demand (watch above 10\,\%). \\
+Avg distance (km) & AVG(measured real distance) & Trip length / routing. \\
+Avg stops / request & AVG(stops) & Logistical complexity. \\
+\hline
+\rowcolor{tblanal}\multicolumn{3}{|l|}{\textbf{Cost \& Profitability} --- revenue, cost, margin} \\
+\hline
+Total revenue & SUM(amount invoiced) & Billed revenue (DZD). \\
+Total cost & SUM(8 cost components) & Cost build-up per trip (DZD). \\
+Gross margin & revenue $-$ cost & Absolute profit (DZD). \\
+Margin \% & margin / revenue $\times$ 100 & Profitability (target above 20\,\%). \\
+Cost / km & cost / distance & Unit economics. \\
+\hline
+\rowcolor{tblanal}\multicolumn{3}{|l|}{\textbf{Performance} --- quality \& service level} \\
+\hline
+On-time rate \% & on-time / rated $\times$ 100 & Punctuality (alert below 80\,\%). \\
+Avg duration (h) & AVG(duration) / 60 & Trip duration. \\
+Avg client rating & AVG(rating), out of 5 & Experience (below 3.5 = degraded). \\
+Avg arrival delay (min) & AVG(actual $-$ planned arrival) & Schedule adherence. \\
+Night-shift rate \% & night / total $\times$ 100 & Night-surcharge exposure. \\
+\hline
+\end{tabularx}
+\caption{KPI catalogue of the On-Demand Transport axis --- the five indicators of each view, with their
+pseudo-formula and the decision each one supports. All monetary values in DZD.}
+\label{tab:ch4-dash-kpi-transport}
+\end{table}
+
+% [VISUAL-IMPLEMENT] chart catalogue of both axes, by view
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{View}} & \textcolor{white}{\textbf{Charts (type)}} \\
+\hline
+\rowcolor{tblstruct}\multicolumn{2}{|l|}{\textbf{Parcel Delivery axis}} \\
+\hline
+Operations & Volume trend (stacked bar) $\cdot$ Status breakdown (donut) $\cdot$ Region flow (heatmap)
+$\cdot$ Zone distribution (bar) \\
+Cost \& Profitability & Revenue vs cost (combo) $\cdot$ Expenses by category (bar) $\cdot$ Regional
+margin (heatmap) $\cdot$ Zone profitability (dual-axis) \\
+Performance & Monthly performance (dual-axis lines) $\cdot$ Duration distribution (histogram) $\cdot$
+Top expedition centres (ranked bar) $\cdot$ Claims by type (donut) \\
+\hline
+\rowcolor{tblanal}\multicolumn{2}{|l|}{\textbf{On-Demand Transport axis}} \\
+\hline
+Operations & Monthly volume (stacked bar) $\cdot$ Service breakdown (donut) $\cdot$ Origin--destination
+(heatmap) $\cdot$ Distance category (bar) \\
+Cost \& Profitability & Revenue vs cost (combo) $\cdot$ Cost categories (ranked bar) $\cdot$ Cost per km
+by vehicle (bar) $\cdot$ Top corridors by margin (ranked bar) \\
+Performance & On-time trend (dual-axis lines) $\cdot$ Delay distribution (bar) $\cdot$ Rating
+distribution (bar) $\cdot$ On-time by vehicle (bar) \\
+\hline
+\end{tabularx}
+\caption{The supporting charts of each view, per axis --- two rows of two charts under the five KPI cards
+of every page.}
+\label{tab:ch4-dash-charts}
+\end{table}
 
 % -----------------------------------------------------------------------------
 \subsection{Proactive Alerting}
@@ -1141,21 +1313,51 @@ therefore closes the loop between the pipeline, the indicators, and the decision
 freshness and the business's drift are both reported through one channel the user controls.
 
 % -----------------------------------------------------------------------------
-\subsection{Role-Filtered Experience, Personalisation, and Administration}
+\subsection{User Experience, Personalisation, and Administration}
 
-Three further functions complete the platform. First, the \textbf{role-filtered experience}: every area
-of Table~\ref{tab:ch4-app-nav} is offered only where the user's role allows it, so two users signing in
-under different roles legitimately see different interfaces. This subsection describes the
-\emph{experience}; the access-control mechanism that enforces it is the subject of
-\S\ref{sec:ch4-security}.
+The platform is built for \textbf{non-specialist managers}, so the experience is deliberately simple and
+friendly. Four principles govern it:
 
-Second, \textbf{personalisation}: beyond saved filter snapshots, each user controls the channels through
-which alerts reach them, switches the interface between dark and light themes, and switches its language
-between Arabic, French, and English --- preferences held on the operational plane and applied across the
-session. Third, \textbf{administration}: the administrator activates users imported from the company's
-HR system, assigns and adjusts their roles, and supervises the data-refresh pipeline and its run
-history --- the point at which the pipeline's observability (\S\ref{sec:ch4-etl}) becomes a governance
-function.
+\begin{itemize}[noitemsep]
+    \item \textbf{Visual-first} --- indicators, charts and colour cues before raw tables (TS12), with the
+          exact figures one click away.
+    \item \textbf{Role-filtered} --- every area of Table~\ref{tab:ch4-app-nav} is shown only where the
+          user's role allows, so two users under different roles legitimately see different interfaces
+          (the enforcing mechanism is \S\ref{sec:ch4-security}).
+    \item \textbf{Consistent \& responsive} --- one layout across both axes and their three views
+          (TS14), usable on a manager's desktop or tablet.
+    \item \textbf{Multilingual \& adaptable} --- each user sets their own language and theme; the Arabic
+          interface is laid out right-to-left.
+\end{itemize}
+
+Personalisation preferences are held on the operational plane and re-applied across every session
+(Table~\ref{tab:ch4-app-prefs}).
+
+% [VISUAL-IMPLEMENT] per-user personalisation preferences
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.6cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Preference}} & \textcolor{white}{\textbf{Options}} &
+\textcolor{white}{\textbf{Scope}} \\
+\hline
+Language & French / English / Arabic (right-to-left) & Whole interface \\
+Theme & Light / dark & Whole interface \\
+Saved filters & Named snapshots (bookmarks) & Per analytical page \\
+Alert channels & In-app / email & Per user \\
+\hline
+\end{tabularx}
+\caption{The per-user personalisation preferences, held on the operational plane and re-applied each
+session. Selecting Arabic switches the interface to a right-to-left layout.}
+\label{tab:ch4-app-prefs}
+\end{table}
+
+Finally, \textbf{administration}: the administrator activates users imported from the HR system, assigns
+and adjusts their roles, and supervises the data-refresh pipeline and its run history --- the point at
+which the pipeline's observability (\S\ref{sec:ch4-etl}) becomes a governance function.
 
 % -----------------------------------------------------------------------------
 \subsection{Resilience --- Graceful Degradation}
@@ -1175,11 +1377,18 @@ the subject of the final design section.
 \label{sec:ch4-security}
 
 Every layer designed so far --- warehouse, pipeline, application --- handles the company's data, and
-that data is sensitive on two counts: it carries \emph{commercially confidential} figures (costs,
-margins, volumes for the whole national activity) and \emph{personal data} of both clients (names,
-addresses, telephone numbers, declared parcel values) and employees (payroll). Security and conformity
-are therefore not a feature bolted on at the end but a \textbf{cross-cutting concern} that constrains
-the whole design. This section sets out, at the conceptual level, \emph{who} may see \emph{what} (access
+that data is sensitive on two counts:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Commercially confidential figures} --- costs, margins, and volumes for the whole
+          national activity.
+    \item \textbf{Personal data} --- of clients (names, addresses, telephone numbers, declared parcel
+          values) and employees (payroll).
+\end{itemize}
+
+Security and conformity are therefore not a feature bolted on at the end but a \textbf{cross-cutting
+concern} that constrains the whole design. This section sets out, at the conceptual level, \emph{who}
+may see \emph{what} (access
 control) and how the design stays aligned with the security and data-protection rules that govern
 Yalidine (conformity). It realises the security requirements specified in \S\ref{sec:ch4-techspec}
 (TS09--TS11); the concrete mechanisms (tokens, certificates, libraries) are deferred to Chapter~5.

@@ -1,0 +1,233 @@
+\noindent\makebox[\linewidth][c]{\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\scriptsize,
+  % ---- colours ----
+  every node/.style={inner sep=2pt},
+  zonelbl/.style={font=\bfseries\small, text=black!75, anchor=north west},
+  tbl/.style={rounded corners=2pt, draw, line width=0.5pt, align=center,
+              minimum width=2.0cm, minimum height=0.62cm, font=\scriptsize},
+  geo/.style ={tbl, draw=cGeoS,  fill=cGeoF},
+  hr/.style  ={tbl, draw=cHrS,   fill=cHrF},
+  time/.style={tbl, draw=cTimeS, fill=cTimeF},
+  par/.style ={tbl, draw=cParS,  fill=cParF},
+  sal/.style ={tbl, draw=cSalS,  fill=cSalF},
+  cash/.style={tbl, draw=cCashS, fill=cCashF},
+  tr/.style  ={tbl, draw=cTrS,   fill=cTrF},
+  fct/.style ={tbl, draw=cFactS, fill=cFactF, line width=1pt, font=\scriptsize\bfseries},
+  % ---- edges ----
+  hier/.style={-{Stealth[length=1.5mm]}, draw=figslate, line width=0.4pt},
+  conf/.style={-{Stealth[length=1.5mm]}, draw=figslate!80, line width=0.4pt, densely dashed},
+  flink/.style={-{Stealth[length=1.5mm]}, draw=cFactS!70, line width=0.6pt}]
+
+  % ================= colour definitions =================
+  \definecolor{cGeoS}{HTML}{3F77A6}\definecolor{cGeoF}{HTML}{DCEAF6}
+  \definecolor{cHrS}{HTML}{7E57C2}\definecolor{cHrF}{HTML}{ECE4F6}
+  \definecolor{cTimeS}{HTML}{E0922B}\definecolor{cTimeF}{HTML}{FBEBCF}
+  \definecolor{cParS}{HTML}{43A047}\definecolor{cParF}{HTML}{DDF1DE}
+  \definecolor{cSalS}{HTML}{D81B60}\definecolor{cSalF}{HTML}{FAE0EA}
+  \definecolor{cCashS}{HTML}{C0772B}\definecolor{cCashF}{HTML}{F6E6D3}
+  \definecolor{cTrS}{HTML}{1E9E92}\definecolor{cTrF}{HTML}{D9F1ED}
+  \definecolor{cFactS}{HTML}{C62828}\definecolor{cFactF}{HTML}{F8DBDB}
+
+  % ================= zone panels (background) =================
+  \begin{scope}[on background layer]
+    \fill[cGeoF!35,  rounded corners=4pt] (0.2,12.5)  rectangle (7.3,18.9);
+    \fill[cHrF!40,   rounded corners=4pt] (0.2,5.2)   rectangle (7.3,12.2);
+    \fill[cParF!45,  rounded corners=4pt] (7.6,12.5)  rectangle (14.6,18.9);
+    \fill[cSalF!45,  rounded corners=4pt] (7.6,8.2)   rectangle (14.6,12.2);
+    \fill[cCashF!45, rounded corners=4pt] (7.6,0.3)   rectangle (14.6,7.9);
+    \fill[cTimeF!55, rounded corners=4pt] (14.9,8.9)  rectangle (16.7,10.8);
+    \fill[cTrF!40,   rounded corners=4pt] (17.0,0.3)  rectangle (31.9,18.9);
+    \fill[black!4,   rounded corners=4pt] (0.2,0.3)   rectangle (7.3,5.0);
+  \end{scope}
+
+  % ---- zone titles ----
+  \node[zonelbl] at (0.35,18.8) {Geography};
+  \node[zonelbl] at (0.35,12.1) {HR \& Organisation};
+  \node[zonelbl] at (7.75,18.8) {Parcel (Express)};
+  \node[zonelbl] at (7.75,12.1) {Salary (PC~Paie)};
+  \node[zonelbl] at (7.75,7.8)  {Cash Box};
+  \node[zonelbl] at (17.15,18.8) {On-Demand Transport};
+  \node[font=\bfseries\scriptsize, text=cTimeS, align=center] at (15.8,10.5) {Time};
+
+  % ================= GEOGRAPHY =================
+  \node[geo] (region)  at (1.7,17.9) {region};
+  \node[geo] (wilaya)  at (1.7,16.9) {wilaya};
+  \node[geo] (commune) at (1.7,15.9) {commune};
+  \node[geo] (agence)  at (1.7,14.6) {agence\textsuperscript{H}};
+  \node[geo] (center)  at (1.7,13.5) {center};
+  \node[geo] (agtype)  at (4.9,17.9) {agency\_type};
+
+  % ================= HR & ORG =================
+  \node[hr] (company)  at (1.7,11.4) {company};
+  \node[hr] (dept)     at (1.7,10.5) {department};
+  \node[hr] (service)  at (1.7,9.6)  {service};
+  \node[hr] (occup)    at (1.7,8.7)  {occupation};
+  \node[hr] (employee) at (1.7,7.3)  {employee\textsuperscript{H}};
+  \node[hr] (role)     at (4.9,11.4) {role};
+  \node[hr] (empstat)  at (4.9,10.5) {employee\_status};
+  \node[hr] (livtype)  at (4.9,7.6)  {livreur\_veh\_type};
+  \node[hr] (livreur)  at (4.9,6.5)  {livreur\_freelance};
+
+  % ================= TIME =================
+  \node[time] (date) at (15.8,9.7) {date};
+
+  % ================= PARCEL =================
+  \node[par] (pstatus)  at (8.9,18.1) {parcels\_status};
+  \node[par] (ptype)    at (8.9,17.2) {parcel\_type};
+  \node[par] (dtype)    at (11.1,18.1) {delivery\_type};
+  \node[par] (zone)     at (11.1,17.2) {zone};
+  \node[par] (pstype)   at (13.3,18.1) {pricing\_svc\_type};
+  \node[par] (pricing)  at (13.3,17.2) {pricing};
+  \node[par] (parcel)   at (11.1,15.4) {parcel};
+  \node[fct] (frev)     at (9.7,13.5)  {parcel\_revenue};
+  \node[fct] (fperf)    at (12.6,13.5) {parcel\_perf.};
+
+  % ================= SALARY =================
+  \node[sal] (ctype)    at (8.9,11.4) {contract\_type};
+  \node[sal] (cregime)  at (8.9,10.5) {contract\_regime};
+  \node[sal] (contract) at (11.2,11.4) {contract};
+  \node[sal] (bulletin) at (11.2,10.0) {bulletin};
+  \node[fct] (fsal)     at (13.4,10.0) {cost\_salaire};
+
+  % ================= CASH BOX =================
+  \node[cash] (ncat)    at (8.9,7.2) {nature\_category};
+  \node[cash] (nature)  at (8.9,6.3) {nature};
+  \node[cash] (rubr)    at (8.9,5.4) {rubriques};
+  \node[cash] (dstatus) at (13.2,7.2) {depense\_status};
+  \node[cash] (sintype) at (13.2,6.3) {sinistre\_type};
+  \node[cash] (pailiv)  at (13.2,4.6) {paiement\_livreurs};
+  \node[cash] (rembour) at (13.2,3.6) {remboursement};
+  \node[cash] (depense) at (10.5,4.2) {depense};
+  \node[fct]  (fcharg)  at (10.5,2.5) {charges};
+
+  % ================= TRANSPORT =================
+  \node[tr, minimum width=2.3cm, minimum height=0.8cm, line width=0.9pt]
+        (transport) at (24.2,10.0) {transport};
+  \node[tr] (tclico)   at (18.6,17.9) {client\_company};
+  \node[tr] (tcltype)  at (20.9,17.9) {client\_type};
+  \node[tr] (tclient)  at (19.7,16.8) {client};
+  \node[tr] (tstatus)  at (18.6,15.0) {status};
+  \node[tr] (tstype)   at (18.6,14.0) {service\_type};
+  \node[tr] (tsubtype) at (20.9,14.0) {sub\_service\_type};
+  \node[tr] (tpaystat) at (18.6,13.0) {payment\_status};
+  \node[tr] (tstoptype)at (18.6,4.2)  {stop\_type};
+  \node[tr] (tstops)   at (20.2,5.3)  {stops};
+  \node[tr] (tdepart)  at (21.8,2.9)  {departure};
+  \node[tr] (tloctype) at (24.2,2.9)  {location\_type};
+  \node[tr] (tarrival) at (26.6,2.9)  {arrival};
+  \node[tr] (tvehtype) at (30.5,12.3) {vehicle\_type};
+  \node[tr] (tvehicle) at (28.9,12.3) {vehicle};
+  \node[tr] (tmerch)   at (30.2,17.5) {merchandise\_type};
+  \node[tr] (tcargo)   at (28.7,16.6) {cargo\textsuperscript{J}};
+  \node[tr] (tdist)    at (30.7,7.6)  {distance\_cat};
+  \node[tr] (tcompl)   at (30.7,6.6)  {complexity\_cat};
+  \node[tr] (trouting) at (28.9,7.1)  {routing\textsuperscript{J}};
+  \node[fct] (ftcost)  at (21.3,8.0)  {transport\_cost};
+  \node[fct] (ftbill)  at (24.2,7.4)  {transport\_billing};
+  \node[fct] (ftperf)  at (27.1,8.0)  {transport\_perf.};
+
+  % ================= EDGES =================
+  % geography snowflake (child -> parent)
+  \draw[hier] (wilaya)  -- (region);
+  \draw[hier] (commune) -- (wilaya);
+  \draw[hier] (agence)  -- (commune);
+  \draw[hier] (center)  -- (agence);
+  \draw[hier] (agence)  -- (agtype);
+  % HR chain
+  \draw[hier] (dept)     -- (company);
+  \draw[hier] (service)  -- (dept);
+  \draw[hier] (occup)    -- (service);
+  \draw[hier] (employee) -- (occup);
+  \draw[hier] (employee) -- (role);
+  \draw[hier] (employee) -- (empstat);
+  \draw[hier] (employee) to[bend left=10] (agence);
+  \draw[hier] (livreur)  -- (livtype);
+  \draw[hier] (livreur)  -- (agence);
+  % parcel
+  \draw[hier] (parcel) -- (pstatus);
+  \draw[hier] (parcel) -- (ptype);
+  \draw[hier] (parcel) -- (dtype);
+  \draw[hier] (parcel) -- (zone);
+  \draw[hier] (pricing) -- (pstype);
+  \draw[conf] (pricing) to[bend right=8] (wilaya);
+  \draw[conf] (parcel)  to[bend left=6] (center);
+  % parcel facts
+  \draw[flink] (frev)  -- (parcel);
+  \draw[flink] (fperf) -- (parcel);
+  \draw[conf]  (frev)  to[bend right=10] (date);
+  % salary
+  \draw[hier] (contract) -- (ctype);
+  \draw[hier] (contract) -- (cregime);
+  \draw[hier] (bulletin) -- (contract);
+  \draw[conf] (bulletin) to[bend left=6] (employee);
+  \draw[flink] (fsal) -- (bulletin);
+  \draw[conf]  (fsal) to[bend right=8] (date);
+  % cashbox
+  \draw[hier] (nature) -- (ncat);
+  \draw[hier] (rubr)   -- (nature);
+  \draw[hier] (depense) -- (rubr);
+  \draw[hier] (depense) -- (dstatus);
+  \draw[hier] (pailiv)  -- (depense);
+  \draw[hier] (rembour) -- (depense);
+  \draw[hier] (rembour) -- (sintype);
+  \draw[hier] (pailiv) to[bend right=8] (livreur);
+  \draw[conf] (depense) to[bend left=6] (agence);
+  \draw[flink] (fcharg) -- (depense);
+  \draw[conf]  (fcharg) to[bend left=8] (date);
+  % transport central
+  \draw[hier] (transport) -- (tclient);
+  \draw[hier] (transport) -- (tstatus);
+  \draw[hier] (transport) -- (tstype);
+  \draw[hier] (transport) -- (tsubtype);
+  \draw[hier] (transport) -- (tpaystat);
+  \draw[hier] (transport) -- (tvehicle);
+  \draw[hier] (transport) -- (tcargo);
+  \draw[hier] (transport) -- (trouting);
+  \draw[hier] (transport) -- (tdepart);
+  \draw[hier] (transport) -- (tarrival);
+  \draw[hier] (tclient) -- (tcltype);
+  \draw[hier] (tclient) -- (tclico);
+  \draw[hier] (tstype)  -- (tsubtype);
+  \draw[hier] (tcargo)  -- (tmerch);
+  \draw[hier] (tvehicle)-- (tvehtype);
+  \draw[hier] (trouting)-- (tdist);
+  \draw[hier] (trouting)-- (tcompl);
+  \draw[hier] (tstops)  -- (transport);
+  \draw[hier] (tstops)  -- (tstoptype);
+  \draw[hier] (tstops)  -- (tloctype);
+  \draw[hier] (tdepart) -- (tloctype);
+  \draw[hier] (tarrival)-- (tloctype);
+  \draw[conf] (transport) to[bend right=6] (employee);
+  \draw[conf] (transport) to[bend left=6] (center);
+  % transport facts
+  \draw[flink] (ftcost) -- (transport);
+  \draw[flink] (ftbill) -- (transport);
+  \draw[flink] (ftperf) -- (transport);
+  \draw[conf]  (ftbill) to[bend left=6] (date);
+
+  % ================= LEGEND =================
+  \node[zonelbl] at (0.35,4.9) {Legend};
+  \node[geo,  minimum width=1.1cm, minimum height=0.4cm] (lg) at (1.2,4.2) {};
+  \node[anchor=west, font=\scriptsize] at (1.85,4.2) {Geography};
+  \node[hr,   minimum width=1.1cm, minimum height=0.4cm] (lh) at (1.2,3.6) {};
+  \node[anchor=west, font=\scriptsize] at (1.85,3.6) {HR \& org.};
+  \node[par,  minimum width=1.1cm, minimum height=0.4cm] (lp) at (1.2,3.0) {};
+  \node[anchor=west, font=\scriptsize] at (1.85,3.0) {Parcel};
+  \node[cash, minimum width=1.1cm, minimum height=0.4cm] (lc) at (1.2,2.4) {};
+  \node[anchor=west, font=\scriptsize] at (1.85,2.4) {Cash Box};
+  \node[sal,  minimum width=1.1cm, minimum height=0.4cm] (ls) at (4.4,4.2) {};
+  \node[anchor=west, font=\scriptsize] at (5.05,4.2) {Salary};
+  \node[tr,   minimum width=1.1cm, minimum height=0.4cm] (lt) at (4.4,3.6) {};
+  \node[anchor=west, font=\scriptsize] at (5.05,3.6) {Transport};
+  \node[time, minimum width=1.1cm, minimum height=0.4cm] (lti) at (4.4,3.0) {};
+  \node[anchor=west, font=\scriptsize] at (5.05,3.0) {Time};
+  \node[fct,  minimum width=1.1cm, minimum height=0.4cm] (lf) at (4.4,2.4) {};
+  \node[anchor=west, font=\scriptsize] at (5.05,2.4) {Fact};
+  \node[anchor=west, font=\scriptsize] at (0.55,1.6)
+        {\textsuperscript{H} SCD2 (historised) \quad \textsuperscript{J} junk dimension};
+  \draw[hier] (0.6,1.0) -- (1.4,1.0);
+  \node[anchor=west, font=\scriptsize] at (1.5,1.0) {FK};
+  \draw[conf] (3.0,1.0) -- (3.8,1.0);
+  \node[anchor=west, font=\scriptsize] at (3.9,1.0) {conformed};
+\end{tikzpicture}}}
