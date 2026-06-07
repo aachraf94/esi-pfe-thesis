@@ -33,9 +33,9 @@
   \begin{scope}[on background layer]
     \fill[cGeoF!35,  rounded corners=4pt] (0.2,12.5)  rectangle (7.3,18.9);
     \fill[cHrF!40,   rounded corners=4pt] (0.2,5.2)   rectangle (7.3,12.2);
-    \fill[cParF!45,  rounded corners=4pt] (7.6,12.5)  rectangle (14.6,18.9);
-    \fill[cSalF!45,  rounded corners=4pt] (7.6,8.2)   rectangle (14.6,12.2);
-    \fill[cCashF!45, rounded corners=4pt] (7.6,0.3)   rectangle (14.6,7.9);
+    \fill[cParF!45,  rounded corners=4pt] (7.6,12.5)  rectangle (14.8,18.9);
+    \fill[cSalF!45,  rounded corners=4pt] (7.6,8.2)   rectangle (14.8,12.2);
+    \fill[cCashF!45, rounded corners=4pt] (7.6,0.3)   rectangle (14.8,7.9);
     \fill[cTimeF!55, rounded corners=4pt] (14.9,8.9)  rectangle (16.7,10.8);
     \fill[cTrF!40,   rounded corners=4pt] (17.0,0.3)  rectangle (31.9,18.9);
     \fill[black!4,   rounded corners=4pt] (0.2,0.3)   rectangle (7.3,5.0);
@@ -51,81 +51,81 @@
   \node[font=\bfseries\scriptsize, text=cTimeS, align=center] at (15.8,10.5) {Time};
 
   % ================= GEOGRAPHY =================
-  \node[geo] (region)  at (1.7,17.9) {region};
-  \node[geo] (wilaya)  at (1.7,16.9) {wilaya};
-  \node[geo] (commune) at (1.7,15.9) {commune};
-  \node[geo] (agence)  at (1.7,14.6) {agence\textsuperscript{H}};
-  \node[geo] (center)  at (1.7,13.5) {center};
-  \node[geo] (agtype)  at (4.9,17.9) {agency\_type};
+  \node[geo] (region)  at (1.7,17.9) {dim\_region};
+  \node[geo] (wilaya)  at (1.7,16.9) {dim\_wilaya};
+  \node[geo] (commune) at (1.7,15.9) {dim\_commune};
+  \node[geo] (agence)  at (1.7,14.6) {dim\_agence\textsuperscript{H}};
+  \node[geo] (center)  at (1.7,13.5) {dim\_center};
+  \node[geo] (agtype)  at (4.9,17.9) {dim\_agency\_type};
 
   % ================= HR & ORG =================
-  \node[hr] (company)  at (1.7,11.4) {company};
-  \node[hr] (dept)     at (1.7,10.5) {department};
-  \node[hr] (service)  at (1.7,9.6)  {service};
-  \node[hr] (occup)    at (1.7,8.7)  {occupation};
-  \node[hr] (employee) at (1.7,7.3)  {employee\textsuperscript{H}};
-  \node[hr] (role)     at (4.9,11.4) {role};
-  \node[hr] (empstat)  at (4.9,10.5) {employee\_status};
-  \node[hr] (livtype)  at (4.9,7.6)  {livreur\_veh\_type};
-  \node[hr] (livreur)  at (4.9,6.5)  {livreur\_freelance};
+  \node[hr] (company)  at (1.7,11.4) {dim\_company};
+  \node[hr] (dept)     at (1.7,10.5) {dim\_department};
+  \node[hr] (service)  at (1.7,9.6)  {dim\_service};
+  \node[hr] (occup)    at (1.7,8.7)  {dim\_occupation};
+  \node[hr] (employee) at (1.7,7.3)  {dim\_employee\textsuperscript{H}};
+  \node[hr] (role)     at (4.9,11.4) {dim\_role};
+  \node[hr] (empstat)  at (4.9,10.5) {dim\_employee\_status};
+  \node[hr] (livtype)  at (4.9,7.6)  {dim\_livreur\_veh\_type};
+  \node[hr] (livreur)  at (4.9,6.5)  {dim\_livreur\_freelance};
 
   % ================= TIME =================
-  \node[time] (date) at (15.8,9.7) {date};
+  \node[time] (date) at (15.8,9.7) {dim\_date};
 
   % ================= PARCEL =================
-  \node[par] (pstatus)  at (8.9,18.1) {parcels\_status};
-  \node[par] (ptype)    at (8.9,17.2) {parcel\_type};
-  \node[par] (dtype)    at (11.1,18.1) {delivery\_type};
-  \node[par] (zone)     at (11.1,17.2) {zone};
-  \node[par] (pstype)   at (13.3,18.1) {pricing\_svc\_type};
-  \node[par] (pricing)  at (13.3,17.2) {pricing};
-  \node[par] (parcel)   at (11.1,15.4) {parcel};
-  \node[fct] (frev)     at (9.7,13.5)  {parcel\_revenue};
-  \node[fct] (fperf)    at (12.6,13.5) {parcel\_perf.};
+  \node[par] (pstatus)  at (8.9,18.1) {dim\_parcels\_status};
+  \node[par] (ptype)    at (8.9,17.2) {dim\_parcel\_type};
+  \node[par] (dtype)    at (11.1,18.1) {dim\_delivery\_type};
+  \node[par] (zone)     at (11.1,17.2) {dim\_zone};
+  \node[par] (pstype)   at (13.5,18.1) {dim\_pricing\_svc\_type};
+  \node[par] (pricing)  at (13.5,17.2) {dim\_pricing};
+  \node[par] (parcel)   at (11.1,15.4) {dim\_parcel};
+  \node[fct] (frev)     at (9.7,13.5)  {fact\_parcel\_revenue};
+  \node[fct] (fperf)    at (12.6,13.5) {fact\_parcel\_perf.};
 
   % ================= SALARY =================
-  \node[sal] (ctype)    at (8.9,11.4) {contract\_type};
-  \node[sal] (cregime)  at (8.9,10.5) {contract\_regime};
-  \node[sal] (contract) at (11.2,11.4) {contract};
-  \node[sal] (bulletin) at (11.2,10.0) {bulletin};
-  \node[fct] (fsal)     at (13.4,10.0) {cost\_salaire};
+  \node[sal] (ctype)    at (8.9,11.4) {dim\_contract\_type};
+  \node[sal] (cregime)  at (8.9,10.5) {dim\_contract\_regime};
+  \node[sal] (contract) at (11.2,11.4) {dim\_contract};
+  \node[sal] (bulletin) at (11.2,10.0) {dim\_bulletin};
+  \node[fct] (fsal)     at (13.4,10.0) {fact\_cost\_salaire};
 
   % ================= CASH BOX =================
-  \node[cash] (ncat)    at (8.9,7.2) {nature\_category};
-  \node[cash] (nature)  at (8.9,6.3) {nature};
-  \node[cash] (rubr)    at (8.9,5.4) {rubriques};
-  \node[cash] (dstatus) at (13.2,7.2) {depense\_status};
-  \node[cash] (sintype) at (13.2,6.3) {sinistre\_type};
-  \node[cash] (pailiv)  at (13.2,4.6) {paiement\_livreurs};
-  \node[cash] (rembour) at (13.2,3.6) {remboursement};
-  \node[cash] (depense) at (10.5,4.2) {depense};
-  \node[fct]  (fcharg)  at (10.5,2.5) {charges};
+  \node[cash] (ncat)    at (8.9,7.2) {dim\_nature\_category};
+  \node[cash] (nature)  at (8.9,6.3) {dim\_nature};
+  \node[cash] (rubr)    at (8.9,5.4) {dim\_rubriques};
+  \node[cash] (dstatus) at (13.2,7.2) {dim\_depense\_status};
+  \node[cash] (sintype) at (13.2,6.3) {dim\_sinistre\_type};
+  \node[cash] (pailiv)  at (13.2,4.6) {dim\_paiement\_livreurs};
+  \node[cash] (rembour) at (13.2,3.6) {dim\_remboursement};
+  \node[cash] (depense) at (10.5,4.2) {dim\_depense};
+  \node[fct]  (fcharg)  at (10.5,2.5) {fact\_charges};
 
   % ================= TRANSPORT =================
   \node[tr, minimum width=2.3cm, minimum height=0.8cm, line width=0.9pt]
-        (transport) at (24.2,10.0) {transport};
-  \node[tr] (tclico)   at (18.6,17.9) {client\_company};
-  \node[tr] (tcltype)  at (20.9,17.9) {client\_type};
-  \node[tr] (tclient)  at (19.7,16.8) {client};
-  \node[tr] (tstatus)  at (18.6,15.0) {status};
-  \node[tr] (tstype)   at (18.6,14.0) {service\_type};
-  \node[tr] (tsubtype) at (20.9,14.0) {sub\_service\_type};
-  \node[tr] (tpaystat) at (18.6,13.0) {payment\_status};
-  \node[tr] (tstoptype)at (18.6,4.2)  {stop\_type};
-  \node[tr] (tstops)   at (20.2,5.3)  {stops};
-  \node[tr] (tdepart)  at (21.8,2.9)  {departure};
-  \node[tr] (tloctype) at (24.2,2.9)  {location\_type};
-  \node[tr] (tarrival) at (26.6,2.9)  {arrival};
-  \node[tr] (tvehtype) at (30.5,12.3) {vehicle\_type};
-  \node[tr] (tvehicle) at (28.9,12.3) {vehicle};
-  \node[tr] (tmerch)   at (30.2,17.5) {merchandise\_type};
-  \node[tr] (tcargo)   at (28.7,16.6) {cargo\textsuperscript{J}};
-  \node[tr] (tdist)    at (30.7,7.6)  {distance\_cat};
-  \node[tr] (tcompl)   at (30.7,6.6)  {complexity\_cat};
-  \node[tr] (trouting) at (28.9,7.1)  {routing\textsuperscript{J}};
-  \node[fct] (ftcost)  at (21.3,8.0)  {transport\_cost};
-  \node[fct] (ftbill)  at (24.2,7.4)  {transport\_billing};
-  \node[fct] (ftperf)  at (27.1,8.0)  {transport\_perf.};
+        (transport) at (24.2,10.0) {dim\_transport};
+  \node[tr] (tclico)   at (18.6,17.9) {dim\_client\_company};
+  \node[tr] (tcltype)  at (20.9,17.9) {dim\_client\_type};
+  \node[tr] (tclient)  at (19.7,16.8) {dim\_client};
+  \node[tr] (tstatus)  at (18.6,15.0) {dim\_status};
+  \node[tr] (tstype)   at (18.6,14.0) {dim\_service\_type};
+  \node[tr] (tsubtype) at (20.9,14.0) {dim\_sub\_service\_type};
+  \node[tr] (tpaystat) at (18.6,13.0) {dim\_payment\_status};
+  \node[tr] (tstoptype)at (18.6,4.2)  {dim\_stop\_type};
+  \node[tr] (tstops)   at (20.2,5.3)  {dim\_stops};
+  \node[tr] (tdepart)  at (21.8,2.9)  {dim\_departure};
+  \node[tr] (tloctype) at (24.2,2.9)  {dim\_location\_type};
+  \node[tr] (tarrival) at (26.6,2.9)  {dim\_arrival};
+  \node[tr] (tvehtype) at (30.7,12.3) {dim\_vehicle\_type};
+  \node[tr] (tvehicle) at (28.6,12.3) {dim\_vehicle};
+  \node[tr] (tmerch)   at (30.2,17.5) {dim\_merchandise\_type};
+  \node[tr] (tcargo)   at (28.7,16.6) {dim\_cargo\textsuperscript{J}};
+  \node[tr] (tdist)    at (30.5,7.6)  {dim\_distance\_cat};
+  \node[tr] (tcompl)   at (30.5,6.6)  {dim\_complexity\_cat};
+  \node[tr] (trouting) at (28.4,7.1)  {dim\_routing\textsuperscript{J}};
+  \node[fct] (ftcost)  at (21.3,8.0)  {fact\_transport\_cost};
+  \node[fct] (ftbill)  at (24.2,7.4)  {fact\_transport\_billing};
+  \node[fct] (ftperf)  at (27.1,8.0)  {fact\_transport\_perf.};
 
   % ================= EDGES =================
   % geography snowflake (child -> parent)

@@ -5,29 +5,20 @@
 \addcontentsline{toc}{section}{Introduction}
 
 Chapter~3 closed on a clear diagnosis: the information needed to steer the business exists, but it
-lies scattered across isolated operational applications, inconsistent and hard to exploit, leaving
-management to decide on intuition rather than on a reliable, consolidated reading of the activity.
-This chapter is the pivot from that problem to its solution. It presents LOGIQ,
-the Business Intelligence decision-support system proposed to close the analytical gap, and sets out
-\emph{what} the system must do and \emph{how} it is logically structured to do it.
+lies scattered across isolated applications, leaving management to decide on intuition rather than on a
+consolidated reading of the activity. This chapter is the pivot from that problem to its solution. It
+presents LOGIQ, the Business Intelligence decision-support system proposed to close the gap, and sets
+out \emph{what} it must do and \emph{how} it is logically structured to do it. The treatment is
+deliberately \emph{conceptual} --- a faithful blueprint at the level of functions and logical
+structure; the technology stack, frameworks, and deployment are deferred to Chapter~5, which mirrors
+this design as its technical realisation.
 
-The chapter is deliberately \emph{conceptual}. It stays at the level of functions and logical
-structure --- the actors and capabilities the system supports, the modules it decomposes into, the
-layered architecture that organises it, the way the analytical data is modelled, the integration
-process that feeds it, and the application through which decision-makers consult it. Concerns that
-belong to construction --- the technology stack, the frameworks, the physical deployment --- are
-deliberately deferred to Chapter~5, which mirrors this design as its technical realisation. The aim
-here is a faithful blueprint, independent of any particular implementation.
-
-The presentation follows a single thread, from the abstract to the concrete. It begins with the
-\emph{functional specification} (what the system must do, traced back to the objectives of
-Chapter~3), then derives the \emph{functional architecture} (how those functions are decomposed and
-related), and the \emph{technical specifications} that frame its realisation. From there it introduces
-LOGIQ and its \emph{global architecture}, before zooming in on
-the three pillars that give the system its value: the \emph{data warehouse} at its core, the
-\emph{ETL pipeline} that populates it, and the \emph{application platform} through which it is used.
-The chapter closes on the cross-cutting concerns of \emph{security and conformity}, and on a
-transition towards implementation.
+The presentation follows a single thread, from the abstract to the concrete: the \emph{functional
+specification}, the \emph{functional architecture} it implies, and the \emph{technical specifications}
+that frame its realisation; then LOGIQ and its \emph{global architecture}; then the three pillars that
+give the system its value --- the \emph{data warehouse} at its core, the \emph{ETL pipeline} that
+populates it, and the \emph{application platform} through which it is used; and finally the cross-cutting
+concerns of \emph{security and conformity}.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Functional Specification}
@@ -743,7 +734,7 @@ hierarchy below \texttt{dim\_agence} is snowflaked into one normalised table per
 \label{fig:ch4-dw-constellation}
 \end{figure}
 
-% [VISUAL-IMPLEMENT] full DW constellation ERD — landscape, colour-coded by subject area (shared with Appendix A)
+% [VISUAL-IMPLEMENT] full DW constellation ERD — landscape, colour-coded by subject area (TikZ body in assets/global-figures/)
 \begin{landscape}
 \thispagestyle{empty}
 \begin{figure}[p]
