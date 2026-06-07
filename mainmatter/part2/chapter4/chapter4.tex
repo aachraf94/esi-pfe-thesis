@@ -54,7 +54,7 @@ views each one consults.
 Direction Générale \newline (general management) &
 Consolidated overview of both axes \newline
 Parcel Delivery view (Operations, Cost \& Profitability, Performance) \newline
-Dedicated Transport view (Operations, Cost \& Profitability, Performance) \newline
+On-Demand Dedicated Transport view (Operations, Cost \& Profitability, Performance) \newline
 Route Analysis view (future work) \\
 Responsable Colis \& PCC \newline (parcel \& PCC manager) &
 Consolidated overview \newline
@@ -64,7 +64,7 @@ Consolidated overview \newline
 Route Analysis view (future work) \\
 Responsable Transport \newline (transport manager) &
 Consolidated overview \newline
-Dedicated Transport view (Operations, Cost \& Profitability, Performance) \\
+On-Demand Dedicated Transport view (Operations, Cost \& Profitability, Performance) \\
 Administrator &
 Full access to every business-user view \newline
 User activation \newline
@@ -101,7 +101,7 @@ supported by administration.
 \textcolor{white}{\textbf{Specification}} \\
 \hline
 \multirow{2}{3.5cm}{\raggedright Multi-axis decision consultation} & FS01 &
-Consult each business axis --- parcel delivery and dedicated transport --- along its three views (Operations, Cost \& Profitability, Performance). \\
+Consult each business axis --- parcel delivery and on-demand dedicated transport --- along its three views (Operations, Cost \& Profitability, Performance). \\
  & FS02 & Show a consolidated overview of both axes. \\
 \hline
 \rowcolor{tblrowalt}\multirow{2}{3.5cm}{\raggedright Proactive monitoring} & FS03 &
@@ -281,9 +281,10 @@ Administration \newline \emph{(cross-cutting)} & Administration & Activate HR-im
 roles, and supervise the processing pipeline and its run history. \\
 \hline
 \end{tabularx}
-\caption{The functional modules of LOGIQ, each realising one specification family of
-\S\ref{sec:ch4-functional}; the last two cut across the chain and are not shown in
-Figure~\ref{fig:ch4-funcarch}.}
+\caption{The functional modules of LOGIQ. Data Processing and Reliable Data Consolidation are
+foundational --- they underpin every capability rather than mapping to a single family --- while the
+remaining modules each realise one specification family of \S\ref{sec:ch4-functional}; the last two cut
+across the chain and are not shown in Figure~\ref{fig:ch4-funcarch}.}
 \label{tab:ch4-funcmodules}
 \end{table}
 
@@ -426,21 +427,27 @@ decision-maker sees --- dashboards and alerts alike --- reads from it. Second, L
 \emph{governed} system rather than an open one: its user base is mirrored from the company's HR system,
 so onboarding and off-boarding follow the organisation itself, and every interaction is filtered by the
 role each user holds. How these traits translate into layers and planes is the subject of the global
-architecture, next (Figure~\ref{fig:ch4-globalarch}).
+architecture, next (Figure~\ref{fig:ch4-globalarch}) --- presented here in purely \emph{logical} terms,
+by the role each component plays, with the concrete technologies that realise them deferred to
+Chapter~5, where the same architecture is given again in its technical form
+(\S\ref{sec:ch5-arch}).
 
 % -----------------------------------------------------------------------------
-% [VISUAL-IMPLEMENT] full-page landscape: LOGIQ end-to-end platform architecture
+% [VISUAL-IMPLEMENT] full-page landscape: LOGIQ end-to-end logical architecture (role-based, no products)
 \begin{landscape}
 \thispagestyle{empty}
-\subsection{Global Architecture}
+\subsection{Global Architecture --- Logical View}
 \label{subsec:ch4-globalarch}
 \vspace*{\fill}
 \begin{figure}[H]
 \centering
 \noindent\makebox[\linewidth][c]{%
-  \includegraphics[width=1.12\linewidth, height=0.9\textheight, keepaspectratio]{global-architecture}}
-\caption{LOGIQ global architecture --- the one-directional, end-to-end data flow from the operational
-source systems, through ETL orchestration and the analytical/operational stores, to the dashboard.}
+  \includegraphics[width=1.12\linewidth, height=0.9\textheight, keepaspectratio]{global-architecture-logical}}
+\caption{LOGIQ global architecture, logical view --- the one-directional, end-to-end data flow from the
+operational source systems, through the ETL orchestrator and the analytical and operational stores, to
+the dashboard. Each block names the \emph{role} it plays, independent of the technology that realises it;
+the technical counterpart, mapping every block to a concrete technology, is given in
+Chapter~5 (Figure~\ref{fig:ch5-techarch}).}
 \label{fig:ch4-globalarch}
 \end{figure}
 \vspace*{\fill}
@@ -477,7 +484,7 @@ around the source systems. For each business process, four steps are applied in 
 \label{subsec:ch4-dw-sources}
 
 Of the ten operational applications inventoried in Chapter~3, only \textbf{five feed the warehouse} for
-the two delivered axes; the rest are out of scope this project. Each source is described at the level of
+the two delivered axes; the rest are out of scope for this project. Each source is described at the level of
 the data it provides --- the extraction mechanics belong to the ETL design (\S\ref{sec:ch4-etl}) ---
 and sorted, the central act of dimensional modelling, into \textbf{facts} (measurable events) and
 \textbf{dimensions} (descriptive context). Table~\ref{tab:ch4-dw-sources} carries both.
@@ -503,7 +510,7 @@ PC~Paie & Payslips and employment contracts & Contract \& payslip dims; the sala
 Transport & Dedicated B2B requests and their stops & Transport dims; the 3 transport facts \\
 \hline
 \rowcolor{tblstruct}
-\multicolumn{3}{|l|}{\textbf{Out of scope this project:} FleetGo, Retour App, iTop, CS~Care, QApp.} \\
+\multicolumn{3}{|l|}{\textbf{Out of scope for this project:} FleetGo, Retour App, iTop, CS~Care, QApp.} \\
 \hline
 \end{tabularx}
 \caption{The five operational applications that feed the warehouse, the data each provides, and whether
@@ -1073,10 +1080,10 @@ Overview & A consolidated reading of \emph{both} axes side by side --- the headl
 whole activity in one view. \\
 Parcel Delivery & The parcel axis along its three views --- Operations, Cost \& Profitability,
 Performance. \\
-Dedicated Transport & The transport axis along the same three views, kept on a strictly separate
+On-Demand Dedicated Transport & The transport axis along the same three views, kept on a strictly separate
 financial perimeter. \\
 Alerts & The alerts the user has raised or subscribed to, with their status and history. \\
-Settings & Personal preferences --- saved filters, notification channels, theme, and language. \\
+Preferences & Personal settings --- saved filters, notification channels, theme, and language. \\
 Administration & User activation, role assignment, and supervision of the data-refresh pipeline
 (restricted to the administrator). \\
 \hline
@@ -1174,7 +1181,7 @@ pseudo-formula and the decision each one supports. All monetary values in DZD.}
 \label{tab:ch4-dash-kpi-parcel}
 \end{table}
 
-% [VISUAL-IMPLEMENT] KPI catalogue --- On-Demand Transport axis (name, pseudo formula, business value)
+% [VISUAL-IMPLEMENT] KPI catalogue --- On-Demand Dedicated Transport axis (name, pseudo formula, business value)
 \begin{table}[H]
 \centering
 \small
@@ -1210,7 +1217,7 @@ Avg arrival delay (min) & AVG(actual $-$ planned arrival) & Schedule adherence. 
 Night-shift rate \% & night / total $\times$ 100 & Night-surcharge exposure. \\
 \hline
 \end{tabularx}
-\caption{KPI catalogue of the On-Demand Transport axis --- the five indicators of each view, with their
+\caption{KPI catalogue of the On-Demand Dedicated Transport axis --- the five indicators of each view, with their
 pseudo-formula and the decision each one supports. All monetary values in DZD.}
 \label{tab:ch4-dash-kpi-transport}
 \end{table}
@@ -1234,7 +1241,7 @@ margin (heatmap) $\cdot$ Zone profitability (dual-axis) \\
 Performance & Monthly performance (dual-axis lines) $\cdot$ Duration distribution (histogram) $\cdot$
 Top expedition centres (ranked bar) $\cdot$ Claims by type (donut) \\
 \hline
-\rowcolor{tblanal}\multicolumn{2}{|l|}{\textbf{On-Demand Transport axis}} \\
+\rowcolor{tblanal}\multicolumn{2}{|l|}{\textbf{On-Demand Dedicated Transport axis}} \\
 \hline
 Operations & Monthly volume (stacked bar) $\cdot$ Service breakdown (donut) $\cdot$ Origin--destination
 (heatmap) $\cdot$ Distance category (bar) \\
@@ -1418,8 +1425,9 @@ Administrator & \checkmark & \checkmark & \checkmark & \checkmark \\
 \end{tabularx}
 \caption{Role-based access control: the default roles of LOGIQ and the sections each may consult.
 ``Parcel'' and ``Transport'' each denote that axis's three views (Operations, Cost \& Profitability,
-Performance); the future Route Analysis section is out of scope for this version. The matrix is
-configurable --- new roles can be granted any subset of sections.}
+Performance); the future Route Analysis section is out of scope for this version. The Alerts and
+Preferences areas are available to every authenticated user and are omitted from the matrix. The matrix
+is configurable --- new roles can be granted any subset of sections.}
 \label{tab:ch4-rbac}
 \end{table}
 

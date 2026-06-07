@@ -116,7 +116,7 @@ for at-a-glance monitoring. \\
 \rowcolor{tblstruct}\multicolumn{3}{|l|}{\textbf{Test apparatus \emph{(not part of the delivered platform)}}} \\
 \hline
 \techlogo{fastapi} & \textbf{FastAPI} & Lightweight backend that simulates the five Yalidine source
-systems (17 endpoints) so the chain can be exercised end to end; belongs to the test environment of
+systems (18 endpoints) so the chain can be exercised end to end; belongs to the test environment of
 Chapter~6. \\
 \techlogo{faker} & \textbf{Faker} & Generates realistic synthetic data to feed the mock source systems. \\
 \hline
@@ -143,6 +143,47 @@ the \textbf{source-system simulation} (FastAPI) is \emph{not} part of the delive
 reproduces the source APIs only so the rest of the stack can be exercised under realistic conditions,
 and it is therefore presented with the test environment in Chapter~6. The sections that follow take each
 production component of Table~\ref{tab:ch5-stack} in turn and describe how it was implemented.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Global Architecture --- Technical View}
+\label{sec:ch5-arch}
+
+With the stack in hand, the logical architecture of Chapter~4 (Figure~\ref{fig:ch4-globalarch}) can be
+read in concrete terms. Figure~\ref{fig:ch5-techarch} is its \emph{technical} counterpart: the same
+end-to-end data flow, but with each logical block now resolved to the technology of
+Table~\ref{tab:ch5-stack} that realises it. It is the map for the rest of the chapter --- each block is
+detailed in its own section below.
+
+% -----------------------------------------------------------------------------
+% full-page landscape: LOGIQ end-to-end technical architecture (technologies named)
+\begin{landscape}
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{figure}[H]
+\centering
+\noindent\makebox[\linewidth][c]{%
+  \includegraphics[width=1.12\linewidth, height=0.9\textheight, keepaspectratio]{global-architecture}}
+\caption{LOGIQ global architecture, technical view --- the logical architecture of
+Figure~\ref{fig:ch4-globalarch} with every block mapped to the technology that realises it: the source
+systems expose REST APIs; a \textbf{Dagster} pipeline builds the warehouse in four asset layers; two
+\textbf{PostgreSQL} databases (analytical \emph{warehouse-db} and operational \emph{platform-db}) and
+\textbf{Redis} hold the stores; a \textbf{Django + DRF} backend with a \textbf{Celery + Beat} worker
+forms the services; and a \textbf{Next.js} web client renders the dashboard over HTTPS.}
+\label{fig:ch5-techarch}
+\end{figure}
+\vspace*{\fill}
+\end{landscape}
+
+Reading the flow left to right: the five source systems expose their data over \textbf{REST APIs}; a
+\textbf{Dagster} pipeline ingests them and builds the warehouse in four asset layers --- staging,
+dimensions, facts, and aggregates; the results are persisted in two \textbf{PostgreSQL} databases --- an
+analytical \emph{warehouse-db} (OLAP) and an operational \emph{platform-db} (OLTP) --- alongside
+\textbf{Redis} as cache and message broker; a \textbf{Django + DRF} backend serves the dashboard while a
+\textbf{Celery + Beat} worker runs alerting and scheduled jobs off the request path; and a
+\textbf{Next.js} web client renders the dashboard over HTTPS. The sections that follow take each of these
+blocks in turn --- warehouse and ETL, backend, frontend and dashboard, alerting --- before the
+\textbf{deployment} section shows how the same components are packaged as containers and served in
+production (\S\ref{sec:ch5-deploy}).
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Warehouse and ETL Implementation}
@@ -275,7 +316,7 @@ refreshed} --- truncated and re-filled --- on each run. The heavy feeds, above a
 \texttt{stg\_\allowbreak yalidine\_\allowbreak parcel\_\allowbreak history} (on the order of tens of millions of rows), are instead
 loaded \textbf{incrementally}: rather than reloading in full, the pipeline clears only a trailing window
 --- the most recent week --- and re-fetches it, so late-arriving updates are captured while the bulk of
-the history is left untouched. In all, the pipeline consumes seventeen endpoints across the five source
+the history is left untouched. In all, the pipeline consumes eighteen endpoints across the five source
 systems; Table~\ref{tab:ch5-endpoints} lists them by system (the source systems themselves are presented
 in Chapter~4).
 
@@ -294,13 +335,13 @@ Core logistics (Yalidine) & \texttt{/yalidine/centers}, \texttt{/histories}, \te
 HR (HR Force) & \texttt{/hrforce/companies}, \texttt{/agencies}, \texttt{/users},
 \texttt{/occupations} \\
 Payroll (PC Paie) & \texttt{/paie/bulletins} \\
-Cash-box & \texttt{/cashbox/depenses}, \texttt{/natures}, \texttt{/paiements-livreurs},
-\texttt{/remboursements}, \texttt{/transferts} \\
+Cash-box & \texttt{/cashbox/depenses}, \texttt{/natures}, \texttt{/rubriques},
+\texttt{/paiements-livreurs}, \texttt{/remboursements}, \texttt{/transferts} \\
 Dedicated transport & \texttt{/transport/requests}, \texttt{/transport/stops} \\
 \hline
 \end{tabularx}
 \caption{The source REST endpoints consumed by the extraction stage, grouped by source system
-(seventeen in total). Because the pipeline depends only on these published contracts, the Chapter~6
+(eighteen in total). Because the pipeline depends only on these published contracts, the Chapter~6
 simulation can stand in for the production systems with no change to the extraction code.}
 \label{tab:ch5-endpoints}
 \end{table}
@@ -497,7 +538,7 @@ credentials.}{ch5-login}
 
 Once signed in, the user lands on a consolidated \textbf{Overview} (Figure~\ref{fig:ch5-overview}). The
 interface is organised exactly as the design prescribed (Table~\ref{tab:ch4-app-nav}): the Overview, one
-page per \textbf{business axis} --- Parcel Delivery and Dedicated Transport --- each read through its
+page per \textbf{business axis} --- Parcel Delivery and On-Demand Dedicated Transport --- each read through its
 three views (Operations, Cost \& Profitability, Performance), plus \textbf{Alerts}, \textbf{Preferences},
 and --- for administrators --- \textbf{Administration}. Navigation is \textbf{role-filtered}: the
 frontend reads the user's permissions from the backend and renders only the sections their role allows,
@@ -513,7 +554,7 @@ sign-in.}{ch5-overview}
 Each business axis has its own page, read through the same three views and kept on a \textbf{separate
 financial perimeter}, so costs and revenues are never mixed across axes.
 Figure~\ref{fig:ch5-dash-transport} illustrates both axes through a selection of their views --- the
-Dedicated Transport axis (Operations, Cost \& Profitability) and the Parcel Delivery axis (Operations,
+On-Demand Dedicated Transport axis (Operations, Cost \& Profitability) and the Parcel Delivery axis (Operations,
 Performance).
 
 
@@ -539,7 +580,7 @@ Performance).
   \centering\includegraphics[width=\linewidth]{BusinessUser_Parcel_performance}
   \caption{Performance}
 \end{subfigure}
-\caption{The business-user workspace across both axes: the Dedicated Transport axis (Operations,
+\caption{The business-user workspace across both axes: the On-Demand Dedicated Transport axis (Operations,
 Cost \& Profitability) and the Parcel Delivery axis (Operations, Performance), each read through its
 views on a separate financial perimeter.}
 \label{fig:ch5-dash-transport}
