@@ -301,17 +301,15 @@ materialised views the dashboards read.}{ch5-asset-graph}
 Mapped onto this graph, the pipeline follows the three classic \textbf{ETL} phases --- extraction,
 transformation, and loading --- each operating between two of the layers.
 
-\textbf{Extraction} pulls data from the source systems' \textbf{REST APIs} into the staging layer. The
-pipeline depends only on the \emph{published API contract}, never on a source's internal database, so it
+\textbf{Extraction} pulls data from the source systems' \textbf{REST APIs} into the staging layer,
+depending only on the \emph{published API contract} --- never a source's internal database --- so it
 runs unchanged against either the real systems or their faithful simulation (\S\ref{sec:ch6-sources}).
-Not every endpoint is loaded the same way. Most staging tables are small enough to be \textbf{fully
-refreshed} --- truncated and re-filled --- on each run. The heavy feeds, above all
-\texttt{stg\_\allowbreak yalidine\_\allowbreak parcel\_\allowbreak history} (on the order of tens of millions of rows), are instead
-loaded \textbf{incrementally}: rather than reloading in full, the pipeline clears only a trailing window
---- the most recent week --- and re-fetches it, so late-arriving updates are captured while the bulk of
-the history is left untouched. In all, the pipeline consumes eighteen endpoints across the five source
-systems; Table~\ref{tab:ch5-endpoints} lists them by system (the source systems themselves are presented
-in Chapter~4).
+Loading differs by size: most staging tables are small enough to be \textbf{fully refreshed} (truncated
+and re-filled) on each run, while the heavy feeds --- above all
+\texttt{stg\_\allowbreak yalidine\_\allowbreak parcel\_\allowbreak history}, on the order of tens of millions of rows --- are
+loaded \textbf{incrementally}, clearing and re-fetching only a trailing one-week window so late-arriving
+updates are captured without reloading the whole history. In all, the pipeline consumes eighteen
+endpoints across the five source systems (Table~\ref{tab:ch5-endpoints}), presented in Chapter~4.
 
 % [VISUAL-IMPLEMENT] source API endpoints consumed by the extraction stage, grouped by system
 \begin{table}[H]

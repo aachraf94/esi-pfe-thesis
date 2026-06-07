@@ -299,14 +299,12 @@ responsibilities are projected onto a layered, service-oriented architecture.
 \section{Technical Specifications}
 \label{sec:ch4-techspec}
 
-The quality expectations of \S\ref{subsec:ch4-quality} stated, in the decision-maker's own terms, the
-conditions under which LOGIQ would be trusted and adopted. This section turns them --- together with
-the engineering constraints they imply at national scale --- into a structured \emph{technical
-specification}: the non-functional properties the design must guarantee, and against which its
-realisation in Chapter~5 can be judged. To keep the specification systematic, it is organised along
-the product-quality characteristics of the ISO/IEC~25010 model~\parencite{iso25010}; and, like the rest of
-this chapter, each requirement is stated independently of any particular technology.
-Table~\ref{tab:ch4-techspec} collects them.
+Where \S\ref{subsec:ch4-quality} named, in the decision-maker's own terms, the conditions for LOGIQ to
+be trusted and adopted, this section turns them into a structured \emph{technical specification}: the
+non-functional properties the design must guarantee, against which Chapter~5 can be judged. They are
+organised along the product-quality characteristics of the ISO/IEC~25010 model~\parencite{iso25010}
+and, like the rest of this chapter, stated independently of any particular technology
+(Table~\ref{tab:ch4-techspec}).
 
 % [VISUAL-IMPLEMENT] technical (non-functional) specifications, numbered and grouped by ISO/IEC 25010 attributes
 % Page-breakable: xltabular (longtable + X column); rows break freely across pages, so the table starts
@@ -370,13 +368,11 @@ Source integration depends only on each system's API contract, so the real produ
 \end{xltabular}
 \endgroup
 
-Three of these characteristics dominate the design and recur as drivers in the sections that follow:
-\textbf{performance and capacity} justify the pre-computed aggregate layer and the analytical/operational
-split of the warehouse; \textbf{reliability} justifies its layered, quality-gated construction and an
-idempotent refresh; and \textbf{security} justifies role-based access and the strict separation of the
-two financial perimeters. The remaining characteristics --- usability, maintainability, and
-portability --- shape, respectively, the dashboard, the modular decomposition just presented, and the
-deployment, and are revisited where each is realised.
+Three characteristics dominate the design and recur as drivers below: \textbf{performance and
+capacity} justify the pre-computed aggregate layer and the analytical/operational split of the
+warehouse; \textbf{reliability}, its layered, quality-gated construction and idempotent refresh; and
+\textbf{security}, role-based access and the strict separation of the two financial perimeters. The
+rest --- usability, maintainability, and portability --- are revisited where each is realised.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Solution and Global Architecture}
@@ -394,47 +390,42 @@ system: each building block is named here, but examined in depth in its own sect
 \label{subsec:ch4-logiq}
 
 The answer to the diagnosis of Chapter~3 is \textbf{LOGIQ}, a Business Intelligence decision-support
-platform that consolidates the data scattered across the company's operational systems and turns it
-into a reliable, navigable reading of logistics operations and costs. The name carries the intent of
-the system twice over: \textbf{LOGIQ = Logistics + IQ} --- \emph{logistics intelligence} --- and it
-reads as the French \emph{logique}, the promise that decisions rest on logic and evidence rather than
-on intuition, exactly the shortcoming the diagnosis exposed. Its visual identity carries the same idea
---- a rising chart riding a delivery cart (Figure~\ref{fig:ch4-logiq-logo}).
+platform that consolidates the data scattered across the company's operational systems into a
+reliable, navigable reading of logistics operations and costs. The name joins \textbf{Logistics + IQ}
+--- \emph{logistics intelligence} --- and its logo, a rising chart riding a delivery cart, carries the
+same idea (Figure~\ref{fig:ch4-logiq-logo}).
 
 % [VISUAL-IMPLEMENT] LOGIQ brand logo, light/primary and dark/reverse variants
 \fig[0.85\textwidth]{logos}{The LOGIQ logo, shown in its primary (light) and reverse (dark) variants ---
 a chart riding a delivery cart, joining \emph{logistics} and analytical \emph{intelligence}.}{ch4-logiq-logo}
 
-LOGIQ is delivered as a single, full-stack platform that assembles five building blocks, which
-between them realise the functional modules of \S\ref{sec:ch4-funcarch} --- the foundational data
-processing and consolidation modules being carried jointly by the warehouse and the pipeline. Each
-block is detailed in its own section below:
+LOGIQ is a single, full-stack platform built from five building blocks, each detailed in its own
+section below:
 
 \begin{itemize}[noitemsep]
-    \item a \textbf{data warehouse} --- the consolidated analytical core that holds the whole of the
-          company's activity as one coherent, query-optimised source of truth
-          (\S\ref{sec:ch4-dw});
-    \item an \textbf{automated ETL pipeline} that feeds and refreshes that core on a schedule, drawing
-          from each operational system and requiring no manual intervention (\S\ref{sec:ch4-etl});
-    \item \textbf{analytical dashboards} that present the activity as the two business axes and their
-          three views, through significant KPI charts and indicators (\S\ref{sec:ch4-app});
-    \item \textbf{dynamic alerting} --- threshold rules that decision-makers define and \emph{subscribe}
-          to, raising a notification through their preferred channel the moment a sensitive indicator
-          drifts beyond its acceptable level (\S\ref{sec:ch4-app});
-    \item \textbf{role and account management}, where users are not self-registered but \textbf{kept in
-          step with the company's HR system} and granted a role that governs which views they may
-          consult (\S\ref{sec:ch4-security}).
+    \item a \textbf{data warehouse} --- the consolidated analytical core, a query-optimised source of
+          truth for the whole activity (\S\ref{sec:ch4-dw});
+    \item an \textbf{automated ETL pipeline} that feeds and refreshes that core on a schedule, with no
+          manual intervention (\S\ref{sec:ch4-etl});
+    \item \textbf{analytical dashboards} presenting the two business axes and their three views through
+          KPI charts and indicators (\S\ref{sec:ch4-app});
+    \item \textbf{dynamic alerting} --- threshold rules that decision-makers subscribe to, notifying
+          them the moment a sensitive indicator drifts (\S\ref{sec:ch4-app});
+    \item \textbf{role and account management}, kept in step with the company's HR system, granting each
+          user a role that governs the views they may consult (\S\ref{sec:ch4-security}).
 \end{itemize}
 
-Two traits set the tone for the architecture that follows. First, LOGIQ is \emph{data-centred}: the
-warehouse is the gravitational centre, the automated pipeline keeps it current, and everything the
-decision-maker sees --- dashboards and alerts alike --- reads from it. Second, LOGIQ is a
-\emph{governed} system rather than an open one: its user base is mirrored from the company's HR system,
-so onboarding and off-boarding follow the organisation itself, and every interaction is filtered by the
-role each user holds. How these traits translate into layers and planes is the subject of the global
-architecture, next (Figure~\ref{fig:ch4-globalarch}) --- presented here in purely \emph{logical} terms,
-by the role each component plays, with the concrete technologies that realise them deferred to
-Chapter~5, where the same architecture is given again in its technical form
+Two traits set the tone for the architecture that follows:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{data-centred} --- the warehouse is the gravitational centre, kept current by the
+          automated pipeline, and everything the decision-maker sees reads from it;
+    \item \textbf{governed} --- the user base is mirrored from the company's HR system, so onboarding and
+          off-boarding follow the organisation, and every interaction is filtered by the user's role.
+\end{itemize}
+
+The global architecture, next (Figure~\ref{fig:ch4-globalarch}), shows how these traits translate into
+layers --- in purely \emph{logical} terms, with the concrete technologies deferred to Chapter~5
 (\S\ref{sec:ch5-arch}).
 
 % -----------------------------------------------------------------------------
@@ -669,8 +660,7 @@ LOGIQ adopts a \textbf{fact-constellation} (galaxy) schema with \textbf{snowflak
           SCD2-unstable join path.
 \end{itemize}
 
-Table~\ref{tab:ch4-dw-facts} declares the grain and measures of the seven facts.
-Figure~\ref{fig:ch4-dw-constellation} shows a fragment of the constellation as a reading guide, and
+Table~\ref{tab:ch4-dw-facts} declares the grain and measures of the seven facts, and
 Figure~\ref{fig:ch4-dw-erd} gives the complete model; the full field-level dictionary of every table is
 in Appendix~A.
 
@@ -715,56 +705,6 @@ client rating \\
 \hline
 \end{xltabular}
 \endgroup
-
-% [VISUAL-IMPLEMENT] constellation fragment: 2 facts sharing conformed dims + a snowflaked hierarchy
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[
-  >={Stealth[length=2.2mm]},
-  fact/.style={draw=figorange, fill=figambertint, line width=1pt, rounded corners=3pt,
-               align=center, font=\scriptsize\bfseries, minimum width=3.0cm, minimum height=1.0cm},
-  dimc/.style={draw=figblue, fill=figbluetint, line width=0.9pt, align=center,
-               font=\scriptsize, minimum width=2.5cm, minimum height=0.85cm},
-  snow/.style={draw=figslate, fill=black!3, line width=0.7pt, align=center,
-               font=\scriptsize, minimum width=2.4cm, minimum height=0.7cm},
-  link/.style={draw=figslate, line width=0.7pt},
-  fk/.style={->, draw=figslate, line width=0.7pt}]
-
-  % shared conformed dimensions (centre column)
-  \node[dimc] (date)  at (0, 2.7) {\textbf{dim\_date}\\{\scriptsize(conformed time)}};
-  \node[dimc] (agence) at (0, 0.6) {\textbf{dim\_agence}\\{\scriptsize SCD2 · conformed}};
-
-  % the two facts, one per perimeter
-  \node[fact] (frev) at (-4.6, 1.6) {fact\\parcel\_revenue\\{\scriptsize(Express)}};
-  \node[fact] (fcost) at (4.6, 1.6) {fact\\transport\_cost\\{\scriptsize(Transport)}};
-
-  % snowflaked geographic hierarchy below the shared agency
-  \node[snow] (commune) at (0,-0.9) {dim\_commune};
-  \node[snow] (wilaya)  at (0,-2.0) {dim\_wilaya};
-  \node[snow] (region)  at (0,-3.1) {dim\_region};
-
-  % facts share the conformed dimensions
-  \draw[link] (frev) -- (date);
-  \draw[link] (frev) -- (agence);
-  \draw[link] (fcost) -- (date);
-  \draw[link] (fcost) -- (agence);
-
-  % snowflake chain (normalised, one level per table)
-  \draw[fk] (agence) -- (commune) node[midway, right, font=\tiny, text=black!60] {FK};
-  \draw[fk] (commune) -- (wilaya)  node[midway, right, font=\tiny, text=black!60] {FK};
-  \draw[fk] (wilaya)  -- (region)  node[midway, right, font=\tiny, text=black!60] {FK};
-
-  % perimeter labels
-  \node[font=\scriptsize\itshape, text=figorange] at (-4.6, 0.35) {Express perimeter};
-  \node[font=\scriptsize\itshape, text=figorange] at (4.6, 0.35) {Transport perimeter};
-  \node[font=\scriptsize\itshape, text=figslate, align=center] at (3.0,-2.0)
-      {snowflaked\\hierarchy};
-\end{tikzpicture}
-\caption{A fragment of the constellation schema: two fact tables from the two financial perimeters
-share the conformed \texttt{dim\_date} and \texttt{dim\_agence} dimensions, while the geographic
-hierarchy below \texttt{dim\_agence} is snowflaked into one normalised table per level.}
-\label{fig:ch4-dw-constellation}
-\end{figure}
 
 % [VISUAL-IMPLEMENT] full DW constellation ERD — landscape, colour-coded by subject area (TikZ body in assets/global-figures/)
 \begin{landscape}
@@ -932,7 +872,7 @@ This asset-oriented view yields design advantages a plain script could not:
 \end{itemize}
 
 % [VISUAL-FETCH] (provided) asset/lineage dependency graph screenshot of the warehouse pipeline
-\fig[\textwidth]{dagster_lineage}{The warehouse asset-dependency (lineage) graph: every table is an
+\fig[0.85\textwidth]{dagster_lineage}{The warehouse asset-dependency (lineage) graph: every table is an
 asset that declares its upstream dependencies, so the pipeline builds in the correct order and any
 single asset or sub-graph can be re-run safely.}{ch4-etl-lineage}
 
