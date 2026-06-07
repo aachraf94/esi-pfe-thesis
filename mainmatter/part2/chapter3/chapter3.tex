@@ -367,15 +367,26 @@ customer care (Table~\ref{tab:ch3-apps}). They are described here at a functiona
 \emph{what each one manages} rather than how it is built.
 
 % [VISUAL-IMPLEMENT] internal operational applications and the domain each manages
-\begin{table}[H]
-\centering
+\begingroup
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|}
+\begin{xltabular}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|}
+\caption{Yalidine's internal operational applications and the domain each one manages.}
+\label{tab:ch3-apps} \\
 \hline
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Application}} & \textcolor{white}{\textbf{What it manages}} \\
 \hline
+\endfirsthead
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Application}} & \textcolor{white}{\textbf{What it manages}} \\
+\hline
+\endhead
+\hline
+\multicolumn{2}{r}{\footnotesize\itshape Continued on next page} \\
+\endfoot
+\endlastfoot
 Yalidine App & The core application driving the overall logistics flow --- physical, financial, and
 operational. \\
 FleetGo & Vehicle fleet management: maintenance tracking, preventive planning, and spare-parts
@@ -396,10 +407,8 @@ but treated as an independent source system in what follows. \\
 {\small\textbf{Note —} user accounts for \emph{all} of these applications are created and managed
 centrally through HR~Force.} \\
 \hline
-\end{tabularx}
-\caption{Yalidine's internal operational applications and the domain each one manages.}
-\label{tab:ch3-apps}
-\end{table}
+\end{xltabular}
+\endgroup
 
 Each application performs its own role well; the difficulty, examined next, is that they remain
 disconnected from one another --- the same parcel, vehicle, or expense is recorded in several systems
@@ -474,16 +483,28 @@ from first-hand accounts and direct field observation to the analysis of interna
 operational applications themselves (Table~\ref{tab:ch3-methods}).
 
 % [VISUAL-IMPLEMENT] needs-gathering techniques
-\begin{table}[H]
-\centering
+\begingroup
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.9cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.1cm}|}
+\begin{xltabular}{\linewidth}{|>{\raggedright\arraybackslash}p{2.9cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.1cm}|}
+\caption{The techniques used to gather and understand the business needs.}
+\label{tab:ch3-methods} \\
 \hline
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Technique}} & \textcolor{white}{\textbf{Description}} &
 \textcolor{white}{\textbf{Stakeholders \& sources}} \\
 \hline
+\endfirsthead
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Technique}} & \textcolor{white}{\textbf{Description}} &
+\textcolor{white}{\textbf{Stakeholders \& sources}} \\
+\hline
+\endhead
+\hline
+\multicolumn{3}{r}{\footnotesize\itshape Continued on next page} \\
+\endfoot
+\endlastfoot
 Individual interviews & One-to-one discussions to understand a manager's area in depth --- its daily
 difficulties and what a consolidated view would need to surface. & Returns manager; operations
 manager. \\
@@ -499,10 +520,8 @@ documentation. \\
 Application exploration & Hands-on use of the operational applications to see what each one records and
 how. & Yalidine App, Returly App, QApp, and others. \\
 \hline
-\end{tabularx}
-\caption{The techniques used to gather and understand the business needs.}
-\label{tab:ch3-methods}
-\end{table}
+\end{xltabular}
+\endgroup
 
 Together, these techniques gave a rounded understanding of the business --- from the strategic concerns
 voiced by management to the concrete reality observed on the ground --- which the next section analyses
