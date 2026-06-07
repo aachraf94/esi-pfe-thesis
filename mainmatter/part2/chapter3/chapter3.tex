@@ -1,14 +1,7 @@
 % ── Chapter 3: Analysis of the Existing System & Methodology ─────────────────
 \chapter{Analysis of the Existing System and Methodology}
 
-% =============================================================================
-% NOTE — REDACTION STATUS: this chapter is NOT yet redacted.
-% The blocks below are the ORGANISED RAW MATERIAL (translated to English) that
-% will be turned into prose during redaction. They are kept as % comments so
-% nothing half-finished renders in the PDF. Each block sits under the section
-% it feeds. Plan/outline lives in guide/02_contribution_guide.md (Chapter 3).
 % Convention: chapter Introduction & Conclusion are UNNUMBERED (\section*).
-% =============================================================================
 
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -81,7 +74,7 @@ match.
 Yalidine's activity rests on two principal services:
 
 \begin{itemize}[noitemsep]
-    \item \textbf{Express parcel delivery (B2C, e-commerce)} --- its principal activity: the last-mile
+    \item \textbf{Parcel Express Delivery (B2C, e-commerce)} --- its principal activity: the last-mile
           delivery of parcels ordered online, from the merchant to the end customer.
     \item \textbf{On-demand dedicated transport (B2B)} --- moving goods, parcels, or documents on
           dedicated trips commissioned by client companies.
@@ -178,13 +171,10 @@ consolidate.
 
 Yalidine runs two distinct business services, each with its own process:
 
-% Number the two service subsubsections (3.2.1.1, 3.2.1.2); restored to 2 after them.
-\setcounter{secnumdepth}{3}
-
 % =============================================================================
-\subsubsection{Express Parcel Delivery}
+\subsubsection{Parcel Express Delivery}
 
-Express parcel delivery is the classic e-commerce parcel-delivery service: a merchant sells goods
+Parcel Express Delivery is the classic e-commerce parcel-delivery service: a merchant sells goods
 online and entrusts Yalidine with carrying each order to the buyer. It is Yalidine's principal
 activity --- the last-mile, business-to-consumer delivery of goods ordered online, from the merchant
 to the end customer. Every parcel follows a well-defined lifecycle, from the moment a merchant hands
@@ -367,11 +357,6 @@ handling, any surcharges (night work, perishable goods, insurance), and the dire
 fuel and tolls. Comparing this built-up cost with the amount invoiced is the basis of the
 profitability analysis for this axis.
 
-% Restore default numbering depth (subsubsections unnumbered again).
-\setcounter{secnumdepth}{2}
-
-
-
 % -----------------------------------------------------------------------------
 \subsection{Operational Applications}
 
@@ -395,14 +380,15 @@ operational. \\
 FleetGo & Vehicle fleet management: maintenance tracking, preventive planning, and spare-parts
 inventory. \\
 HR~Force & Human resources: personnel records, contracts, absences, and internal job postings. \\
-Retour App & QR-based tracking of returned parcels: registration, localisation, and storage
+Returly App & QR-based tracking of returned parcels: registration, localisation, and storage
 optimisation. \\
 iTop & Centralised management of warehouse stock, IT equipment, and the phone fleet. \\
 CS~Care & Customer-complaint management: reception, processing, and resolution tracking. \\
 QApp & Queue management at Stop Desk counters, with temporary parcel-storage tracking. \\
 Cash~Box & Company-wide expense management for Yalidine. \\
 PC~Paie & Salary and payroll management. \\
-Transport & Dedicated B2B transport management (integrated within Yalidine App). \\
+Transport & Dedicated B2B transport management --- a distinct module embedded within Yalidine App,
+but treated as an independent source system in what follows. \\
 \hline
 \rowcolor{tblstruct}
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}%
@@ -510,7 +496,7 @@ Document analysis & Study of the company's internal documents --- business proce
 operational applications --- and of earlier PFE theses produced at Ourquilane for Yalidine. & Internal
 documentation. \\
 Application exploration & Hands-on use of the operational applications to see what each one records and
-how. & Yalidine App, Returly, QApp, and others. \\
+how. & Yalidine App, Returly App, QApp, and others. \\
 \hline
 \end{tabularx}
 \caption{The techniques used to gather and understand the business needs.}
@@ -635,7 +621,7 @@ each element is to a useful first release (Table~\ref{tab:ch3-moscow}).
 \hline
 Must have & On-demand dedicated transport (B2B) & Full decision support for the dedicated-transport
 axis along its three views: Operations, Cost \& Profitability, and Performance. \\
-Should have & Express parcel delivery (B2C) & The same three-view decision support applied to the
+Should have & Parcel Express Delivery (B2C) & The same three-view decision support applied to the
 parcel-delivery axis. \\
 Could have & Route analysis & A future extension analysing delivery routes; deferred because the data
 it requires is not available within the project scope. \\
@@ -647,6 +633,13 @@ a read-only decision-support layer for the two delivery axes; it does not extend
 \caption{MoSCoW prioritisation of the system's scope.}
 \label{tab:ch3-moscow}
 \end{table}
+
+The ranking may seem to invert the business: parcel express delivery is Yalidine's principal activity
+by volume, yet dedicated transport is the \emph{Must have}. The reason is analytical, not commercial.
+The parcel axis is already closely watched through real-time tracking, whereas the cost, profitability,
+and performance of dedicated transport were the most opaque to management and the least served by any
+existing tool --- so it is there that consolidated decision support adds the most value first. The
+parcel axis follows immediately after, on the very same three-view design.
 
 \paragraph{Two independent financial perimeters.}
 Whichever axis is considered, one principle governs the whole scope: the costs and revenues of the two

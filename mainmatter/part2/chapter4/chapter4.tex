@@ -79,7 +79,10 @@ Data-pipeline run history \\
 The roles in Table~\ref{tab:ch4-actors} are only the \emph{default} roles shipped with the system.
 Because access is governed by configurable, view-level permissions, the administrator can create and
 manage additional roles --- granting or restricting access to any view --- so that new
-decision-makers can be onboarded as the organisation evolves, without changing the system.
+decision-makers can be onboarded as the organisation evolves, without changing the system. One role,
+the \emph{Responsable Tournées} (routes manager), is provisioned ahead of its dedicated content: its
+Route Analysis view is deferred to future work, so in this version it consults only the consolidated
+overview.
 
 % -----------------------------------------------------------------------------
 \subsection{Functional Specifications}
@@ -301,7 +304,7 @@ conditions under which LOGIQ would be trusted and adopted. This section turns th
 the engineering constraints they imply at national scale --- into a structured \emph{technical
 specification}: the non-functional properties the design must guarantee, and against which its
 realisation in Chapter~5 can be judged. To keep the specification systematic, it is organised along
-the product-quality characteristics of the ISO/IEC~25010 model~\cite{iso25010}; and, like the rest of
+the product-quality characteristics of the ISO/IEC~25010 model~\parencite{iso25010}; and, like the rest of
 this chapter, each requirement is stated independently of any particular technology.
 Table~\ref{tab:ch4-techspec} collects them.
 
@@ -402,9 +405,10 @@ on intuition, exactly the shortcoming the diagnosis exposed. Its visual identity
 \fig[0.85\textwidth]{logos}{The LOGIQ logo, shown in its primary (light) and reverse (dark) variants ---
 a chart riding a delivery cart, joining \emph{logistics} and analytical \emph{intelligence}.}{ch4-logiq-logo}
 
-LOGIQ is delivered as a single, full-stack platform that assembles five building blocks, each
-realising one of the functional modules of \S\ref{sec:ch4-funcarch} and each detailed in its own
-section below:
+LOGIQ is delivered as a single, full-stack platform that assembles five building blocks, which
+between them realise the functional modules of \S\ref{sec:ch4-funcarch} --- the foundational data
+processing and consolidation modules being carried jointly by the warehouse and the pipeline. Each
+block is detailed in its own section below:
 
 \begin{itemize}[noitemsep]
     \item a \textbf{data warehouse} --- the consolidated analytical core that holds the whole of the
@@ -469,7 +473,7 @@ Appendix~A.
 \label{subsec:ch4-dw-approach}
 
 The warehouse uses \textbf{dimensional modelling}, built with the Kimball
-lifecycle~\cite{kimball2013}: the model is organised around the business questions to answer, not
+lifecycle~\parencite{kimball2013}: the model is organised around the business questions to answer, not
 around the source systems. For each business process, four steps are applied in order:
 
 \begin{enumerate}[noitemsep]
@@ -511,7 +515,7 @@ PC~Paie & Payslips and employment contracts & Contract \& payslip dims; the sala
 Transport & Dedicated B2B requests and their stops & Transport dims; the 3 transport facts \\
 \hline
 \rowcolor{tblstruct}
-\multicolumn{3}{|l|}{\textbf{Out of scope for this project:} FleetGo, Retour App, iTop, CS~Care, QApp.} \\
+\multicolumn{3}{|l|}{\textbf{Out of scope for this project:} FleetGo, Returly App, iTop, CS~Care, QApp.} \\
 \hline
 \end{tabularx}
 \caption{The five operational applications that feed the warehouse, the data each provides, and whether
@@ -761,7 +765,7 @@ the field-level dictionaries are in Appendix~A.}
 \label{subsec:ch4-dw-techniques}
 
 On top of the constellation, the model applies a set of standard dimensional-modelling
-techniques~\cite{kimball2013}, each chosen to answer a concrete need of the LOGIQ data.
+techniques~\parencite{kimball2013}, each chosen to answer a concrete need of the LOGIQ data.
 Table~\ref{tab:ch4-dw-techniques} summarises where and why each is used.
 
 % [VISUAL-IMPLEMENT] dimensional-modelling techniques mapped to where/why they are used
@@ -1178,7 +1182,8 @@ Claims declared & COUNT(reimbursements) & Packaging / handling quality signal. \
 \hline
 \end{tabularx}
 \caption{KPI catalogue of the Parcel Delivery axis --- the five indicators of each view, with their
-pseudo-formula and the decision each one supports. All monetary values in DZD.}
+pseudo-formula and the decision each one supports. All monetary values in DZD; any alert or target
+thresholds shown are configurable defaults set by the user, not fixed limits.}
 \label{tab:ch4-dash-kpi-parcel}
 \end{table}
 
@@ -1219,7 +1224,8 @@ Night-shift rate \% & night / total $\times$ 100 & Night-surcharge exposure. \\
 \hline
 \end{tabularx}
 \caption{KPI catalogue of the On-Demand Dedicated Transport axis --- the five indicators of each view, with their
-pseudo-formula and the decision each one supports. All monetary values in DZD.}
+pseudo-formula and the decision each one supports. All monetary values in DZD; any alert or target
+thresholds shown are configurable defaults set by the user, not fixed limits.}
 \label{tab:ch4-dash-kpi-transport}
 \end{table}
 
@@ -1445,11 +1451,11 @@ LOGIQ operates inside an established regulatory context, and its design is shape
 with two anchors in particular:
 
 \begin{itemize}[noitemsep]
-    \item \textbf{ISO/IEC 27001}~\cite{iso27001} --- the information-security management framework
+    \item \textbf{ISO/IEC 27001}~\parencite{iso27001} --- the information-security management framework
           within which Yalidine operates. The platform is designed to sit inside it: controlled access,
           segregation of duties, traceability, and protection of data in transit are treated as design
           obligations rather than optional features.
-    \item \textbf{Algerian Law n° 18-07} (10 June 2018)~\cite{loi1807} --- the national law on the
+    \item \textbf{Algerian Law n° 18-07} (10 June 2018)~\parencite{loi1807} --- the national law on the
           protection of natural persons in the processing of personal data. Because LOGIQ processes the
           personal data of clients and employees, its design respects the law's core principles ---
           \emph{purpose limitation}, \emph{data minimisation}, and \emph{security of processing}.
