@@ -7,7 +7,7 @@
 Chapter~4 set out \emph{what} LOGIQ is and \emph{how} it is logically structured, deliberately
 independent of any particular technology. This chapter is its counterpart: it shows how that blueprint
 was \textbf{built and brought into operation}. Each section mirrors a design block of Chapter~4 ---
-the warehouse and its pipeline, the backend, the alerting, the dashboard, and the deployment --- now
+the warehouse and its pipeline, the backend, the dashboard, the alerting, and the deployment --- now
 expressed in concrete technical terms, naming the frameworks and products that were deliberately
 deferred from the conceptual design.
 
@@ -15,7 +15,7 @@ The account stays at the level of \emph{general technical aspects}: it explains 
 implementation choices and how each part of the design was realised, rather than giving an exhaustive
 walkthrough of the code; short snippets appear only where they clarify a point. The chapter opens with
 the \textbf{technology stack}, which every later section reuses, and then follows the data flow in
-turn --- warehouse and ETL, backend, alerting, frontend and dashboard --- before closing on the
+turn --- warehouse and ETL, backend, frontend and dashboard, alerting --- before closing on the
 \textbf{deployment} that packages the whole and serves it in production.
 
 The \emph{validation} of the platform --- the faithful test environment built to exercise it end to end,
@@ -145,19 +145,12 @@ and it is therefore presented with the test environment in Chapter~6. The sectio
 production component of Table~\ref{tab:ch5-stack} in turn and describe how it was implemented.
 
 % ═════════════════════════════════════════════════════════════════════════════
-\section{Global Architecture --- Technical View}
-\label{sec:ch5-arch}
-
-With the stack in hand, the logical architecture of Chapter~4 (Figure~\ref{fig:ch4-globalarch}) can be
-read in concrete terms. Figure~\ref{fig:ch5-techarch} is its \emph{technical} counterpart: the same
-end-to-end data flow, but with each logical block now resolved to the technology of
-Table~\ref{tab:ch5-stack} that realises it. It is the map for the rest of the chapter --- each block is
-detailed in its own section below.
-
 % -----------------------------------------------------------------------------
 % full-page landscape: LOGIQ end-to-end technical architecture (technologies named)
 \begin{landscape}
 \thispagestyle{empty}
+\section{Global Architecture --- Technical View}
+\label{sec:ch5-arch}
 \vspace*{\fill}
 \begin{figure}[H]
 \centering
@@ -222,8 +215,8 @@ Facts & Fact tables keyed to their dimensions, holding the measures. & 7 \\
 Aggregates & \textbf{Materialised views}, refreshed each run; the sole source for the analytics API. & 5 \\
 \hline
 \end{tabularx}
-\caption{The four warehouse layers as realised in PostgreSQL, built in dependency order; counts follow
-the table inventory of \S\ref{sec:ch4-dw}.}
+\caption{The four warehouse layers as realised in PostgreSQL, built in dependency order; the staging,
+dimension, fact and aggregate counts follow the inventory of \S\ref{sec:ch4-dw}.}
 \label{tab:ch5-layers}
 \end{table}
 
@@ -337,7 +330,7 @@ HR (HR Force) & \texttt{/hrforce/companies}, \texttt{/agencies}, \texttt{/users}
 Payroll (PC Paie) & \texttt{/paie/bulletins} \\
 Cash-box & \texttt{/cashbox/depenses}, \texttt{/natures}, \texttt{/rubriques},
 \texttt{/paiements-livreurs}, \texttt{/remboursements}, \texttt{/transferts} \\
-Dedicated transport & \texttt{/transport/requests}, \texttt{/transport/stops} \\
+Dedicated transport & \texttt{/transport/requests}, \texttt{/stops} \\
 \hline
 \end{tabularx}
 \caption{The source REST endpoints consumed by the extraction stage, grouped by source system
@@ -357,7 +350,7 @@ first, then the facts that reference them --- and finally \textbf{refreshes the 
 views} the API serves. Loads are \textbf{idempotent}: an insert-or-update (upsert) keyed on the business
 identifier means a retried or repeated run never duplicates data, and a failed step retries with
 exponential backoff before the run is marked failed. Together with incremental extraction, this keeps
-even the hundreds-of-millions-row parcel fact current without a full reload.
+even the tens-of-millions-row parcel fact current without a full reload.
 Figure~\ref{fig:ch5-lineage} traces one fact --- \texttt{fact\_parcel\_revenue} --- back through the
 staging feed and the dimensions it is built from, as Dagster records its lineage.
 

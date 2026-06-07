@@ -20,7 +20,7 @@ simulated source systems (\S\ref{sec:ch6-sources}), the business-realistic data 
 (\S\ref{sec:ch6-data}), its production scale (\S\ref{sec:ch6-scale}), and the automated data-quality
 gate that admits only clean datasets (\S\ref{sec:ch6-quality}). It then reports the \textbf{end-to-end
 validation} of the full chain (\S\ref{sec:ch6-e2e}), backed by the warehouse-integrity checks run after
-every load. Finally, it presents the \textbf{results} the platform delivers against the four objectives
+every load. Finally, it presents the \textbf{results} the platform delivers against the six objectives
 and the two business axes (\S\ref{sec:ch6-results}).
 
 % ═════════════════════════════════════════════════════════════════════════════
@@ -140,7 +140,7 @@ actual volumes generated and loaded, read directly from the warehouse after a fu
 Parcels & 13{,}008{,}349 parcels (\(\approx\)\,13 million) over an extended period of operation. \\
 Parcel-status events & 30{,}527{,}458 status events (\(\approx\)\,30.5 million) --- the largest feed,
 the full multi-status lifecycle of every parcel. \\
-Payroll & 45{,}378 monthly payslips for 3{,}000 employees. \\
+Payroll & 45{,}378 monthly payslips across a workforce that grows to about 3{,}000 employees. \\
 Operating expenses & 277{,}574 cash-box expense records, plus 43{,}668 freelance-driver payments and
 15{,}949 reimbursements. \\
 Dedicated transport & 3{,}822 B2B transport requests, with 13{,}414 stops. \\
@@ -324,12 +324,12 @@ populated as expected after a full pipeline run.}
 \label{fig:ch6-rowcounts}
 \end{figure}
 
-\textbf{Transformation coverage.} Two checks confirm that no data is silently lost between layers
+\textbf{Transformation coverage.} Two coverage checks confirm that no data is silently lost between layers
 (Figure~\ref{fig:ch6-coverage}): every non-test source entity reaches its dimension
 (staging\,$\rightarrow$\,dimension), and every dimension is exercised by its facts
 (dimension\,$\rightarrow$\,fact). Both return \textbf{100\% coverage} on all rows.
 
-For example, every parcel tracking in staging resolves to its dimension row, and all are in turn joined by
+For example, every parcel-status record in staging resolves to its dimension row, and all are in turn joined by
 their performance fact --- nothing is dropped as the data moves through the layers.
 
 % [VISUAL-PLACEHOLDER] (provided) staging->dimension and dimension->fact coverage, both 100%
@@ -373,10 +373,10 @@ evidence about the production design, not merely a test fixture.
 \label{sec:ch6-results}
 
 Exercised end to end against the test environment, the platform delivers concrete results against the
-\textbf{four objectives} set in Chapter~3 and across the \textbf{two business axes}
+\textbf{six objectives} set in Chapter~3 and across the \textbf{two business axes}
 (Table~\ref{tab:ch6-results}).
 
-% [VISUAL-IMPLEMENT] the four objectives mapped to the results delivered
+% [VISUAL-IMPLEMENT] the six objectives mapped to the results delivered
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.35}
@@ -386,18 +386,21 @@ Exercised end to end against the test environment, the platform delivers concret
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Objective}} & \textcolor{white}{\textbf{Result delivered}} \\
 \hline
-Centralised warehouse & The data scattered across the source systems is consolidated into one
+Consolidate the scattered data & The data scattered across the source systems is consolidated into one
 dimensional base; the figures are consistent across every view. \\
-Reliable, automated ETL & The warehouse is refreshed automatically --- incrementally, idempotently, and
-observably --- with no manual intervention. \\
-Interactive dashboards & Both axes are navigable through their three views (Operations, Cost \&
-Profitability, Performance), plus a consolidated overview, with KPI cards, charts, maps, and shared
-filters. \\
-Proactive alerting & Threshold rules are evaluated on schedule and raise multi-channel alerts the moment
+Read each business axis in depth & Both axes are navigable through their three views (Operations, Cost \&
+Profitability, Performance), with KPI cards, charts, maps, and shared filters. \\
+Keep the financial perimeters separate & Each axis carries its own cost and revenue perimeter, so the
+profitability of one is never mixed with or masked by the other. \\
+Monitor proactively & Threshold rules are evaluated on schedule and raise multi-channel alerts the moment
 a metric drifts beyond its acceptable level. \\
+Deliver to the right decision-maker & Role-based access gives each manager the view suited to their
+responsibility, alongside a consolidated overview. \\
+Found decisions on reliable data & The warehouse is refreshed automatically --- incrementally,
+idempotently, and observably --- so indicators rest on current, validated data. \\
 \hline
 \end{tabularx}
-\caption{The four objectives of the project and the results the validated platform delivers against
+\caption{The six objectives of the project and the results the validated platform delivers against
 each.}
 \label{tab:ch6-results}
 \end{table}
@@ -469,5 +472,5 @@ that passes an automated quality gate before it is ever used.
 Exercised end to end through that environment, the platform was validated stage by stage: the data the
 simulated sources serve was shown to arrive in the warehouse complete, correct, and consistently
 historised, and to surface through the dashboards and alerts the business depends on. Measured against the
-four objectives and the two axes, LOGIQ delivers --- with its limits stated openly. The general
+six objectives and the two axes, LOGIQ delivers --- with its limits stated openly. The general
 conclusion that follows draws these threads together and sets out the perspectives the platform opens.

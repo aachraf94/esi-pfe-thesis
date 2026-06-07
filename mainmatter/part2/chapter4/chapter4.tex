@@ -159,7 +159,7 @@ under different roles may legitimately see different sections.
 
   % ---- system boundary -------------------------------------------------------
   \node[draw=figslate, line width=0.8pt, rounded corners=4pt, fill=black!2,
-        minimum width=4.8cm, minimum height=9.6cm,
+        minimum width=6.4cm, minimum height=10.4cm,
         label={[font=\bfseries, text=figblue]above:LOGIQ}] (sys) at (0,-0.4) {};
 
   % ---- use cases (centre column) ---------------------------------------------
@@ -876,7 +876,7 @@ These three traits are the bridge to the pipeline that populates the warehouse, 
 
 The warehouse of \S\ref{sec:ch4-dw} defines the \emph{destination} --- a layered, dimensional base
 ready for analysis --- but nothing reaches it by hand. Bridging the operational systems and that base
-is the \textbf{integration process}: an \emph{Extract, Transform, Load} (ETL) pipeline that draws data
+is the \textbf{integration process}: an \emph{Extract-Transform-Load} (ETL) pipeline that draws data
 from each source, brings it into the warehouse's shape, and keeps it current without manual
 intervention. This answers the objective of a \emph{reliable, automated refresh} from Chapter~3 and the
 capacity and reliability requirements of \S\ref{sec:ch4-techspec} (TS05, TS07, TS17). As elsewhere in
