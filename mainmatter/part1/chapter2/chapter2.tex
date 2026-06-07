@@ -33,21 +33,21 @@ payments \parencite{chopra2019}.
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[font=\small,
-  stage/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct,
+  stage/.style={rectangle, rounded corners, draw=figblue, line width=0.9pt, fill=figbluetint,
                 text width=20mm, align=center, minimum height=11mm}]
   \node[stage] (s) {Suppliers};
   \node[stage, right=16mm of s] (h) {Hubs \&\\ warehouses};
   \node[stage, right=16mm of h] (d) {Distribution\\ \& last mile};
   \node[stage, right=16mm of d] (c) {Customers};
   \foreach \a/\b in {s/h, h/d, d/c}
-    \draw[-{Stealth[length=2.6mm]}, very thick, esiblue] (\a) -- (\b);
-  \draw[-{Stealth[length=2.6mm]}, thick, dashed]
+    \draw[-{Stealth[length=2.6mm]}, line width=1.4pt, figblue] (\a) -- (\b);
+  \draw[-{Stealth[length=2.6mm]}, line width=1pt, dashed, figteal]
     ([yshift=10mm]c.north) -- ([yshift=10mm]s.north)
-    node[midway, above, font=\footnotesize] {Information flow --- orders, tracking, status};
-  \draw[-{Stealth[length=2.6mm]}, thick, densely dotted]
+    node[midway, above, font=\footnotesize, text=figteal] {Information flow --- orders, tracking, status};
+  \draw[-{Stealth[length=2.6mm]}, line width=1pt, densely dotted, figorange]
     ([yshift=-10mm]c.south) -- ([yshift=-10mm]s.south)
-    node[midway, below, font=\footnotesize] {Financial flow --- payments};
-  \node[esiblue, font=\footnotesize] at ($(s.north)!0.5!(c.north)+(0,5mm)$) {Physical flow --- goods};
+    node[midway, below, font=\footnotesize, text=figorange] {Financial flow --- payments};
+  \node[text=figblue, font=\footnotesize] at ($(s.north)!0.5!(c.north)+(0,5mm)$) {Physical flow --- goods};
 \end{tikzpicture}
 \caption{Logistics as the coordination of three flows --- physical, informational, and financial ---
 along the supply chain.}
@@ -93,20 +93,24 @@ final resolution (Figure~\ref{fig:ch2-parcel-lifecycle}).
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[font=\footnotesize, node distance=8mm and 11mm,
-  st/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct,
+  st/.style={rectangle, rounded corners, draw=figblue, line width=0.9pt, fill=figbluetint,
              align=center, text width=16mm, minimum height=9mm},
-  term/.style={rectangle, rounded corners, draw=black!55, thick, fill=tblanal,
+  done/.style={rectangle, rounded corners, draw=figgreen, line width=1pt, fill=figgreentint,
                align=center, text width=16mm, minimum height=9mm},
-  a/.style={-{Stealth[length=2.3mm]}, thick}]
+  fail/.style={rectangle, rounded corners, draw=figorange, line width=1pt, fill=figambertint,
+               align=center, text width=16mm, minimum height=9mm},
+  a/.style={-{Stealth[length=2.3mm]}, line width=0.9pt, figslate}]
   \node[st] (cr) {Created};
   \node[st, right=of cr] (co) {Collected\\(pickup)};
   \node[st, right=of co] (tr) {In transit};
   \node[st, right=of tr] (of) {Out for\\delivery};
-  \node[term, right=of of] (de) {Delivered};
-  \node[term, below=10mm of of] (re) {Returned};
-  \foreach \x/\y in {cr/co, co/tr, tr/of, of/de} \draw[a] (\x) -- (\y);
-  \draw[a] (of) -- (re) node[midway, right, font=\scriptsize] {failed attempts};
-  \draw[a, dashed] (of) to[bend left=38] node[above, font=\scriptsize] {re-attempt} (tr);
+  \node[done, right=of of] (de) {Delivered};
+  \node[fail, below=10mm of of] (re) {Returned};
+  \foreach \x/\y in {cr/co, co/tr, tr/of} \draw[a] (\x) -- (\y);
+  \draw[-{Stealth[length=2.3mm]}, line width=0.9pt, figgreen] (of) -- (de);
+  \draw[-{Stealth[length=2.3mm]}, line width=0.9pt, figorange] (of) -- (re)
+        node[midway, right, font=\scriptsize, text=figorange] {failed attempts};
+  \draw[a, dashed] (of) to[bend left=38] node[above, font=\scriptsize, text=figslate] {re-attempt} (tr);
 \end{tikzpicture}
 \caption{The parcel lifecycle: discrete states from creation to final resolution (delivered or
 returned), with re-attempts on failed delivery.}
@@ -173,14 +177,20 @@ markedly from the average and is invisible without integrated data.
 \begin{axis}[
   ybar, width=0.92\linewidth, height=5.4cm, bar width=15pt,
   ymin=0, ymax=40, ylabel={Share of logistics cost (\%)},
+  ylabel style={font=\footnotesize},
   symbolic x coords={Transport, Last mile, Labour, Warehousing, Fuel, Other},
   xtick=data, x tick label style={font=\footnotesize, rotate=18, anchor=east},
-  nodes near coords, nodes near coords style={font=\scriptsize},
+  nodes near coords, nodes near coords style={font=\scriptsize, text=black!70},
   enlarge x limits=0.12, ymajorgrids, tick style={draw=none},
-  axis line style={draw=black!55},
+  major grid style={draw=figslate!30},
+  axis line style={draw=figslate},
 ]
-\addplot[fill=esiblue!55, draw=esiblue] coordinates
-  {(Transport,32) (Last mile,24) (Labour,18) (Warehousing,12) (Fuel,9) (Other,5)};
+% dominant components — cost orange
+\addplot[ybar, bar shift=0pt, fill=figorange!85, draw=figorange] coordinates
+  {(Transport,32) (Last mile,24)};
+% remaining components — steel blue
+\addplot[ybar, bar shift=0pt, fill=figblue!75, draw=figblue] coordinates
+  {(Labour,18) (Warehousing,12) (Fuel,9) (Other,5)};
 \end{axis}
 \end{tikzpicture}
 \caption{Illustrative breakdown of logistics cost by component (representative proportions, for
@@ -222,6 +232,33 @@ Performance           & How well are we serving customers?      & On-time rate, 
 \label{tab:ch2-lenses}
 \end{table}
 
+\noindent A small set of indicators recurs across both operating models and forms the core of the
+monitoring designed in Part~II (Table~\ref{tab:ch2-kpis}).
+
+% [VISUAL-IMPLEMENT] core logistics KPIs (grid style)
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.35}
+\rowcolors{2}{white}{tblrowalt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.1cm}|}
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{KPI}} &
+\textcolor{white}{\textbf{What it measures}} &
+\textcolor{white}{\textbf{Lens}} \\
+\hline
+Delivery success rate    & Share of parcels delivered without being returned                         & Operations \\
+On-time delivery (OTD)    & Share delivered within the promised time window                           & Performance \\
+First-attempt success     & Share delivered on the first attempt; failed attempts sharply raise unit cost & Performance \\
+Return rate               & Share of parcels returned to sender                                       & Performance \\
+Cost per delivery         & Fully-loaded cost to complete one delivery                                & Cost \& profitability \\
+Cost-to-serve / margin    & Fully-loaded cost, and resulting margin, of serving a shipment, route, or client & Cost \& profitability \\
+\hline
+\end{tabularx}
+\caption{Core logistics KPIs monitored in this work, mapped to their analytical lens.}
+\label{tab:ch2-kpis}
+\end{table}
+
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Business Intelligence in Logistics}
 \label{sec:ch2-bi}
@@ -248,22 +285,22 @@ are left to reconcile fragments manually, slowly, and late.
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[font=\footnotesize,
-  src/.style={rectangle, rounded corners, draw=black!55, fill=black!6,
+  src/.style={rectangle, rounded corners, draw=figslate, line width=0.8pt, fill=black!4,
               align=center, text width=22mm, minimum height=7mm},
-  uni/.style={rectangle, rounded corners, draw=esiblue, very thick, fill=tblstruct,
+  uni/.style={rectangle, rounded corners, draw=figblue, line width=1.2pt, fill=figbluetint,
               align=center, text width=28mm, minimum height=18mm},
-  a/.style={-{Stealth[length=2.4mm]}, thick, black!55}]
+  a/.style={-{Stealth[length=2.4mm]}, line width=0.9pt, figslate}]
   \node[src] (s0) {HR / payroll};
   \node[src, below=3mm of s0] (s1) {Transport system};
   \node[src, below=3mm of s1] (s2) {Parcel system};
   \node[src, below=3mm of s2] (s3) {Finance / cash};
   \node[uni, right=42mm of s1, yshift=-4mm] (u) {Unified\\ analytical view\\ (BI platform)};
   \foreach \x in {s0, s1, s2, s3} \draw[a] (\x.east) -- (u.west);
-  \node[above=1mm of s0, font=\scriptsize\bfseries, text=black!70] {Fragmented today};
-  \node[above=1mm of u, font=\scriptsize\bfseries, text=esiblue] {Unified (this work)};
+  \node[above=1mm of s0, font=\scriptsize\bfseries, text=figslate] {Fragmented today};
+  \node[above=1mm of u, font=\scriptsize\bfseries, text=figblue] {Unified (this work)};
   \node[right=10mm of u, align=left, font=\scriptsize] (o)
-    {\textbf{Decisions}\\ Operations\\ Cost \& profitability\\ Performance};
-  \draw[-{Stealth[length=2.4mm]}, thick, esiblue] (u.east) -- (o.west);
+    {{\bfseries\color{figgreen}Decisions}\\ Operations\\ Cost \& profitability\\ Performance};
+  \draw[-{Stealth[length=2.4mm]}, line width=1.1pt, figgreen] (u.east) -- (o.west);
 \end{tikzpicture}
 \caption{The integration gap: operational, financial, and human-resource data scattered across
 disconnected systems, versus the unified analytical view a BI platform provides.}

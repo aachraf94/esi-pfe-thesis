@@ -45,18 +45,18 @@ evaluating data are exactly the activities a Business Intelligence system is bui
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[font=\small,
-  phase/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct,
+  phase/.style={rectangle, rounded corners, line width=0.9pt,
                 text width=26mm, align=center, minimum height=15mm},
-  arr/.style={-{Stealth[length=2.6mm]}, thick}]
-  \node[phase] (intel)  {\textbf{Intelligence}\\[2pt]\scriptsize identify the problem / opportunity};
-  \node[phase, right=10mm of intel]  (design) {\textbf{Design}\\[2pt]\scriptsize gather data; define alternatives};
-  \node[phase, right=10mm of design] (choice) {\textbf{Choice}\\[2pt]\scriptsize evaluate and select};
-  \node[phase, right=10mm of choice] (impl)   {\textbf{Implementation}\\[2pt]\scriptsize act, monitor, review};
+  arr/.style={-{Stealth[length=2.6mm]}, line width=0.9pt, figslate}]
+  \node[phase, draw=figblue,  fill=figbluetint]  (intel)  {\textbf{Intelligence}\\[2pt]\scriptsize identify the problem / opportunity};
+  \node[phase, draw=figteal,  fill=figtealtint,  right=10mm of intel]  (design) {\textbf{Design}\\[2pt]\scriptsize gather data; define alternatives};
+  \node[phase, draw=figorange, fill=figambertint, right=10mm of design] (choice) {\textbf{Choice}\\[2pt]\scriptsize evaluate and select};
+  \node[phase, draw=figgreen, fill=figgreentint, right=10mm of choice] (impl)   {\textbf{Implementation}\\[2pt]\scriptsize act, monitor, review};
   \draw[arr] (intel) -- (design);
   \draw[arr] (design) -- (choice);
   \draw[arr] (choice) -- (impl);
   \draw[arr, dashed] (impl.south) -- ++(0,-8mm) -| (intel.south)
-        node[pos=0.25, below, font=\scriptsize] {feedback \& review};
+        node[pos=0.25, below, font=\scriptsize, text=figslate] {feedback \& review};
 \end{tikzpicture}
 \caption{The decision-making process: Simon's intelligence--design--choice model, extended by
 implementation and continuous review.}
@@ -113,12 +113,12 @@ levels --- \textbf{operational control}, \textbf{tactical management}, and \text
 \centering
 \begin{tikzpicture}[font=\small]
   % bands (bottom = operational, top = strategic)
-  \fill[tblanal]   (-4,0) -- (4,0) -- (2.667,1) -- (-2.667,1) -- cycle;
-  \fill[tblstruct] (-2.667,1) -- (2.667,1) -- (1.333,2) -- (-1.333,2) -- cycle;
-  \fill[esiblue]   (-1.333,2) -- (1.333,2) -- (0,3) -- cycle;
-  \draw[thick] (-4,0) -- (4,0) -- (0,3) -- cycle;
-  \draw[thick] (-2.667,1) -- (2.667,1);
-  \draw[thick] (-1.333,2) -- (1.333,2);
+  \fill[figbluetint] (-4,0) -- (4,0) -- (2.667,1) -- (-2.667,1) -- cycle;
+  \fill[figblue!40]  (-2.667,1) -- (2.667,1) -- (1.333,2) -- (-1.333,2) -- cycle;
+  \fill[figblue]     (-1.333,2) -- (1.333,2) -- (0,3) -- cycle;
+  \draw[line width=0.8pt, figslate] (-4,0) -- (4,0) -- (0,3) -- cycle;
+  \draw[line width=0.8pt, figslate] (-2.667,1) -- (2.667,1);
+  \draw[line width=0.8pt, figslate] (-1.333,2) -- (1.333,2);
   % band labels
   \node at (0,0.5) {\textbf{Operational control}};
   \node at (0,1.5) {\textbf{Tactical management}};
@@ -211,14 +211,14 @@ ingests data and lifts it, stage by stage, toward the knowledge on which decisio
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[font=\small]
-  \fill[tblanal]   (-4,0) -- (4,0) -- (3,1) -- (-3,1) -- cycle;
-  \fill[tblstruct] (-3,1) -- (3,1) -- (2,2) -- (-2,2) -- cycle;
-  \fill[esiblue!55] (-2,2) -- (2,2) -- (1,3) -- (-1,3) -- cycle;
-  \fill[esiblue]   (-1,3) -- (1,3) -- (0,4) -- cycle;
-  \draw[thick] (-4,0) -- (4,0) -- (0,4) -- cycle;
-  \draw[thick] (-3,1) -- (3,1);
-  \draw[thick] (-2,2) -- (2,2);
-  \draw[thick] (-1,3) -- (1,3);
+  \fill[figbluetint]   (-4,0) -- (4,0) -- (3,1) -- (-3,1) -- cycle;
+  \fill[figblue!40]    (-3,1) -- (3,1) -- (2,2) -- (-2,2) -- cycle;
+  \fill[figblue]       (-2,2) -- (2,2) -- (1,3) -- (-1,3) -- cycle;
+  \fill[figblue!75!black] (-1,3) -- (1,3) -- (0,4) -- cycle;
+  \draw[line width=0.8pt, figslate] (-4,0) -- (4,0) -- (0,4) -- cycle;
+  \draw[line width=0.8pt, figslate] (-3,1) -- (3,1);
+  \draw[line width=0.8pt, figslate] (-2,2) -- (2,2);
+  \draw[line width=0.8pt, figslate] (-1,3) -- (1,3);
   \node at (0,0.5) {\textbf{Data}};
   \node at (0,1.5) {\textbf{Information}};
   \node[white] at (0,2.5) {\textbf{Knowledge}};
@@ -319,23 +319,24 @@ stage, raw records gain context and interpretive meaning, mirroring the DIKW asc
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[font=\scriptsize,
-  stg/.style={rectangle, rounded corners, draw=esiblue, thick, fill=tblstruct,
+  stg/.style={rectangle, rounded corners, line width=0.9pt,
               text width=19mm, align=center, minimum height=15mm},
-  arr/.style={-{Stealth[length=2.2mm]}, thick}]
-  \node[stg] (src) {\textbf{Sources}\\ ERP, WMS,\\ CRM, APIs};
-  \node[stg, right=6mm of src]  (etl)  {\textbf{ETL}\\ extract,\\ transform, load};
-  \node[stg, right=6mm of etl]  (dw)   {\textbf{Data\\ warehouse}\\ integrated store};
-  \node[stg, right=6mm of dw]   (olap) {\textbf{OLAP /\\ analysis}\\ aggregation};
-  \node[stg, right=6mm of olap] (pres) {\textbf{Presentation}\\ dashboards,\\ alerts};
+  arr/.style={-{Stealth[length=2.2mm]}, line width=0.9pt, figslate},
+  cap/.style={font=\tiny, text=figslate}]
+  \node[stg, draw=figslate,  fill=black!4]      (src)  {\textbf{Sources}\\ ERP, WMS,\\ CRM, APIs};
+  \node[stg, draw=figblue,   fill=figbluetint,  right=6mm of src]  (etl)  {\textbf{ETL}\\ extract,\\ transform, load};
+  \node[stg, draw=figteal,   fill=figtealtint,  right=6mm of etl]  (dw)   {\textbf{Data\\ warehouse}\\ integrated store};
+  \node[stg, draw=figorange, fill=figambertint, right=6mm of dw]   (olap) {\textbf{OLAP /\\ analysis}\\ aggregation};
+  \node[stg, draw=figgreen,  fill=figgreentint, right=6mm of olap] (pres) {\textbf{Presentation}\\ dashboards,\\ alerts};
   \draw[arr] (src) -- (etl);
   \draw[arr] (etl) -- (dw);
   \draw[arr] (dw)  -- (olap);
   \draw[arr] (olap) -- (pres);
-  \node[below=1mm of src, font=\tiny] {raw};
-  \node[below=1mm of etl, font=\tiny] {integrated};
-  \node[below=1mm of dw, font=\tiny]  {stored};
-  \node[below=1mm of olap, font=\tiny] {analysed};
-  \node[below=1mm of pres, font=\tiny] {insight};
+  \node[cap, below=1mm of src]  {raw};
+  \node[cap, below=1mm of etl]  {integrated};
+  \node[cap, below=1mm of dw]   {stored};
+  \node[cap, below=1mm of olap] {analysed};
+  \node[cap, below=1mm of pres] {insight};
 \end{tikzpicture}
 \caption{The Business Intelligence value chain: from heterogeneous sources to actionable insight
 (after \textcite{chaudhuri2011}).}
@@ -368,11 +369,11 @@ schema} of Figure~\ref{fig:ch1-star-schema}; deeper warehouse design is treated 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[font=\scriptsize,
-  fact/.style={rectangle, draw=esiblue, very thick, fill=esiblue!12, align=center,
+  fact/.style={rectangle, draw=figorange, line width=1pt, fill=figambertint, align=center,
                text width=30mm, minimum height=15mm, rounded corners},
-  dim/.style={rectangle, draw=black!55, thick, fill=tblstruct, align=center,
+  dim/.style={rectangle, draw=figblue, line width=0.9pt, fill=figbluetint, align=center,
               text width=26mm, minimum height=12mm, rounded corners},
-  link/.style={draw=black!55}]
+  link/.style={draw=figslate, line width=0.7pt}]
   \node[fact] (f) {\textbf{FACT\_DELIVERY}\\[2pt] cost, billed amount,\\ margin, distance, duration};
   \node[dim, above left=10mm and 8mm of f]  (date)   {\textbf{DIM\_DATE}\\ day, month, quarter, year};
   \node[dim, above right=10mm and 8mm of f] (client) {\textbf{DIM\_CLIENT}\\ name, category, tier};
@@ -411,12 +412,12 @@ without writing complex queries \parencite{han2011}.
 \centering
 \begin{tikzpicture}[font=\scriptsize]
   \def\s{2.6} \def\d{1.0}
-  \filldraw[fill=tblstruct, draw=black!60]  (0,0) rectangle (\s,\s);
-  \filldraw[fill=tblanal, draw=black!60]    (0,\s) -- (\d,\s+\d) -- (\s+\d,\s+\d) -- (\s,\s) -- cycle;
-  \filldraw[fill=esiblue!20, draw=black!60] (\s,0) -- (\s+\d,\d) -- (\s+\d,\s+\d) -- (\s,\s) -- cycle;
-  \node[below] at (\s/2,0) {\textbf{Time}};
-  \node[anchor=south, rotate=90] at (-0.15,\s/2) {\textbf{Service category}};
-  \node[anchor=west] at (\s+\d+0.15,\s/2+\d/2) {\textbf{Geography}};
+  \filldraw[fill=figbluetint, draw=figslate, line width=0.8pt]  (0,0) rectangle (\s,\s);
+  \filldraw[fill=figblue!28, draw=figslate, line width=0.8pt]   (0,\s) -- (\d,\s+\d) -- (\s+\d,\s+\d) -- (\s,\s) -- cycle;
+  \filldraw[fill=figblue!50, draw=figslate, line width=0.8pt]   (\s,0) -- (\s+\d,\d) -- (\s+\d,\s+\d) -- (\s,\s) -- cycle;
+  \node[below, text=figblue] at (\s/2,0) {\textbf{Time}};
+  \node[anchor=south, rotate=90, text=figblue] at (-0.15,\s/2) {\textbf{Service category}};
+  \node[anchor=west, text=figblue] at (\s+\d+0.15,\s/2+\d/2) {\textbf{Geography}};
 \end{tikzpicture}
 \caption{An OLAP cube: business measures organised along multiple dimensions, navigable by
 roll-up, drill-down, slice, dice, and pivot (after \textcite{codd1993}).}
