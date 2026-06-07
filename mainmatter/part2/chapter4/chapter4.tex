@@ -306,7 +306,8 @@ this chapter, each requirement is stated independently of any particular technol
 Table~\ref{tab:ch4-techspec} collects them.
 
 % [VISUAL-IMPLEMENT] technical (non-functional) specifications, numbered and grouped by ISO/IEC 25010 attributes
-% Page-breakable: xltabular (longtable + X column); breaks only fall between ISO/IEC groups (\\* keeps each group intact).
+% Page-breakable: xltabular (longtable + X column); rows break freely across pages, so the table starts
+% in place and continues on the next page. Each ISO/IEC category is shown once, on its group's first row.
 \begingroup
 \renewcommand{\arraystretch}{1.35}
 \begin{xltabular}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\centering\arraybackslash}p{1.0cm}|>{\raggedright\arraybackslash}X|}
@@ -331,37 +332,37 @@ characteristics of ISO/IEC~25010 and tracing the quality expectations of \S\ref{
 \endfoot
 \hline
 \endlastfoot
-\multirow{3}{3.5cm}{\raggedright Performance efficiency} & TS01 &
-Analytical views and KPI queries return within a few seconds --- not minutes --- over the full national history. \\*
- & TS02 & Response time and resource use stay bounded as the data grows, by reading from a pre-computed aggregate layer. \\*
+Performance efficiency & TS01 &
+Analytical views and KPI queries return within a few seconds --- not minutes --- over the full national history. \\
+ & TS02 & Response time and resource use stay bounded as the data grows, by reading from a pre-computed aggregate layer. \\
  & TS03 & Analytical workloads are isolated from operational ones. \\
 \hline
-\rowcolor{tblrowalt}\multirow{2}{3.5cm}{\raggedright Capacity \& scalability} & TS04 &
-Sized for production-scale volumes --- a massive parcel history, on the order of tens of millions of status events. \\*
+\rowcolor{tblrowalt} Capacity \& scalability & TS04 &
+Sized for production-scale volumes --- a massive parcel history, on the order of tens of millions of status events. \\
 \rowcolor{tblrowalt} & TS05 & Refreshed automatically and incrementally rather than reloaded in full, leaving headroom to grow with the activity. \\
 \hline
-\multirow{3}{3.5cm}{\raggedright Reliability} & TS06 &
-Figures are consistent across every view. \\*
- & TS07 & The data refresh is idempotent and recoverable, so a failed or repeated run never corrupts or duplicates data. \\*
+Reliability & TS06 &
+Figures are consistent across every view. \\
+ & TS07 & The data refresh is idempotent and recoverable, so a failed or repeated run never corrupts or duplicates data. \\
  & TS08 & The system degrades gracefully when the analytical store is briefly unavailable. \\
 \hline
-\rowcolor{tblrowalt}\multirow{3}{3.5cm}{\raggedright Security} & TS09 &
-Every view is gated by role-based access control; user accounts are provisioned from the company's HR system by an administrator, never self-registered. \\*
-\rowcolor{tblrowalt} & TS10 & The two financial perimeters are kept strictly separate. \\*
+\rowcolor{tblrowalt} Security & TS09 &
+Every view is gated by role-based access control; user accounts are provisioned from the company's HR system by an administrator, never self-registered. \\
+\rowcolor{tblrowalt} & TS10 & The two financial perimeters are kept strictly separate. \\
 \rowcolor{tblrowalt} & TS11 & Sessions use stateless authentication and all transport is encrypted. \\
 \hline
-\multirow{3}{3.5cm}{\raggedright Usability} & TS12 &
-Readable and navigable by managers who are not data specialists --- visual-first, clear indicators over raw tables. \\*
- & TS13 & Each KPI is presented as a chart or graphic, backed by an on-demand data-table view of the same underlying figures. \\*
+Usability & TS12 &
+Readable and navigable by managers who are not data specialists --- visual-first, clear indicators over raw tables. \\
+ & TS13 & Each KPI is presented as a chart or graphic, backed by an on-demand data-table view of the same underlying figures. \\
  & TS14 & Consistent across the two axes and their three views. \\
 \hline
-\rowcolor{tblrowalt}\multirow{2}{3.5cm}{\raggedright Maintainability} & TS15 &
-Built as the loosely coupled functional modules of \S\ref{sec:ch4-funcarch} on open, non-proprietary foundations. \\*
+\rowcolor{tblrowalt} Maintainability & TS15 &
+Built as the loosely coupled functional modules of \S\ref{sec:ch4-funcarch} on open, non-proprietary foundations. \\
 \rowcolor{tblrowalt} & TS16 & Operational and analytical concerns are cleanly separated, so each part can evolve independently. \\
 \hline
-\multirow{3}{3.5cm}{\raggedright Compatibility \& portability} & TS17 &
-Source integration depends only on each system's API contract, so the real production systems connect unchanged. \\*
- & TS18 & The design accommodates the deferred Route Analysis axis without restructuring. \\*
+Compatibility \& portability & TS17 &
+Source integration depends only on each system's API contract, so the real production systems connect unchanged. \\
+ & TS18 & The design accommodates the deferred Route Analysis axis without restructuring. \\
  & TS19 & Reproducibly deployable on modest infrastructure. \\
 \end{xltabular}
 \endgroup
