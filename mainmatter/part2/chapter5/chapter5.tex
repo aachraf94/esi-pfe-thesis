@@ -911,20 +911,16 @@ which is what makes it a deliverable system rather than a prototype.
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
 
-This chapter turned the conceptual blueprint of Chapter~4 into a working system. Building on a stack of
-\textbf{open-source, free} components, it realised each design block in turn: a \textbf{warehouse} of
-four layers in PostgreSQL fed by a \textbf{Dagster} pipeline whose assets are the warehouse tables; a
-\textbf{backend} on Django and DRF that routes queries across the operational and analytical databases
-and provisions its users from HR Force; a \textbf{Celery} service that evaluates alert rules off the
-request path and delivers notifications --- in-app and by e-mail --- to each user's chosen channels; a
-multilingual \textbf{Next.js} dashboard organised by the two axes and their three views; and a fully
-\textbf{containerised} deployment that runs the whole stack behind a reverse proxy on a single VPS.
+This chapter turned the conceptual blueprint of Chapter~4 into a working system, realising each design
+block on a stack of \textbf{open-source, free} components: a four-layer \textbf{warehouse} in PostgreSQL
+fed by a \textbf{Dagster} pipeline whose assets are the warehouse tables; a \textbf{Django/DRF} backend
+that routes queries across the operational and analytical databases and provisions its users from HR
+Force; a \textbf{Celery} service that evaluates alert rules off the request path and notifies in-app and
+by e-mail; a multilingual \textbf{Next.js} dashboard organised by the two axes and their three views;
+and a fully \textbf{containerised} deployment behind a reverse proxy on a single VPS.
 
-Two threads run through the realisation. It is \emph{cost-effective and reproducible} --- no licensing
-cost, one orchestration definition, one-command bring-up on commodity infrastructure --- and it is
-\emph{automated}: the pipeline refreshes on schedule, certificates renew themselves, and the platform
-keeps working without routine intervention. The blueprint is now a deliverable system.
-
-What remains is to \emph{show that it works}. Because the real production systems could not be connected
-during development, the platform was exercised end to end against a faithful test environment, and the
-results that justify the project were measured against it --- the subject of Chapter~6.
+Two threads run through it: the realisation is \emph{cost-effective and reproducible} --- no licensing
+cost, one-command bring-up on commodity infrastructure --- and \emph{automated}, refreshing on schedule
+and renewing its own certificates without routine intervention. What remains is to \emph{show that it
+works}: because the production systems could not be connected during development, the platform was
+exercised end to end against a faithful test environment --- the subject of Chapter~6.
