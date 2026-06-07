@@ -175,15 +175,17 @@ markedly from the average and is invisible without integrated data.
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-  ybar, width=0.92\linewidth, height=5.4cm, bar width=15pt,
+  ybar, width=0.92\linewidth, height=5.8cm, bar width=17pt,
   ymin=0, ymax=40, ylabel={Share of logistics cost (\%)},
   ylabel style={font=\footnotesize},
   symbolic x coords={Transport, Last mile, Labour, Warehousing, Fuel, Other},
-  xtick=data, x tick label style={font=\footnotesize, rotate=18, anchor=east},
+  xtick=data, xticklabels={Transport, Last mile, Labour, Warehousing, Fuel, Other},
+  x tick label style={font=\footnotesize, align=center, yshift=-1pt},
   nodes near coords, nodes near coords style={font=\scriptsize, text=black!70},
-  enlarge x limits=0.12, ymajorgrids, tick style={draw=none},
+  enlarge x limits=0.10, ymajorgrids, tick style={draw=none},
   major grid style={draw=figslate!30},
   axis line style={draw=figslate},
+  clip=false,
 ]
 % dominant components — cost orange
 \addplot[ybar, bar shift=0pt, fill=figorange!85, draw=figorange] coordinates
