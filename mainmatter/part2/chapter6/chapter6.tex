@@ -377,15 +377,27 @@ Exercised end to end against the test environment, the platform delivers concret
 (Table~\ref{tab:ch6-results}).
 
 % [VISUAL-IMPLEMENT] the six objectives mapped to the results delivered
-\begin{table}[H]
-\centering
+\begingroup
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
-\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}X|}
+\begin{xltabular}{\linewidth}{|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}X|}
+\caption{The six objectives of the project and the results the validated platform delivers against
+each.}
+\label{tab:ch6-results} \\
 \hline
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Objective}} & \textcolor{white}{\textbf{Result delivered}} \\
 \hline
+\endfirsthead
+\hline
+\rowcolor{tblheader}
+\textcolor{white}{\textbf{Objective}} & \textcolor{white}{\textbf{Result delivered}} \\
+\hline
+\endhead
+\hline
+\multicolumn{2}{r}{\footnotesize\itshape Continued on next page} \\
+\endfoot
+\endlastfoot
 Consolidate the scattered data & The data scattered across the source systems is consolidated into one
 dimensional base; the figures are consistent across every view. \\
 Read each business axis in depth & Both axes are navigable through their three views (Operations, Cost \&
@@ -399,11 +411,8 @@ responsibility, alongside a consolidated overview. \\
 Found decisions on reliable data & The warehouse is refreshed automatically --- incrementally,
 idempotently, and observably --- so indicators rest on current, validated data. \\
 \hline
-\end{tabularx}
-\caption{The six objectives of the project and the results the validated platform delivers against
-each.}
-\label{tab:ch6-results}
-\end{table}
+\end{xltabular}
+\endgroup
 
 Concretely, each axis page answers the decision questions it was designed for: \emph{Operations} (how
 much volume, completion and delivery rates, geographic concentration), \emph{Cost \& Profitability}
