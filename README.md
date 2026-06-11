@@ -105,10 +105,16 @@ Each delivered axis is exposed as **one dashboard page with three sub-pages**: *
 
 ## Part 2 — The Thesis (LaTeX)
 
+> **Status: redaction complete.** All six chapters, front matter, conclusion, and annexes are written.
+> The manuscript is the source of truth; remaining work is targeted editing and polishing, not fresh
+> writing.
+
 ### Writing Guides (`guide/`)
 
-The manuscript is written following a set of guides that hold the authoritative scope, structure, and
-style rules. **Read these before editing any chapter** (recommended order: `00` → `03` → `02` → `01`).
+The manuscript was written following a set of guides that held the authoritative scope, structure, and
+style rules during drafting. **Now that the thesis is complete, you do not need to read these to make
+edits** — work directly from the `.tex` source. Consult a specific guide only if a binding
+scope/style question cannot be resolved from the manuscript itself.
 
 | File | Purpose |
 |---|---|
@@ -123,7 +129,6 @@ style rules. **Read these before editing any chapter** (recommended order: `00` 
 > axis, the delivered realisation treats **Parcel Delivery** (classic e-commerce express). The
 > delivered axes are **On-Demand Dedicated Transport** and **Parcel Delivery**; each dashboard page has
 > three sub-pages — **Operations / Cost & Profitability / Performance** (there is **no Pricing page**).
-> See `guide/00_README_pfe_guide.md` §0.5.
 
 ### Repository Structure
 
@@ -181,7 +186,7 @@ esi-pfe-thesis/
 │   │   ├── chapter5/
 │   │   │   ├── chapter5.tex    # Chapter 5: Implementation & Deployment
 │   │   │   └── figures/
-│   │   └── chapter6/          # (planned — not yet created)
+│   │   └── chapter6/
 │   │       ├── chapter6.tex    # Chapter 6: Testing, Validation & Results
 │   │       └── figures/
 │   │

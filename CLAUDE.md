@@ -6,26 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A XeLaTeX thesis for a Final Year Project (PFE) at ESI (École Nationale Supérieure d'Informatique, Alger). The thesis covers **LOGIQ**, a Business Intelligence Decision Support Information System for logistics operations, built in partnership with Ourquilane. **This is a LaTeX document project, not a software project** — there is no test suite, linter, or runtime.
 
-## Read the Guides First
+## Status: Redaction Complete
 
-Before editing **any** chapter content, read the authoritative writing guides in `guide/` (recommended order `00` → `03` → `02` → `01`). They — not this file or the README — hold the binding scope, structure, page budget, and style rules.
+**The thesis is written and ready.** All six chapters, front matter, conclusion, and annexes are drafted. Treat the manuscript as finished — work from this point is targeted editing, polishing, and fixes, not fresh chapter writing.
 
-| File | Authority over |
-|---|---|
-| `guide/00_README_pfe_guide.md` | Global rules: language, readability, **corrected scope** (§0.5), references (APA), page budget (§0.6), LaTeX hygiene, writing order, do-not list |
-| `guide/01_state-of-the-art_guide.md` | Part I — Chapter 1 (Data-Driven Decision Making), Chapter 2 (Logistics in the Data Age) |
-| `guide/02_contribution_guide.md` | Part II — Chapters 3–6, General Introduction/Conclusion, appendices |
-| `guide/03_visuals_guide.md` | The three visual modes, the `\visualplaceholder` macro, figure rules |
-| `guide/thesis-technical-recap.md` | Source of truth for the built solution (Part II) |
-| `guide/thesis.md` | Original PFE information form (reference) |
+> **Do not read the `guide/` directory by default.** The writing guides were the planning input for the now-completed draft; reading them is no longer required to make edits and only burns context. Work directly from the existing `.tex` source — it is the source of truth. Consult a specific guide **only** if the user explicitly asks, or if a question of binding scope/style genuinely cannot be resolved from the manuscript itself (the key scope rules are summarised below so you usually won't need to).
 
-**Scope correction (overrides older descriptions):** the two delivered business axes are **On-Demand Dedicated Transport** and **Parcel Delivery** (classic e-commerce express) — *not* "Parcel Cost Control". Each dashboard page has exactly three sub-pages: **Operations / Cost & Profitability / Performance**. There is **no Pricing page**. See `guide/00_README_pfe_guide.md` §0.5.
-
-**Route Analysis** is out of scope for this version and appears only as future work, in neutral terms (data not available within project scope). Never mention GPS, confidentiality, or withheld data. See `guide/00_README_pfe_guide.md` §0.4.
+**Scope reminders (still binding, kept here so you needn't open the guides):** the two delivered business axes are **On-Demand Dedicated Transport** and **Parcel Delivery** (classic e-commerce express) — *not* "Parcel Cost Control". Each dashboard page has exactly three sub-pages: **Operations / Cost & Profitability / Performance** (there is **no Pricing page**). **Route Analysis** is out of scope and appears only as future work, in neutral terms — never mention GPS, confidentiality, or withheld data.
 
 **Page budget:** 110 pages body + 15 pages appendix = 125 max. Prefer visuals, charts, and tables over dense prose.
-
-> **Missing `docs/` design docs.** `guide/00_README_pfe_guide.md` §1, `guide/02_contribution_guide.md`, and `guide/thesis-technical-recap.md` point to detailed design docs in a `docs/` directory (`dw-doc.md`, `etl-dagster-doc.md`, `mock-data-doc.md`, `architecture.md`, `deployment.md`) as the source for **exact** figures (table counts, event totals, etc.). **That directory is not in this repo.** Until it is added, follow the guides' fallback: use qualitative figures and mark every uncertain number with `% TODO(achraf): confirm` — do not invent exact counts.
 
 ## Build Commands
 
@@ -57,9 +46,9 @@ In VS Code (LaTeX Workshop): open `main.tex`, build with `Ctrl+Alt+B` — the ex
 `main.tex` pulls in front matter, then `\part{}` + a per-part dispatcher that `\include`s each chapter:
 
 - `mainmatter/part1/part1.tex` → chapter1, chapter2
-- `mainmatter/part2/part2.tex` → chapter3, chapter4, chapter5 (chapter6 once written)
+- `mainmatter/part2/part2.tex` → chapter3, chapter4, chapter5, chapter6
 
-> The guides scope **six** chapters. Part II is Chapter 3 (Analysis & Methodology), Chapter 4 (Design & Architecture), Chapter 5 (**Implementation & Deployment**), and Chapter 6 (**Testing, Validation & Results**). Chapter 6 may not exist yet — when writing it, create `mainmatter/part2/chapter6/` (with a `figures/` subdir), register it in `part2.tex`, and add its `figures/` path to `\graphicspath` in `config/settings.tex`. Don't assume a file exists — check the dispatcher.
+> Part II is Chapter 3 (Analysis & Methodology), Chapter 4 (Design & Architecture), Chapter 5 (**Implementation & Deployment**), and Chapter 6 (**Testing, Validation & Results**). All six chapters exist and are written; their `figures/` paths are registered in `\graphicspath` in `config/settings.tex`.
 
 Each chapter lives in its own directory with a `figures/` subdirectory. All figure directories are pre-registered in `config/settings.tex` via `\graphicspath`, so `\includegraphics{filename}` works with no path prefix. Shared figures live in `assets/global-figures/`, logos in `assets/logos/`.
 
