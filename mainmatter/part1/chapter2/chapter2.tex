@@ -13,8 +13,8 @@ general to the specific. It opens with \textbf{the logistics landscape} (\S\ref{
 what logistics is, its strategic weight, and the data-age pressures reshaping it --- then examines
 \textbf{how logistics operates} (\S\ref{sec:ch2-operates}) through the two complementary operating
 models by which goods actually move. It turns next to \textbf{the economics of logistics}
-(\S\ref{sec:ch2-economics}) --- cost, profitability, and performance, the three lenses through which any
-logistics activity is read --- and closes with \textbf{Business Intelligence in logistics}
+(\S\ref{sec:ch2-economics}) --- operations, cost \& profitability, and performance, the three lenses
+through which any logistics activity is read --- and closes with \textbf{Business Intelligence in logistics}
 (\S\ref{sec:ch2-bi}), setting out why the domain suits BI and the integration gap this thesis sets out
 to close.
 
@@ -164,23 +164,25 @@ sets out the cost structure, the difficulty of seeing profitability, and the thr
 through which every logistics activity is read.
 
 \paragraph{Cost structure.}
-Logistics cost is distributed across transport, fuel, labour, handling, warehousing, and the last mile,
-with transport and the last mile typically dominating (Figure~\ref{fig:ch2-cost-structure})
+Logistics cost is distributed across a small set of functional components --- transportation,
+inventory carrying, warehousing, and administration --- with transportation, of which the last mile
+is the costliest leg, accounting for more than half of the total (Figure~\ref{fig:ch2-cost-structure})
 \parencite{christopher2016, chopra2019}. The relevant managerial concept is \textbf{cost-to-serve}: the
 true, fully-loaded cost of serving a given shipment, route, or customer --- which often differs
 markedly from the average and is invisible without integrated data.
 
-% [VISUAL-IMPLEMENT] illustrative cost structure (pgfplots; numbers illustrative)
+% [VISUAL-IMPLEMENT] global logistics cost structure, 2018 (pgfplots; figures from Armstrong &
+% Associates, Inc., as reported by transportgeography.org — "Global Logistics Costs by Function, 2018")
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-  ybar, width=0.92\linewidth, height=5.4cm, bar width=15pt,
-  ymin=0, ymax=40, ylabel={Share of logistics cost (\%)},
+  ybar, width=0.92\linewidth, height=5.4cm, bar width=18pt,
+  ymin=0, ymax=65, ylabel={Share of logistics cost (\%)},
   ylabel style={font=\footnotesize},
-  symbolic x coords={Transport, Last mile, Labour, Warehousing, Fuel, Other},
-  xtick={Transport, Last mile, Labour, Warehousing, Fuel, Other},
-  xticklabels={Transport, Last mile, Labour, Warehousing, Fuel, Other},
+  symbolic x coords={Transportation, Inventory, Warehousing, Admin},
+  xtick={Transportation, Inventory, Warehousing, Admin},
+  xticklabels={Transportation, Inventory carrying, Warehousing, Administration \& other},
   x tick label style={font=\footnotesize, align=center, yshift=-1pt},
   nodes near coords, nodes near coords style={font=\scriptsize, text=black!70},
   enlarge x limits=0.12, ymajorgrids, tick style={draw=none},
@@ -188,16 +190,16 @@ markedly from the average and is invisible without integrated data.
   axis line style={draw=figslate},
   clip=false,
 ]
-% dominant components — cost orange
+% dominant component — cost orange
 \addplot[ybar, bar shift=0pt, fill=figorange!85, draw=figorange] coordinates
-  {(Transport,32) (Last mile,24)};
+  {(Transportation,58)};
 % remaining components — steel blue
 \addplot[ybar, bar shift=0pt, fill=figblue!75, draw=figblue] coordinates
-  {(Labour,18) (Warehousing,12) (Fuel,9) (Other,5)};
+  {(Inventory,23) (Warehousing,11) (Admin,8)};
 \end{axis}
 \end{tikzpicture}
-\caption{Illustrative breakdown of logistics cost by component (representative proportions, for
-illustration only). Transport and the last mile typically dominate.}
+\caption{Breakdown of global logistics costs by function in 2018 (figures from Armstrong \&
+Associates, Inc.). Transportation dominates, accounting for more than half of total logistics cost.}
 \label{fig:ch2-cost-structure}
 \end{figure}
 
