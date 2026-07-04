@@ -15,8 +15,8 @@ The account stays at the level of \emph{general technical aspects}: it explains 
 implementation choices and how each part of the design was realised, rather than giving an exhaustive
 walkthrough of the code; short snippets appear only where they clarify a point. The chapter opens with
 the \textbf{technology stack}, which every later section reuses, and then follows the data flow in
-turn --- warehouse and ETL, backend, frontend and dashboard, alerting --- before closing on the
-\textbf{deployment} that packages the whole and serves it in production.
+turn --- warehouse and ETL, backend, frontend and dashboard, alerting, and the AI assistant --- before
+closing on the \textbf{deployment} that packages the whole and serves it in production.
 
 The \emph{validation} of the platform --- the faithful test environment built to exercise it end to end,
 and the results it produced --- is the subject of Chapter~6, and is intentionally kept out of this
@@ -759,6 +759,48 @@ interface in real time.}{ch5-notif}
 \caption{E-mail notifications: a per-run ETL message and an alert e-mail at critical severity.}
 \label{fig:ch5-emails}
 \end{figure}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section{AI Assistant}
+\label{sec:ch5-assistant}
+
+Every view described so far answers a question the manager already knows to ask, by \emph{navigating}
+to the right page and reading the figures. LOGIQ adds a complementary way in: a built-in
+\textbf{conversational assistant} that shifts the interaction from \emph{navigate to find} to
+\emph{ask to receive}. Presented as a chat drawer available on every dashboard page, it lets a manager
+ask a question in plain language --- French or English --- and receive the answer in place, as a short
+sentence with the figures, a chart, or both (Figure~\ref{fig:ch5-assistant}).
+
+% [VISUAL-PLACEHOLDER] (provided) the AI assistant chat drawer answering a question
+\fig[0.8\textwidth]{AI_assistant}{The LOGIQ AI assistant: a chat drawer answering a natural-language
+question in place.}{ch5-assistant}
+
+\paragraph{How it works.}
+The assistant is built on a hosted \textbf{Large Language Model} (LLM), used strictly as a translator
+from a question to a query --- never as the source of the figures
+(Figure~\ref{fig:ch5-assistant-schema}). Each turn runs in four steps:
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Scope} --- the user's role fixes which dashboards, and therefore which curated
+          warehouse views, are in reach; only those are shown to the model.
+    \item \textbf{Plan} --- the model turns the question into a single read-only \texttt{SELECT} over
+          the allowed views, together with a specification of how to present the result.
+    \item \textbf{Guard \& run} --- a deterministic check rejects any query that is not a single
+          read-only \texttt{SELECT}, or that touches a table outside the allowed set, before it runs
+          on the warehouse under a dedicated read-only database role.
+    \item \textbf{Answer} --- the result is rendered as a themed chart, or narrated into a one- to
+          three-sentence reply by a lighter, cheaper model.
+\end{enumerate}
+
+% [VISUAL-PLACEHOLDER] (provided) how the AI assistant answers a question --- scope, plan, guard, run, render
+\fig[\textwidth]{AI_assistant_schema}{How the AI assistant answers a question: scoped by role, planned
+into a read-only query, guarded and run, then rendered or narrated.}{ch5-assistant-schema}
+
+Two properties keep the feature trustworthy. It honours the same \textbf{role-based access control} as
+the rest of the platform, enforced on the server, so a transport-only manager who asks about parcels is
+politely refused rather than shown data outside their remit. And because every figure is read from the
+warehouse rather than produced by the model, the answers stay auditable --- each question, generated
+query, and outcome is logged.
 
 % ═════════════════════════════════════════════════════════════════════════════
 \section{Deployment and Infrastructure}
