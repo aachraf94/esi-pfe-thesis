@@ -133,6 +133,8 @@ per-parcel handling \parencite{chopra2019}. Several on-demand service models coe
 % [VISUAL-IMPLEMENT] transport service models (grid style)
 \begin{table}[H]
 \centering
+\caption{On-demand dedicated transport service models and their principal cost drivers.}
+\label{tab:ch2-transport-services}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
@@ -147,8 +149,6 @@ Courier        & Fast, on-demand carriage of small/urgent consignments & Speed/u
 Handling       & Loading, unloading, and material handling at a site, followed by transport of the goods & Labour, equipment, time on site, transport \\
 \hline
 \end{tabularx}
-\caption{On-demand dedicated transport service models and their principal cost drivers.}
-\label{tab:ch2-transport-services}
 \end{table}
 
 \noindent The two models share staff, sites, and vehicles, yet their cost structures and service
@@ -199,7 +199,7 @@ markedly from the average and is invisible without integrated data.
 \end{axis}
 \end{tikzpicture}
 \caption{Breakdown of global logistics costs by function in 2018 (figures from Armstrong \&
-Associates, Inc.). Transportation dominates, accounting for more than half of total logistics cost.}
+Associates, Inc.).}
 \label{fig:ch2-cost-structure}
 \end{figure}
 
@@ -219,6 +219,8 @@ monitoring objective of this work.
 % [VISUAL-IMPLEMENT] the three analytical lenses (grid style)
 \begin{table}[H]
 \centering
+\caption{The three analytical lenses through which any logistics activity is monitored.}
+\label{tab:ch2-lenses}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
@@ -233,8 +235,6 @@ Cost \& profitability & What does it cost, and is it profitable? & Cost per deli
 Performance           & How well are we serving customers?      & On-time rate, delays, attempts, SLA adherence, returns \\
 \hline
 \end{tabularx}
-\caption{The three analytical lenses through which any logistics activity is monitored.}
-\label{tab:ch2-lenses}
 \end{table}
 
 \noindent A small set of indicators recurs across both operating models and forms the core of the
@@ -243,6 +243,8 @@ monitoring designed in Part~II (Table~\ref{tab:ch2-kpis}).
 % [VISUAL-IMPLEMENT] core logistics KPIs (grid style)
 \begin{table}[H]
 \centering
+\caption{Core logistics KPIs monitored in this work, mapped to their analytical lens.}
+\label{tab:ch2-kpis}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.1cm}|}
@@ -260,8 +262,6 @@ Cost per delivery         & Fully-loaded cost to complete one delivery          
 Cost-to-serve / margin    & Fully-loaded cost, and resulting margin, of serving a shipment, route, or client & Cost \& profitability \\
 \hline
 \end{tabularx}
-\caption{Core logistics KPIs monitored in this work, mapped to their analytical lens.}
-\label{tab:ch2-kpis}
 \end{table}
 
 % ═════════════════════════════════════════════════════════════════════════════
@@ -307,8 +307,8 @@ are left to reconcile fragments manually, slowly, and late.
     {{\bfseries\color{figgreen}Decisions}\\ Operations\\ Cost \& profitability\\ Performance};
   \draw[-{Stealth[length=2.4mm]}, line width=1.1pt, figgreen] (u.east) -- (o.west);
 \end{tikzpicture}
-\caption{The integration gap: operational, financial, and human-resource data scattered across
-disconnected systems, versus the unified analytical view a BI platform provides.}
+\caption{The integration gap: source data scattered across disconnected systems versus the unified
+analytical view a BI platform provides.}
 \label{fig:ch2-integration-gap}
 \end{figure}
 

@@ -44,6 +44,8 @@ views each one consults.
 % [VISUAL-IMPLEMENT] default roles of the system and the views each one consults
 \begin{table}[H]
 \centering
+\caption{The default roles of LOGIQ and the views each one consults.}
+\label{tab:ch4-actors}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.3cm}|>{\raggedright\arraybackslash}X|}
@@ -72,8 +74,6 @@ Role assignment \newline
 Data-pipeline run history \\
 \hline
 \end{tabularx}
-\caption{The default roles of LOGIQ and the views each one consults.}
-\label{tab:ch4-actors}
 \end{table}
 
 The roles in Table~\ref{tab:ch4-actors} are only the \emph{default} roles shipped with the system.
@@ -96,6 +96,9 @@ supported by administration.
 % [VISUAL-IMPLEMENT] functional specifications, numbered and grouped into four families
 \begin{table}[H]
 \centering
+\caption{The functional specifications of LOGIQ (FS01--FS12), grouped into four families that
+together answer the specific objectives of Chapter~3.}
+\label{tab:ch4-capabilities}
 \renewcommand{\arraystretch}{1.35}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\centering\arraybackslash}p{1.0cm}|>{\raggedright\arraybackslash}X|}
 \hline
@@ -124,9 +127,6 @@ Activate HR-imported users. \\
 \rowcolor{tblrowalt} & FS12 & Supervise the data-refresh pipeline and its run history. \\
 \hline
 \end{tabularx}
-\caption{The functional specifications of LOGIQ (FS01--FS12), grouped into four families that
-together answer the specific objectives of Chapter~3.}
-\label{tab:ch4-capabilities}
 \end{table}
 
 % -----------------------------------------------------------------------------
@@ -192,9 +192,7 @@ under different roles may legitimately see different sections.
   \draw[rel] (5.1,-3.0) -- (uc5.east);
   \draw[rel] (5.1,-3.0) -- (uc6.east);
 \end{tikzpicture}
-\caption{Global use-case overview of LOGIQ: the business user consults and monitors; the administrator
-governs users, roles, and the pipeline and can exercise every use case. Every association is mediated
-by the user's role.}
+\caption{Global use-case overview of LOGIQ, with every association mediated by the user's role.}
 \label{fig:ch4-usecase}
 \end{figure}
 
@@ -238,9 +236,7 @@ modules that make it up.
 
 % [VISUAL-FETCH] functional-architecture block diagram (designed externally; tech-agnostic value chain)
 \fig[\textwidth]{functional-architecture}{Functional architecture of LOGIQ: a one-directional value
-chain from the heterogeneous operational data sources, through data processing and reliable
-consolidation, to the two decision-ready outputs --- presentation and alerts --- consumed by the
-decision-maker.}{ch4-funcarch}
+chain from operational sources to the decision-ready outputs.}{ch4-funcarch}
 
 The chain begins outside LOGIQ, in the \textbf{data sources and operational applications} --- the
 several independent systems that run the business day to day and in which its data lies scattered.
@@ -257,11 +253,15 @@ are left out of Figure~\ref{fig:ch4-funcarch} for clarity: \textbf{Access \& Per
 filters every interaction to the user's role and remembers their saved filters and notification
 preferences, and \textbf{Administration}, which governs the users, the roles, and the processing
 pipeline that keeps the base trustworthy. Table~\ref{tab:ch4-funcmodules} ties every module --- those
-in the figure and these two cross-cutting concerns --- back to the specification family it realises.
+in the figure and these two cross-cutting concerns --- back to the specification family it realises;
+Data Processing and Reliable Data Consolidation are foundational, underpinning every capability rather
+than a single family.
 
 % [VISUAL-IMPLEMENT] functional modules mapped to the specification families of S4.1
 \begin{table}[H]
 \centering
+\caption{The functional modules of LOGIQ, each mapped to the specification family it realises.}
+\label{tab:ch4-funcmodules}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|}
@@ -284,11 +284,6 @@ Administration \newline \emph{(cross-cutting)} & Administration & Activate HR-im
 roles, and supervise the processing pipeline and its run history. \\
 \hline
 \end{tabularx}
-\caption{The functional modules of LOGIQ. Data Processing and Reliable Data Consolidation are
-foundational --- they underpin every capability rather than mapping to a single family --- while the
-remaining modules each realise one specification family of \S\ref{sec:ch4-functional}; the last two cut
-across the chain and are not shown in Figure~\ref{fig:ch4-funcarch}.}
-\label{tab:ch4-funcmodules}
 \end{table}
 
 This decomposition is the bridge between the specification and the concrete solution: each module is a
@@ -312,8 +307,8 @@ and, like the rest of this chapter, stated independently of any particular techn
 \begingroup
 \renewcommand{\arraystretch}{1.35}
 \begin{xltabular}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\centering\arraybackslash}p{1.0cm}|>{\raggedright\arraybackslash}X|}
-\caption{The technical specifications of LOGIQ (TS01--TS19), grouped along the product-quality
-characteristics of ISO/IEC~25010 and tracing the quality expectations of \S\ref{subsec:ch4-quality}.}
+\caption{The technical specifications of LOGIQ (TS01--TS19), grouped by ISO/IEC~25010 product-quality
+characteristic.}
 \label{tab:ch4-techspec} \\
 \hline
 \rowcolor{tblheader}
@@ -392,8 +387,7 @@ operational systems into a reliable, navigable reading of logistics operations a
 (Figure~\ref{fig:ch4-logiq-logo}).
 
 % [VISUAL-IMPLEMENT] LOGIQ brand logo, light/primary and dark/reverse variants
-\fig[0.85\textwidth]{logos}{The LOGIQ logo, shown in its primary (light) and reverse (dark) variants ---
-a chart riding a delivery cart, joining \emph{logistics} and analytical \emph{intelligence}.}{ch4-logiq-logo}
+\fig[0.85\textwidth]{logos}{The LOGIQ logo, in its primary (light) and reverse (dark) variants.}{ch4-logiq-logo}
 
 LOGIQ is a single, full-stack platform built from five building blocks, each detailed in its own
 section below:
@@ -435,10 +429,8 @@ layers --- in purely \emph{logical} terms, with the concrete technologies deferr
 \centering
 \noindent\makebox[\linewidth][c]{%
   \includegraphics[width=1.12\linewidth, height=0.9\textheight, keepaspectratio]{global-architecture-logical}}
-\caption{LOGIQ global architecture, logical view --- the one-directional, end-to-end data flow from the
-operational source systems, through the ETL orchestrator and the analytical and operational stores, to
-the dashboard. Each block names the \emph{role} it plays, independent of the technology that realises it;
-the technical counterpart, mapping every block to a concrete technology, is given in
+\caption{LOGIQ global architecture (logical view): the end-to-end data flow from source systems to
+dashboard, each block naming its role. The technology mapping is given in
 Chapter~5 (Figure~\ref{fig:ch5-techarch}).}
 \label{fig:ch4-globalarch}
 \end{figure}
@@ -561,8 +553,7 @@ summarising off the path of a dashboard query.
       node[midway, rotate=90, anchor=south, font=\scriptsize\itshape, text=black!65]
       {raw $\longrightarrow$ decision-ready};
 \end{tikzpicture}
-\caption{The four layers of the LOGIQ warehouse. Each layer refines the one below it, from a raw copy
-of the sources (staging) up to the pre-computed summaries the dashboards consume (aggregates).}
+\caption{The four layers of the LOGIQ warehouse, each refining the one below it.}
 \label{fig:ch4-dw-layers}
 \end{figure}
 
@@ -590,6 +581,8 @@ every table is in Appendix~A.
 % [VISUAL-IMPLEMENT] staging-table inventory by source
 \begin{table}[H]
 \centering
+\caption{The 18 staging tables, one per source endpoint, grouped by source application.}
+\label{tab:ch4-dw-staging}
 \renewcommand{\arraystretch}{1.3}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.3cm}|>{\centering\arraybackslash}p{0.8cm}|>{\raggedright\arraybackslash}X|}
@@ -605,13 +598,14 @@ PC~Paie & 1 & bulletins \\
 Transport & 2 & requests, stops \\
 \hline
 \end{tabularx}
-\caption{The 18 staging tables, one per source endpoint, grouped by source application.}
-\label{tab:ch4-dw-staging}
 \end{table}
 
 % [VISUAL-IMPLEMENT] dimension inventory by domain
 \begin{table}[H]
 \centering
+\caption{The dimension tables grouped by business domain, with the principal members of each. SCD2 =
+historised; junk = combined low-cardinality flags.}
+\label{tab:ch4-dw-dims}
 \renewcommand{\arraystretch}{1.3}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.3cm}|>{\centering\arraybackslash}p{0.8cm}|>{\raggedright\arraybackslash}X|}
@@ -632,9 +626,6 @@ Transport & 20 & transport (central); departure / arrival (role-playing); cargo 
 vehicle; client; stops; status; service type \\
 \hline
 \end{tabularx}
-\caption{The dimension tables grouped by business domain, with the principal members of each. SCD2 =
-historised; junk = combined low-cardinality flags.}
-\label{tab:ch4-dw-dims}
 \end{table}
 
 % -----------------------------------------------------------------------------
@@ -666,7 +657,7 @@ in Appendix~A.
 \rowcolors{4}{white}{tblrowalt}
 \begin{xltabular}{\linewidth}{|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X|}
 \caption{The seven fact tables, grouped by financial perimeter, with their declared grain and principal
-measures. The two perimeters never share a fact table.}
+measures.}
 \label{tab:ch4-dw-facts} \\
 \hline
 \rowcolor{tblheader}
@@ -708,10 +699,8 @@ client rating \\
 \begin{figure}[p]
 \centering
 \input{assets/global-figures/constellation-erd-tikz}
-\caption{The complete LOGIQ data-warehouse constellation ERD: 7 fact tables (crimson) and 55
-dimensions, colour-coded by subject area, organised into the two financial perimeters around the
-conformed dimensions (\texttt{date}, geography, organisation, employee). Boxes carry table names only;
-the field-level dictionaries are in Appendix~A.}
+\caption{The complete LOGIQ data-warehouse constellation ERD: 7 facts and 55 dimensions, colour-coded
+by subject area around the conformed dimensions; the field-level dictionaries are in Appendix~A.}
 \label{fig:ch4-dw-erd}
 \end{figure}
 \end{landscape}
@@ -727,6 +716,9 @@ Table~\ref{tab:ch4-dw-techniques} summarises where and why each is used.
 % [VISUAL-IMPLEMENT] dimensional-modelling techniques mapped to where/why they are used
 \begin{table}[H]
 \centering
+\caption{The dimensional-modelling techniques used in LOGIQ, with where each is applied and the need it
+answers.}
+\label{tab:ch4-dw-techniques}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}X|}
@@ -754,9 +746,6 @@ Two financial perimeters & Express facts \emph{vs} transport facts & The costs a
 axes are never mixed in a single fact (TS10). \\
 \hline
 \end{tabularx}
-\caption{The dimensional-modelling techniques used in LOGIQ, with where each is applied and the need it
-answers.}
-\label{tab:ch4-dw-techniques}
 \end{table}
 
 One technique deserves a closer look. Agencies and employees change over time --- an agency is
@@ -799,10 +788,8 @@ version current at its event date, so history is preserved exactly. All other di
     node[midway, above, font=\scriptsize\bfseries, text=figorange, align=center] {agency}
     node[midway, below, font=\scriptsize\bfseries, text=figorange, align=center] {relocated};
 \end{tikzpicture}
-\caption{Slowly Changing Dimension of Type~2 on \texttt{dim\_agence}: a change does not overwrite the
-row but closes the old version (\texttt{valid\_to} set, \texttt{is\_current = false}) and opens a new
-one with a fresh surrogate key. The business key is unchanged; facts reference whichever version was
-current at their event date.}
+\caption{Slowly Changing Dimension of Type~2 on \texttt{dim\_agence}: a change closes the old version
+and opens a new one with a fresh surrogate key, preserving history.}
 \label{fig:ch4-dw-scd2}
 \end{figure}
 
@@ -868,9 +855,8 @@ This asset-oriented view yields design advantages a plain script could not:
 \end{itemize}
 
 % [VISUAL-FETCH] (provided) asset/lineage dependency graph screenshot of the warehouse pipeline
-\fig[0.85\textwidth]{dagster_lineage}{The warehouse asset-dependency (lineage) graph: every table is an
-asset that declares its upstream dependencies, so the pipeline builds in the correct order and any
-single asset or sub-graph can be re-run safely.}{ch4-etl-lineage}
+\fig[0.85\textwidth]{dagster_lineage}{The warehouse asset-dependency (lineage) graph: every table
+declares its upstream dependencies.}{ch4-etl-lineage}
 
 % -----------------------------------------------------------------------------
 \subsection{The Five Stages}
@@ -908,9 +894,7 @@ integration process and the data model share one structure (Figure~\ref{fig:ch4-
   \node[layer, below=0.4cm of agg] {Aggregate\\layer};
 \end{tikzpicture}%
 }
-\caption{The five stages of the ETL pipeline, each mapped onto a warehouse layer: data is extracted from
-the source systems, landed in staging, conformed into dimensions, resolved into facts, and finally
-summarised into the aggregates that feed the dashboards.}
+\caption{The five stages of the ETL pipeline, each mapped onto a warehouse layer.}
 \label{fig:ch4-etl-flow}
 \end{figure}
 
@@ -939,6 +923,9 @@ engineering properties, each answering a concrete demand of operating at nationa
 % [VISUAL-IMPLEMENT] ETL engineering properties mapped to their rationale
 \begin{table}[H]
 \centering
+\caption{The engineering properties that make the ETL pipeline dependable at national scale, each traced
+to the requirement it answers.}
+\label{tab:ch4-etl-properties}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X|}
@@ -964,9 +951,6 @@ Source decoupling & Because extraction depends only on each source's API contrac
 schema --- the same pipeline connects to the real production systems unchanged (TS17). \\
 \hline
 \end{tabularx}
-\caption{The engineering properties that make the ETL pipeline dependable at national scale, each traced
-to the requirement it answers.}
-\label{tab:ch4-etl-properties}
 \end{table}
 
 Together these properties close the integration loop: the pipeline fills the warehouse reliably and
@@ -1001,6 +985,9 @@ separation is what matters here; its physical realisation as two databases is a 
 % [VISUAL-IMPLEMENT] the two logical data planes of the platform
 \begin{table}[H]
 \centering
+\caption{The two logical data planes: analytics is read-only over the warehouse, while the platform's own
+state lives on a separate operational plane.}
+\label{tab:ch4-app-planes}
 \renewcommand{\arraystretch}{1.3}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.4cm}|}
@@ -1014,9 +1001,6 @@ Operational & The platform's own data --- accounts, roles, alert rules, saved pr
 notifications, pipeline-run history & Read/write \\
 \hline
 \end{tabularx}
-\caption{The two logical data planes: analytics is read-only over the warehouse, while the platform's own
-state lives on a separate operational plane.}
-\label{tab:ch4-app-planes}
 \end{table}
 
 % -----------------------------------------------------------------------------
@@ -1030,6 +1014,9 @@ Navigation is \emph{filtered by role}, so each decision-maker is shown only the 
 % [VISUAL-IMPLEMENT] dashboard navigation map (area -> what it presents)
 \begin{table}[H]
 \centering
+\caption{The dashboard areas of LOGIQ; the analytical pages follow the two axes $\times$ three views of
+Chapter~3, and every area is shown only where the user's role permits.}
+\label{tab:ch4-app-nav}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X|}
@@ -1049,9 +1036,6 @@ Administration & User activation, role assignment, and supervision of the data-r
 (restricted to the administrator). \\
 \hline
 \end{tabularx}
-\caption{The dashboard areas of LOGIQ; the analytical pages follow the two axes $\times$ three views of
-Chapter~3, and every area is shown only where the user's role permits.}
-\label{tab:ch4-app-nav}
 \end{table}
 
 Within each view, the figures are presented \emph{visual-first} (TS12), so that managers who are not
@@ -1078,6 +1062,8 @@ filters (Table~\ref{tab:ch4-dash-filters}).
 % [VISUAL-IMPLEMENT] shared per-axis filter bar
 \begin{table}[H]
 \centering
+\caption{The shared filter bar of each axis; the two type filters are axis-specific.}
+\label{tab:ch4-dash-filters}
 \renewcommand{\arraystretch}{1.3}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}X|}
@@ -1092,23 +1078,20 @@ Type (parcel axis) & Dropdown & All / home delivery / stop-desk (pickup point) \
 Type (transport axis) & Dropdown & All / dedicated trip / courier / handling \\
 \hline
 \end{tabularx}
-\caption{The shared filter bar of each axis; changing any filter re-queries every KPI and chart on the
-active page. The two type filters are axis-specific.}
-\label{tab:ch4-dash-filters}
 \end{table}
 
 Tables~\ref{tab:ch4-dash-kpi-parcel} and~\ref{tab:ch4-dash-kpi-transport} catalogue the five KPIs of
 each of the three views, per axis --- with a pseudo-formula and the decision each supports ---
-while Table~\ref{tab:ch4-dash-charts} lists the supporting charts.
+while Table~\ref{tab:ch4-dash-charts} lists the supporting charts. All monetary values are in DZD, and
+any thresholds shown are configurable user defaults, not fixed limits.
 
 % [VISUAL-IMPLEMENT] KPI catalogue --- Parcel Delivery axis (name, pseudo formula, business value)
 \begingroup
 \small
 \renewcommand{\arraystretch}{1.22}
 \begin{xltabular}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.6cm}|}
-\caption{KPI catalogue of the Parcel Delivery axis --- the five indicators of each view, with their
-pseudo-formula and the decision each one supports. All monetary values in DZD; any alert or target
-thresholds shown are configurable defaults set by the user, not fixed limits.}
+\caption{KPI catalogue of the Parcel Delivery axis --- the five indicators of each view, with a
+pseudo-formula and the decision each one supports.}
 \label{tab:ch4-dash-kpi-parcel} \\
 \hline
 \rowcolor{tblheader}
@@ -1158,9 +1141,8 @@ Claims declared & COUNT(reimbursements) & Packaging / handling quality signal. \
 \small
 \renewcommand{\arraystretch}{1.22}
 \begin{xltabular}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.6cm}|}
-\caption{KPI catalogue of the On-Demand Dedicated Transport axis --- the five indicators of each view, with their
-pseudo-formula and the decision each one supports. All monetary values in DZD; any alert or target
-thresholds shown are configurable defaults set by the user, not fixed limits.}
+\caption{KPI catalogue of the On-Demand Dedicated Transport axis --- the five indicators of each view,
+with a pseudo-formula and the decision each one supports.}
 \label{tab:ch4-dash-kpi-transport} \\
 \hline
 \rowcolor{tblheader}
@@ -1291,9 +1273,8 @@ elapsed, an \textbf{alert} is raised and \emph{fanned out} to the channels the u
   \draw[flow] (chk.south) |- ([yshift=-0.6cm]chk.south -| eval) -- node[lbl, left, pos=0.25]{no} (eval.south);
 \end{tikzpicture}%
 }
-\caption{The alerting flow: a rule is evaluated on a schedule; when its metric crosses the threshold and
-the cooldown has elapsed, an alert is raised and fanned out to the user's enabled channels. Pipeline-run
-notifications reuse the same delivery machinery.}
+\caption{The alerting flow: a rule evaluated on a schedule raises an alert when its threshold is
+crossed, fanned out to the user's enabled channels.}
 \label{fig:ch4-alert-flow}
 \end{figure}
 
@@ -1326,6 +1307,9 @@ Personalisation preferences are held on the operational plane and re-applied acr
 % [VISUAL-IMPLEMENT] per-user personalisation preferences
 \begin{table}[H]
 \centering
+\caption{The per-user personalisation preferences, held on the operational plane and re-applied each
+session.}
+\label{tab:ch4-app-prefs}
 \renewcommand{\arraystretch}{1.3}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.6cm}|}
@@ -1340,9 +1324,6 @@ Saved filters & Named snapshots (bookmarks) & Per analytical page \\
 Alert channels & In-app / email & Per user \\
 \hline
 \end{tabularx}
-\caption{The per-user personalisation preferences, held on the operational plane and re-applied each
-session. Selecting Arabic switches the interface to a right-to-left layout.}
-\label{tab:ch4-app-prefs}
 \end{table}
 
 Finally, \textbf{administration}: the administrator activates users imported from the HR system, assigns
@@ -1394,11 +1375,15 @@ reflected in the platform without a parallel account-management process (TS09). 
 individual --- determines which sections of the platform they may consult. Because permissions are
 attached to roles and defined at view level, the administrator can create new roles or adjust existing
 ones as the organisation evolves, without touching the system (\S\ref{sec:ch4-functional}).
-Table~\ref{tab:ch4-rbac} shows how the default roles map onto the platform's sections.
+Table~\ref{tab:ch4-rbac} shows how the default roles map onto the platform's sections. Here
+``Parcel'' and ``Transport'' each denote that axis's three views; the Alerts and Preferences areas,
+open to every authenticated user, are omitted, and the matrix itself is configurable.
 
 % [VISUAL-IMPLEMENT] RBAC matrix: default role -> accessible sections
 \begin{table}[H]
 \centering
+\caption{Role-based access control: the default roles of LOGIQ and the sections each may consult.}
+\label{tab:ch4-rbac}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}X|>{\centering\arraybackslash}p{1.7cm}|>{\centering\arraybackslash}p{1.6cm}|>{\centering\arraybackslash}p{1.8cm}|>{\centering\arraybackslash}p{1.9cm}|}
@@ -1415,12 +1400,6 @@ Responsable Tournées & \checkmark & --- & --- & --- \\
 Administrator & \checkmark & \checkmark & \checkmark & \checkmark \\
 \hline
 \end{tabularx}
-\caption{Role-based access control: the default roles of LOGIQ and the sections each may consult.
-``Parcel'' and ``Transport'' each denote that axis's three views (Operations, Cost \& Profitability,
-Performance); the future Route Analysis section is out of scope for this version. The Alerts and
-Preferences areas are available to every authenticated user and are omitted from the matrix. The matrix
-is configurable --- new roles can be granted any subset of sections.}
-\label{tab:ch4-rbac}
 \end{table}
 
 Beyond \emph{who} may see a section, two further principles harden access. Sessions are
@@ -1452,6 +1431,9 @@ important are summarised in Table~\ref{tab:ch4-conformity}.
 % [VISUAL-IMPLEMENT] conformity requirements mapped to the design choices that satisfy them
 \begin{table}[H]
 \centering
+\caption{The security and data-protection obligations LOGIQ must meet, and the design choices ---
+already present in the architecture --- that satisfy each.}
+\label{tab:ch4-conformity}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.3cm}|>{\raggedright\arraybackslash}X|}
@@ -1473,9 +1455,6 @@ Traceability \& accountability & User activation, role changes, and every pipeli
 giving an auditable trail of who was granted what and when the data was last refreshed. \\
 \hline
 \end{tabularx}
-\caption{The security and data-protection obligations LOGIQ must meet, and the design choices ---
-already present in the architecture --- that satisfy each.}
-\label{tab:ch4-conformity}
 \end{table}
 
 Taken together, these choices make security and conformity \emph{properties of the architecture} rather

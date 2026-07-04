@@ -35,6 +35,8 @@ is exposed behind a REST API, and the data it serves stands in for the operation
 % [VISUAL-IMPLEMENT] the five simulated source systems and the domain each provides
 \begin{table}[H]
 \centering
+\caption{The five simulated source systems and the business domain each one provides to the warehouse.}
+\label{tab:ch6-sources}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X|}
@@ -51,8 +53,6 @@ PC~Paie & Monthly payslips. \\
 Transport & Dedicated B2B transport requests and their stops. \\
 \hline
 \end{tabularx}
-\caption{The five simulated source systems and the business domain each one provides to the warehouse.}
-\label{tab:ch6-sources}
 \end{table}
 
 What makes the simulation valuable is not the data alone but the \textbf{fidelity of the contract}. Each
@@ -75,9 +75,7 @@ contract the extraction stage is written against.
 \includegraphics[width=\linewidth]{test_api_mock_datasources_request}\\[6pt]
 \includegraphics[width=\linewidth]{test_api_mock_datasources_response}
 \caption{A simulated source system exercised through its interactive API documentation: the
-\texttt{/hrforce/agencies} request (top) and its paginated, authenticated JSON response (bottom). The
-endpoints, response shapes, authentication, and pagination reproduce the real systems' contract, so the
-ETL connects to the simulation exactly as it would to production.}
+\texttt{/hrforce/agencies} request (top) and its JSON response (bottom).}
 \label{fig:ch6-mockapi}
 \end{figure}
 
@@ -130,6 +128,8 @@ actual volumes generated and loaded, read directly from the warehouse after a fu
 % [VISUAL-IMPLEMENT] measured scale of the test dataset (real counts from the loaded warehouse)
 \begin{table}[H]
 \centering
+\caption{The measured scale of the generated test dataset, read from the loaded warehouse.}
+\label{tab:ch6-scale}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.9cm}|>{\raggedright\arraybackslash}X|}
@@ -147,9 +147,6 @@ Dedicated transport & 3{,}822 B2B transport requests, with 13{,}414 stops. \\
 Reference dimensions & 58 wilayas, 1{,}541 communes, 331 agencies, and 252 delivery centres. \\
 \hline
 \end{tabularx}
-\caption{The measured scale of the generated test dataset, read from the loaded warehouse (see the
-row-count audit in Figure~\ref{fig:ch6-rowcounts}).}
-\label{tab:ch6-scale}
 \end{table}
 
 This scale is what makes the validation credible. It is precisely this volume --- tens of millions of
@@ -172,6 +169,9 @@ establishing a clean, trustworthy baseline against which the rest of the platfor
 % [VISUAL-IMPLEMENT] data-quality check categories and what each verifies
 \begin{table}[H]
 \centering
+\caption{The categories of data-quality check run after every generation; the dataset is admitted to the
+ETL only when all of them pass.}
+\label{tab:ch6-quality}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.9cm}|>{\raggedright\arraybackslash}X|}
@@ -190,9 +190,6 @@ Identifier formats & Identifiers follow their expected formats and conventions. 
 Test-entity isolation & Excluded test entities never leak into the generated data. \\
 \hline
 \end{tabularx}
-\caption{The categories of data-quality check run after every generation; the dataset is admitted to the
-ETL only when all of them pass.}
-\label{tab:ch6-quality}
 \end{table}
 
 The suite runs in two tiers (Figure~\ref{fig:ch6-datagen-validation}): \textbf{critical checks} ---
@@ -207,8 +204,7 @@ proportions). Generation is admitted to the ETL only when \emph{every} critical 
 \includegraphics[width=\linewidth]{data_generation_validation_critical_checks}\\[6pt]
 \includegraphics[width=\linewidth]{data_generation_validation_statistical_checks}
 \caption{The data-quality gate run after every generation: the critical checks (top) and the statistical
-checks (bottom). All critical checks pass, so the dataset is admitted to the ETL --- establishing the
-clean baseline the rest of the validation depends on.}
+checks (bottom).}
 \label{fig:ch6-datagen-validation}
 \end{figure}
 
@@ -280,6 +276,9 @@ Table~\ref{tab:ch6-integrity}.
 % [VISUAL-IMPLEMENT] synthesised summary of the post-load warehouse-integrity audit (real results)
 \begin{table}[H]
 \centering
+\caption{The post-load warehouse-integrity audit: five dimensions, all passing. Every check returns
+either full coverage or zero violations.}
+\label{tab:ch6-integrity}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.1cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.0cm}|}
@@ -300,9 +299,6 @@ Business rules & Financial, format, and test-isolation invariants hold after loa
 violations \\
 \hline
 \end{tabularx}
-\caption{The post-load warehouse-integrity audit: five dimensions, all passing. Every check returns
-either full coverage or zero violations.}
-\label{tab:ch6-integrity}
 \end{table}
 
 \textbf{Layer population.} The first check counts the rows held across the four layers
@@ -338,8 +334,7 @@ their performance fact --- nothing is dropped as the data moves through the laye
 \includegraphics[width=\linewidth]{ETL_validation_dim_coverage}\\[6pt]
 \includegraphics[width=\linewidth]{ETL_validation_fact_coverage}
 \caption{Transformation coverage: staging\,$\rightarrow$\,dimension (top) and
-dimension\,$\rightarrow$\,fact (bottom). Every check reports 100\% --- nothing is dropped as the data
-moves through the layers.}
+dimension\,$\rightarrow$\,fact (bottom), both at 100\%.}
 \label{fig:ch6-coverage}
 \end{figure}
 
@@ -356,9 +351,8 @@ check returns zero violations}.
 \centering
 \includegraphics[width=\linewidth]{ETL_validation_scd2_integrity}\\[8pt]
 \includegraphics[width=\linewidth]{ETL_validation_business_rules}
-\caption{Warehouse correctness: SCD Type~2 integrity (top) and business-rule checks (bottom). Every
-check reports zero violations --- the history mechanism and the financial and referential invariants all
-hold after the load.}
+\caption{Warehouse correctness: SCD Type~2 integrity (top) and business-rule checks (bottom), all at
+zero violations.}
 \label{fig:ch6-correctness}
 \end{figure}
 
@@ -429,8 +423,7 @@ operational cost) have fired alongside the pipeline's own run notifications.
 \centering
 \includegraphics[width=\linewidth]{Transport_page_notification}
 \caption{A populated dashboard page rendered from the generated data: the On-Demand Dedicated Transport
-\emph{Operations} view --- KPI cards, monthly-volume and request-status charts, and the cost breakdown ---
-with proactive alerts firing in the notification panel.}
+\emph{Operations} view, with proactive alerts firing in the notification panel.}
 \label{fig:ch6-result-kpi}
 \end{figure}
 
@@ -451,8 +444,7 @@ aggregate.
 \centering
 \includegraphics[width=\linewidth]{Transport_data_table_view}
 \caption{KPI traceability: the data-table view behind the \emph{Total Requests} card lists the individual
-records that make up the figure, so a decision-maker can confirm any headline number against the real
-underlying data.}
+records behind the figure.}
 \label{fig:ch6-result-datatable}
 \end{figure}
 

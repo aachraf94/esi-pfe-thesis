@@ -81,6 +81,9 @@ poles of this spectrum.
 % [VISUAL-IMPLEMENT] booktabs (no vertical rules) + coloured header
 \begin{table}[H]
 \centering
+\caption{Programmed versus non-programmed decisions and their appropriate support
+(after \textcite{simon1960} and \textcite{chalal2024}).}
+\label{tab:ch1-decision-types}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.1cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
@@ -97,9 +100,6 @@ Preferred support & Automation \& information systems   & Analysis/simulation to
 Example           & Inventory reorder, route assignment & Entering a new market, restructuring \\
 \hline
 \end{tabularx}
-\caption{Programmed versus non-programmed decisions and their appropriate support
-(after \textcite{simon1960} and \textcite{chalal2024}).}
-\label{tab:ch1-decision-types}
 \end{table}
 
 \subsection{Levels of Decision-Making}
@@ -132,8 +132,7 @@ levels --- \textbf{operational control}, \textbf{tactical management}, and \text
   \node[right, align=left, font=\scriptsize] at (2.8,1.5)  {periodic summaries,\\ internal + external};
   \node[right, align=left, font=\scriptsize] at (1.5,2.5)  {aggregated, external,\\ forward-looking};
 \end{tikzpicture}
-\caption{The three levels of organisational decision-making, with their time horizons (left) and
-information profiles (right), after \textcite{anthony1965}.}
+\caption{The three levels of organisational decision-making (after \textcite{anthony1965}).}
 \label{fig:ch1-levels-pyramid}
 \end{figure}
 
@@ -146,6 +145,9 @@ Table~\ref{tab:ch1-info-needs}.
 % [VISUAL-IMPLEMENT] information needs by level
 \begin{table}[H]
 \centering
+\caption{Information needs across the three decision-making levels
+(after \textcite{anthony1965} and \textcite{gorry1971}).}
+\label{tab:ch1-info-needs}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
@@ -164,9 +166,6 @@ Structure    & Unstructured & Semi-structured & Structured \\
 Example      & Market expansion & Budget reallocation & Route assignment \\
 \hline
 \end{tabularx}
-\caption{Information needs across the three decision-making levels
-(after \textcite{anthony1965} and \textcite{gorry1971}).}
-\label{tab:ch1-info-needs}
 \end{table}
 
 \subsection{Bounded Rationality and the Need for Decision Support}
@@ -244,6 +243,9 @@ summarised in Table~\ref{tab:ch1-is-types}.
 % [VISUAL-IMPLEMENT] IS types mapped to decision levels
 \begin{table}[H]
 \centering
+\caption{Categories of information system and the decision level each primarily serves
+(after \textcite{laudon2022}).}
+\label{tab:ch1-is-types}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}X|}
@@ -259,9 +261,6 @@ Decision Support System (DSS)       & Tactical / strategic & Interactive analysi
 Executive Information System (EIS)  & Strategic            & High-level, exception-driven dashboards with drill-down \\
 \hline
 \end{tabularx}
-\caption{Categories of information system and the decision level each primarily serves
-(after \textcite{laudon2022}).}
-\label{tab:ch1-is-types}
 \end{table}
 
 \subsection{Decision Support Systems}
@@ -419,8 +418,7 @@ without writing complex queries \parencite{han2011}.
   \node[anchor=south, rotate=90, text=figblue] at (-0.15,\s/2) {\textbf{Service category}};
   \node[anchor=west, text=figblue] at (\s+\d+0.15,\s/2+\d/2) {\textbf{Geography}};
 \end{tikzpicture}
-\caption{An OLAP cube: business measures organised along multiple dimensions, navigable by
-roll-up, drill-down, slice, dice, and pivot (after \textcite{codd1993}).}
+\caption{An OLAP cube: business measures organised along multiple dimensions (after \textcite{codd1993}).}
 \label{fig:ch1-olap-cube}
 \end{figure}
 
@@ -445,6 +443,8 @@ detail in Part~II.
 % [VISUAL-IMPLEMENT] building-blocks summary
 \begin{table}[H]
 \centering
+\caption{The building blocks of a BI system, their role, and their relevance to this thesis.}
+\label{tab:ch1-building-blocks}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.1cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
@@ -461,8 +461,6 @@ Dashboards \& reporting & Communicate insight visually             & The decisio
 KPIs \& alerting       & Proactive threshold monitoring            & Turns the platform from descriptive to proactive \\
 \hline
 \end{tabularx}
-\caption{The building blocks of a BI system, their role, and their relevance to this thesis.}
-\label{tab:ch1-building-blocks}
 \end{table}
 
 % ─────────────────────────────────────────────────────────────────────────────

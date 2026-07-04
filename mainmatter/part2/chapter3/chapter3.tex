@@ -212,6 +212,8 @@ parcel's movement between them is precisely what the Operations view measures.
 % [VISUAL-IMPLEMENT] parcel status set grouped by lifecycle phase
 \begin{table}[H]
 \centering
+\caption{The parcel status set, grouped by lifecycle phase (system labels in French, as recorded).}
+\label{tab:ch3-status}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}p{4.6cm}|>{\raggedright\arraybackslash}X|}
@@ -234,8 +236,6 @@ Return & \emph{Échec livraison}\newline \emph{Retourné au centre}\newline \emp
 retirer}\newline \emph{Retourné au vendeur} & Undeliverable parcel routed back to the merchant. \\
 \hline
 \end{tabularx}
-\caption{The parcel status set, grouped by lifecycle phase (system labels in French, as recorded).}
-\label{tab:ch3-status}
 \end{table}
 
 
@@ -261,6 +261,8 @@ direct signal of cost and profitability.
 % [VISUAL-IMPLEMENT] parcel pricing — billed event
 \begin{table}[H]
 \centering
+\caption{A parcel's price by billed event: which outcome triggers the charge.}
+\label{tab:ch3-pricing-event}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X|}
@@ -272,13 +274,13 @@ Delivered-parcel tariff & Billed on successful delivery, from the zone-based pri
 Return-parcel tariff & Billed when an undeliverable parcel is returned to the merchant. \\
 \hline
 \end{tabularx}
-\caption{A parcel's price by billed event: which outcome triggers the charge.}
-\label{tab:ch3-pricing-event}
 \end{table}
 
 % [VISUAL-IMPLEMENT] parcel pricing — valuation method
 \begin{table}[H]
 \centering
+\caption{A parcel's price by valuation method: how the tariff amount is set.}
+\label{tab:ch3-pricing-valuation}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X|}
@@ -290,8 +292,6 @@ Theoretical tariff & The grid price, read from the published zone-based pricing 
 Real tariff & Recomputed from the parcel's measured weight and volume. \\
 \hline
 \end{tabularx}
-\caption{A parcel's price by valuation method: how the tariff amount is set.}
-\label{tab:ch3-pricing-valuation}
 \end{table}
 
 \paragraph{Reimbursement.}
@@ -550,6 +550,8 @@ the system would actually be adopted.
 % [VISUAL-IMPLEMENT] synthesis of the business needs, grouped by family
 \begin{table}[H]
 \centering
+\caption{Synthesis of the business needs, grouped by family.}
+\label{tab:ch3-needs}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|}
@@ -578,8 +580,6 @@ Quality &
 \end{itemize} \\
 \hline
 \end{tabularx}
-\caption{Synthesis of the business needs, grouped by family.}
-\label{tab:ch3-needs}
 \end{table}
 
 These needs crystallise into a clear set of objectives for the target system: a single general
@@ -631,6 +631,8 @@ each element is to a useful first release (Table~\ref{tab:ch3-moscow}).
 % [VISUAL-IMPLEMENT] MoSCoW prioritisation of the scope
 \begin{table}[H]
 \centering
+\caption{MoSCoW prioritisation of the system's scope.}
+\label{tab:ch3-moscow}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}X|}
@@ -650,8 +652,6 @@ a read-only decision-support layer for the two delivery axes; it does not extend
 (HR, payroll, fleet, \etc) nor duplicate the operational applications that run the business. \\
 \hline
 \end{tabularx}
-\caption{MoSCoW prioritisation of the system's scope.}
-\label{tab:ch3-moscow}
 \end{table}
 
 The ranking may seem to invert the business: parcel express delivery is Yalidine's principal activity

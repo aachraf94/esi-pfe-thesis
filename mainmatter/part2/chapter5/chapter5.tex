@@ -43,9 +43,7 @@ logo.
 \renewcommand{\arraystretch}{1.4}
 \rowcolors{2}{white}{tblrowalt}
 \begin{longtable}{|>{\centering\arraybackslash}m{1.9cm}|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{9.4cm}|}
-\caption{The LOGIQ technology stack, grouped by concern: for each technology, a short description, the
-reason it was chosen, and its logo. The \emph{Test apparatus} group is not part of the delivered
-platform and is detailed in Chapter~6.}\label{tab:ch5-stack}\\
+\caption{The LOGIQ technology stack, grouped by concern.}\label{tab:ch5-stack}\\
 \hline
 \rowcolor{tblheader}
 \textcolor{white}{\textbf{Logo}} & \textcolor{white}{\textbf{Technology}} &
@@ -156,12 +154,8 @@ production component of Table~\ref{tab:ch5-stack} in turn and describe how it wa
 \centering
 \noindent\makebox[\linewidth][c]{%
   \includegraphics[width=1.12\linewidth, height=0.9\textheight, keepaspectratio]{global-architecture}}
-\caption{LOGIQ global architecture, technical view --- the logical architecture of
-Figure~\ref{fig:ch4-globalarch} with every block mapped to the technology that realises it: the source
-systems expose REST APIs; a \textbf{Dagster} pipeline builds the warehouse in four asset layers; two
-\textbf{PostgreSQL} databases (analytical \emph{warehouse-db} and operational \emph{platform-db}) and
-\textbf{Redis} hold the stores; a \textbf{Django + DRF} backend with a \textbf{Celery + Beat} worker
-forms the services; and a \textbf{Next.js} web client renders the dashboard over HTTPS.}
+\caption{LOGIQ global architecture (technical view): the logical architecture of
+Figure~\ref{fig:ch4-globalarch} with every block mapped to the technology that realises it.}
 \label{fig:ch5-techarch}
 \end{figure}
 \vspace*{\fill}
@@ -200,6 +194,8 @@ deterministically from scratch, with no manual step.
 % [VISUAL-IMPLEMENT] warehouse layers as realised in PostgreSQL
 \begin{table}[H]
 \centering
+\caption{The four warehouse layers as realised in PostgreSQL, built in dependency order.}
+\label{tab:ch5-layers}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|>{\centering\arraybackslash}p{1.6cm}|}
@@ -215,9 +211,6 @@ Facts & Fact tables keyed to their dimensions, holding the measures. & 7 \\
 Aggregates & \textbf{Materialised views}, refreshed each run; the sole source for the analytics API. & 5 \\
 \hline
 \end{tabularx}
-\caption{The four warehouse layers as realised in PostgreSQL, built in dependency order; the staging,
-dimension, fact and aggregate counts follow the inventory of \S\ref{sec:ch4-dw}.}
-\label{tab:ch5-layers}
 \end{table}
 
 Figure~\ref{fig:ch5-pgadmin} shows the four layers as they actually exist in the database, browsed in
@@ -278,9 +271,7 @@ entity-relationship diagram in Appendix~A.
 
 % [VISUAL-PLACEHOLDER] (provided) dim_employee SCD2 — ERD screenshot of the employee dimension
 \fig[0.65\textwidth]{dim_employee_scd2}{The employee dimension (\texttt{dim\_employee}), illustrating
-SCD Type~2 history: a surrogate key and a validity window (\texttt{valid\_from} / \texttt{valid\_to}),
-together with an \texttt{is\_current} flag, let a fact reference the version of the row that was valid at
-the time of the event.}{ch5-scd2}
+SCD Type~2 history: a surrogate key, a validity window, and an \texttt{is\_current} flag.}{ch5-scd2}
 
 % -----------------------------------------------------------------------------
 \subsection{The ETL Pipeline in Dagster}
@@ -294,9 +285,8 @@ schema exactly: \textbf{staging $\rightarrow$ dimensions $\rightarrow$ facts $\r
 re-materialised without rerunning the entire pipeline.
 
 % [VISUAL-PLACEHOLDER] (provided) Dagster asset graph of the warehouse, organised by layer
-\fig[\textwidth]{stg_dim_fact_agg}{The warehouse pipeline as a Dagster asset graph, organised by layer:
-the staging assets feed the snowflaked dimensions, which feed the facts, which in turn feed the aggregate
-materialised views the dashboards read.}{ch5-asset-graph}
+\fig[\textwidth]{stg_dim_fact_agg}{The warehouse pipeline as a Dagster asset graph, organised by
+layer.}{ch5-asset-graph}
 
 Mapped onto this graph, the pipeline follows the three classic \textbf{ETL} phases --- extraction,
 transformation, and loading --- each operating between two of the layers.
@@ -314,6 +304,9 @@ endpoints across the five source systems (Table~\ref{tab:ch5-endpoints}), presen
 % [VISUAL-IMPLEMENT] source API endpoints consumed by the extraction stage, grouped by system
 \begin{table}[H]
 \centering
+\caption{The source REST endpoints consumed by the extraction stage, grouped by source system (eighteen
+in total).}
+\label{tab:ch5-endpoints}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X|}
@@ -331,10 +324,6 @@ Cash-box & \texttt{/cashbox/depenses}, \texttt{/natures}, \texttt{/rubriques},
 Dedicated transport & \texttt{/transport/requests}, \texttt{/stops} \\
 \hline
 \end{tabularx}
-\caption{The source REST endpoints consumed by the extraction stage, grouped by source system
-(eighteen in total). Because the pipeline depends only on these published contracts, the Chapter~6
-simulation can stand in for the production systems with no change to the extraction code.}
-\label{tab:ch5-endpoints}
 \end{table}
 
 \textbf{Transformation} turns the raw staging rows into the dimensional model. Records are cleaned and
@@ -354,8 +343,7 @@ staging feed and the dimensions it is built from, as Dagster records its lineage
 
 % [VISUAL-PLACEHOLDER] (provided) input/output lineage of the fact_parcel_revenue asset
 \fig[0.95\textwidth]{fact_parcel_revenue_lineage}{Dagster's input/output lineage for the
-\texttt{fact\_parcel\_revenue} asset: the fact is materialised from its staging feed and the conformed
-dimensions it references, and feeds the aggregate views downstream.}{ch5-lineage}
+\texttt{fact\_parcel\_revenue} asset.}{ch5-lineage}
 
 % -----------------------------------------------------------------------------
 \subsection{Scheduling and Observability}
@@ -398,6 +386,9 @@ distinction the next subsection turns into a concrete mechanism.
 % [VISUAL-IMPLEMENT] backend responsibility areas mapped to database
 \begin{table}[H]
 \centering
+\caption{The six responsibility areas of the backend API and the database each one uses; only the
+analytics services read the analytical database.}
+\label{tab:ch5-backend-resp}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{2.5cm}|}
@@ -421,9 +412,6 @@ User preferences & Saved filter snapshots (bookmarks) and per-user notification-
 Operational \\
 \hline
 \end{tabularx}
-\caption{The six responsibility areas of the backend API and the database each one uses; only the
-analytics services read the analytical database.}
-\label{tab:ch5-backend-resp}
 \end{table}
 
 % -----------------------------------------------------------------------------
@@ -470,8 +458,7 @@ right one: analytics models to the analytical database, and everything else to t
 \end{tikzpicture}%
 }
 \caption{Operational/analytical query routing: a database router sends analytics models to the read-only
-\textbf{analytical database} and every other query to the \textbf{operational database}, enforcing the
-separation at the framework level rather than in each endpoint.}
+\textbf{analytical database} and every other query to the \textbf{operational database}.}
 \label{fig:ch5-routing}
 \end{figure}
 
@@ -571,9 +558,8 @@ Performance).
   \centering\includegraphics[width=\linewidth]{BusinessUser_Parcel_performance}
   \caption{Performance}
 \end{subfigure}
-\caption{The business-user workspace across both axes: the On-Demand Dedicated Transport axis (Operations,
-Cost \& Profitability) and the Parcel Delivery axis (Operations, Performance), each read through its
-views on a separate financial perimeter.}
+\caption{The business-user workspace across both axes, each read through its views on a separate
+financial perimeter.}
 \label{fig:ch5-dash-transport}
 \end{figure}
 
@@ -594,6 +580,9 @@ full range of visualisations (Table~\ref{tab:ch5-viz}).
 % [VISUAL-IMPLEMENT] visualisation types mapped to the libraries that render them
 \begin{table}[H]
 \centering
+\caption{The visualisation toolkit: each type of visualisation and the open-source library that renders
+it in the dashboard.}
+\label{tab:ch5-viz}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}X|}
@@ -611,9 +600,6 @@ chart will not do. \\
 Interactive maps & Leaflet & The geographic distribution of the logistics flows across the wilayas. \\
 \hline
 \end{tabularx}
-\caption{The visualisation toolkit: each type of visualisation and the open-source library that renders
-it in the dashboard.}
-\label{tab:ch5-viz}
 \end{table}
 
 % -----------------------------------------------------------------------------
@@ -767,8 +753,7 @@ interface in real time.}{ch5-notif}
   \centering\includegraphics[width=\linewidth]{email_alert_critic}
   \caption{Alert e-mail (critical)}
 \end{subfigure}
-\caption{E-mail notifications: a per-run ETL message, and an alert e-mail at critical severity. Alert
-e-mails are gathered into a weekly digest sent each Sunday at 07:00.}
+\caption{E-mail notifications: a per-run ETL message and an alert e-mail at critical severity.}
 \label{fig:ch5-emails}
 \end{figure}
 
@@ -821,9 +806,8 @@ with \emph{one command} (Figure~\ref{fig:ch5-deploy}).
   \end{scope}
 \end{tikzpicture}%
 }
-\caption{Deployment topology: all components run as containers on a single VPS. Only the reverse proxy's
-web port is exposed publicly (HTTPS 443); every other container communicates over a private internal
-network. Database and pipeline state live on named volumes (not shown).}
+\caption{Deployment topology: all components run as containers on a single VPS, with only the reverse
+proxy's web port exposed publicly.}
 \label{fig:ch5-deploy}
 \end{figure}
 
@@ -865,6 +849,8 @@ The \textbf{production deployment will be provisioned, and costed, by the compan
 % [VISUAL-IMPLEMENT] public service URLs
 \begin{table}[H]
 \centering
+\caption{The publicly reachable services and their sub-domains.}
+\label{tab:ch5-urls}
 \renewcommand{\arraystretch}{1.35}
 \rowcolors{2}{white}{tblrowalt}
 \begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{5.2cm}|>{\raggedright\arraybackslash}X|}
@@ -878,9 +864,6 @@ ETL orchestrator (Dagster) & \texttt{https://dagster.logiq.space} \\
 Simulated sources (test only) & \texttt{https://mock.logiq.space} \\
 \hline
 \end{tabularx}
-\caption{The publicly reachable services and their sub-domains; every other container stays on the
-private internal network. The simulated-sources host belongs to the Chapter~6 test environment.}
-\label{tab:ch5-urls}
 \end{table}
 
 % [VISUAL-PLACEHOLDER] (provided) Hostinger console — VPS overview and container manager
