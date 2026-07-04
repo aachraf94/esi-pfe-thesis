@@ -39,6 +39,12 @@
 % ── TODO marker (visible in draft, invisible in final) ────────────────────────
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
 
+% ── Appendix page numbering (A-1, A-2, …) ────────────────────────────────────
+% Enables \pagenumbering{apxpage}, which restarts the counter and prints "A-<n>".
+\makeatletter
+\newcommand*{\@apxpage}[1]{A-\number#1}
+\makeatother
+
 % ── Technology logo (graceful) ───────────────────────────────────────────────
 % Usage: \techlogo[height]{filename}  — expects a PNG in assets/logos/tech/.
 % Renders the logo if the file is present, otherwise a subtle text stub so the
