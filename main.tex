@@ -59,9 +59,10 @@
 
 % ── Back matter ──────────────────────────────────────────────────────────────
 \printbibliography[heading=bibintoc, title={Bibliography}]
+\clearpage   % flush the bibliography's last page (still arabic) before restarting
 
 \appendix
-\pagenumbering{apxpage}   % restart page numbering as A-1, A-2, …
+\pagenumbering{apxpage}   % restart page numbering as A-1, A-2, … from the Appendix part page
 % ─── Part III — Appendix ─────────────────────────────────────────────────────
 \part{Appendix}
 \include{backmatter/appendices/appendix_a}
